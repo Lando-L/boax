@@ -1,9 +1,18 @@
+[project]
+name = "bojax"
+requires-python = ">=3.10"
+description = "Bojax is a Bayesian Optimization library for JAX."
+
 [tool.ruff]
-select = [
-    "F",  # Pyflakes
-    "E",  # Pycodestyle
-    "W",  # Pycodestyle
-    "UP", # pyupgrade
-    "I",  # isort
-    "PL", # Pylint
-]
+line-length = 80
+indent-width = 2
+
+[tool.ruff.lint]
+select = ["F401", "I001"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "single"
