@@ -20,15 +20,41 @@ from bojax._src.typing import Array
 
 
 class BijectorForwardFn(Protocol):
+  """Base interface for forward functions."""
+
   def __call__(self, value: Array) -> Array:
-    """Computes y = f(x)"""
+    """
+    Computes the forward function.
+
+    `y = f(x)`
+
+    Args:
+      value: The input to the forward function.
+
+    Returns:
+      Result of the forward function.
+    """
 
 
 class BijectorInverseFn(Protocol):
+  """Base interface for inverse functions."""
+
   def __call__(self, value: Array) -> Array:
-    """Computes x = f^{-1}(y)"""
+    """
+    Computes the inverse function
+
+    `x = f^{-1}(y)`
+
+    Args:
+      value: The input to the inverse function.
+
+    Returns:
+      Result of the inverse function.
+    """
 
 
 class Bijector(NamedTuple):
+  """Base interface for bijectors."""
+
   forward: BijectorForwardFn
   inverse: BijectorInverseFn

@@ -31,6 +31,19 @@ def prior(
   noise: Numeric,
   jitter: Numeric = 1e-3,
 ) -> Process[Tuple[Array, Array]]:
+  """
+  Gaussian prior.
+
+  Args:
+    mean: The process' mean function.
+    kernel: The process' covariance function.
+    noise: The noise in the Normal likelihood distribution of the model.
+    jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
+
+  Returns:
+    The gaussian prior `Proccess`.
+  """
+
   def process(value: Array) -> Tuple[Array, Array]:
     Kxx = kernel(value, value)
     loc = mean(value).flatten()
@@ -49,6 +62,21 @@ def posterior(
   noise: Numeric,
   jitter: Numeric = 1e-3,
 ) -> Process[Tuple[Array, Array]]:
+  """
+  Gaussian posterior.
+
+  Args:
+    x_train: The observed index points.
+    y_train: The observations at the index points.
+    mean: The process' mean function.
+    kernel: The process' covariance function.
+    noise: The noise in the Normal likelihood distribution of the model.
+    jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
+
+  Returns:
+    The gaussian posterior `Proccess`.
+  """
+
   def process(value: Array) -> Tuple[Array, Array]:
     mx = mean(x_train).flatten()
     mz = mean(value).flatten()

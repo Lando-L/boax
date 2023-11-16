@@ -21,7 +21,18 @@ from bojax._src.typing import Array
 
 
 class Maximizer(Protocol):
+  """Base interface for acquisition function maximizers."""
+
   def __call__(
     self, acquisition: Acquisition, bounds: Array
   ) -> Tuple[Array, Array]:
-    """Maximizes an acquisition within the given bounds"""
+    """
+    Maximizes an acquisition within the given bounds.
+
+    Args:
+      acquisition: The acquisition function to be maximized.
+      bounds: Constrainin on the search space.
+
+    Returns:
+      A tuple of candidates and their acquisition values.
+    """

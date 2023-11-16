@@ -23,21 +23,39 @@ from bojax._src.util import identity as identity_fn
 
 
 def identity() -> Bijector:
-  """Creates an identity Bijector."""
+  """
+  Identity bijector.
+
+  Computes `y = f(x) = x`.
+
+  Returns:
+    An identity `Bijector`.
+  """
+
   return Bijector(
     identity_fn,
     identity_fn,
   )
 
 
-def shift(shift: Numeric) -> Bijector:
-  """Creates a shift Bijector."""
+def shift(x: Numeric) -> Bijector:
+  """
+  Shift bijector.
+
+  Computes `y = f(x; shift) = x + shift`.
+
+  Args:
+    x: The shift parameter.
+
+  Returns:
+    A shift `Bijector`.
+  """
 
   def forward(value: Array) -> Array:
-    return value + shift
+    return value + x
 
   def inverse(value: Array) -> Array:
-    return value - shift
+    return value - x
 
   return Bijector(
     forward,
@@ -45,23 +63,73 @@ def shift(shift: Numeric) -> Bijector:
   )
 
 
-def scalar_affine(shift: Numeric, scale: Numeric) -> Bijector:
-  """Creates an affine Bijector."""
+def scale(x: Numeric) -> Bijector:
+  """
+  Scale bijector.
 
-  inv_scale = 1 / scale
+  Computes `y = f(x; scale) = x * scale`.
+
+  Args:
+    x: The scale parameter.
+
+  Returns:
+    A scale `Bijector`.
+  """
+
+  inv_x = 1 / x
   batch_shape = lax.broadcast_shapes(shift.shape, scale.shape)
 
   def forward(value: Array) -> Array:
     out_shape = lax.broadcast_shapes(batch_shape, value.shape)
-    return jnp.broadcast_to(scale, out_shape) * value + jnp.broadcast_to(
-      shift, out_shape
-    )
+    return jnp.broadcast_to(x, out_shape) * value
 
   def inverse(value: Array) -> Array:
     out_shape = lax.broadcast_shapes(batch_shape, value.shape)
-    return jnp.broadcast_to(inv_scale, out_shape) * (
-      value - jnp.broadcast_to(shift, out_shape)
-    )
+    return jnp.broadcast_to(inv_x, out_shape) * value
+
+  return Bijector(
+    forward,
+    inverse,
+  )
+
+
+def log():
+  """
+  Logarithmic bijector.
+
+  Computes `y = f(x) = log(x)`.
+
+  Returns:
+    A logarithmic `Bijector`.
+  """
+
+  def forward(value: Array) -> Array:
+    return jnp.log(value)
+
+  def inverse(value: Array) -> Array:
+    return jnp.exp(value)
+
+  return Bijector(
+    forward,
+    inverse,
+  )
+
+
+def exp():
+  """
+  Exponential bijector.
+
+  Computes `y = f(x) = exp(x)`.
+
+  Returns:
+    An exponential `Bijector`.
+  """
+
+  def forward(value: Array) -> Array:
+    return jnp.exp(value)
+
+  def inverse(value: Array) -> Array:
+    return jnp.log(value)
 
   return Bijector(
     forward,
@@ -70,7 +138,14 @@ def scalar_affine(shift: Numeric, scale: Numeric) -> Bijector:
 
 
 def softplus():
-  """Creates a softplus Bijector."""
+  """
+  Softplus bijector.
+
+  Computes `y = f(x) = Log[1 + exp(x)]`.
+
+  Returns:
+    A softplus `Bijector`.
+  """
 
   def forward(value: Array) -> Array:
     return nn.softplus(value)

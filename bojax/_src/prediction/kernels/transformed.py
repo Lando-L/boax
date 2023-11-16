@@ -23,6 +23,19 @@ from bojax._src.typing import Numeric
 
 
 def scale(amplitude: Numeric, inner: Kernel) -> Kernel:
+  """
+  Scale kernel.
+
+  Computes `k(x, y) = amplitude * inner(x, y)`.
+
+  Args:
+    amplitude: The parameter controlling the maximum of the kernel.
+    inner: The inner kernel.
+
+  Returns:
+    A scaled `Kernel`.
+  """
+
   def kernel(x, y):
     return amplitude * inner(x, y)
 
@@ -30,6 +43,19 @@ def scale(amplitude: Numeric, inner: Kernel) -> Kernel:
 
 
 def combine(operator: Callable, *kernels: Kernel) -> Kernel:
+  """
+  Combine kernel.
+
+  Combines a sequence of kernels using the an `operator`.
+
+  Args:
+    operator: The operator used for the combination.
+    kernels: The sequence of inner kernels.
+
+  Returns:
+    A combined `Kernel`.
+  """
+
   def kernel(x, y):
     return operator(jnp.stack([k(x, y) for k in kernels]))
 

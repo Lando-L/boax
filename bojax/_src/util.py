@@ -21,10 +21,30 @@ T = TypeVar('T')
 
 
 def identity(i: T) -> T:
+  """
+  Identity Function
+
+  Args:
+    i: Input value.
+
+  Returns:
+    The input value.
+  """
+
   return i
 
 
 def const(c: T) -> Callable:
+  """
+  Constant Function
+
+  Args:
+    c: Constant value.
+
+  Returns:
+    A function that returns the given constant.
+  """
+
   def __fn(_) -> T:
     return c
 
@@ -32,6 +52,16 @@ def const(c: T) -> Callable:
 
 
 def compose(*fns: Callable) -> Callable:
+  """
+  Composes a sequence of function
+
+  Args:
+    fns: Functions to compose.
+
+  Returns:
+    A function composed of the sequential applications of the given functions.
+  """
+
   def __reduce_fn(f: Callable, g: Callable) -> Callable:
     def __fn(*args, **kwargs):
       return f(g(*args, **kwargs))

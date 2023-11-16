@@ -20,5 +20,15 @@ from bojax._src.typing import Array
 
 
 class Mean(Protocol):
+  """Base interface for mean functions."""
+
   def __call__(self, value: Array) -> Array:
-    """Returns the mean."""
+    """
+    Returns the mean function.
+
+    Args:
+      value: Input to the mean function.
+
+    Returns:
+      The mean function.
+    """

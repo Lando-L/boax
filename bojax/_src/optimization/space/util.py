@@ -18,7 +18,15 @@ import numpy as np
 
 
 def primes_less_than(n):
-  """Returns sorted array of primes such that `2 <= prime < n`."""
+  """
+  Sorted array of primes such that `2 <= prime < n`.
+
+  Args:
+    n: The upper bound for primes.
+
+  Returns:
+    The sorted array of primes.
+  """
   j = 3
   primes = np.ones((n + 1) // 2, dtype=bool)
 

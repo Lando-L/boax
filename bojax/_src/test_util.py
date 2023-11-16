@@ -22,6 +22,8 @@ SEED = 42
 
 
 class BojaxtestCase(parameterized.TestCase):
+  """TestCase for the bojax library."""
+
   def setUp(self):
     super().setUp()
     self.rng = random.key(SEED)

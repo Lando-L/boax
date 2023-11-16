@@ -21,7 +21,17 @@ from bojax._src.util import compose
 
 
 def chain(*bijectors: Bijector) -> Bijector:
-  """Chains a sequence of Bijectors."""
+  """
+  Chain Bijectors.
+
+  Bijector which applies a composition of bijectors.
+
+  Args:
+    bijectors: A sequence of bijectors.
+
+  Returns:
+    A chain `bijector`.
+  """
 
   return Bijector(
     compose(*map(attrgetter('forward'), bijectors)),

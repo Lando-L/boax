@@ -27,6 +27,18 @@ from bojax._src.util import compose
 
 
 def bfgs(num_initial_samples: int) -> Maximizer:
+  """
+  The BFGS acquisition function maximizer.
+
+  Logarithm of the probability of improvement over the best function value observed so far.
+
+  Args:
+    num_initial_samples: The number of initial samples used by the maximizer.
+
+  Returns:
+    The corresponding `Maximizer`.
+  """
+
   def maximizer(acquisition: Acquisition, bounds: Array) -> Numeric:
     results = minimize(
       fun=compose(

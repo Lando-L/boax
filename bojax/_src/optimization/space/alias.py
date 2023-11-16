@@ -27,7 +27,17 @@ assert len(PRIMES) == MAX_DIMENSION
 
 
 def continuous(bounds: Array) -> SearchSpace:
-  """Samples from a bounded contiuous search space based on halton sequences."""
+  """
+  Continuous search space function.
+
+  Samples candidates from a bounded search space based on halton sequences.
+
+  Args:
+    bounds: The bounds for the search space.
+
+  Returns:
+    The continuous `SearchSpace`.
+  """
 
   ndims = bounds.shape[0]
   lower_bounds = bounds[..., 0]

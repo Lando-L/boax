@@ -23,14 +23,40 @@ from bojax._src.util import const
 
 
 def zero() -> Mean:
+  """
+  Zero mean function.
+
+  Computes `y = f(x) = 0`.
+
+  Returns:
+    A zero mean function.
+  """
   return vmap(const(jnp.zeros(())))
 
 
 def constant(x: Numeric) -> Mean:
+  """
+  Constant mean function.
+
+  Computes `y = f(x) = c`.
+
+  Returns:
+    A constant mean function.
+  """
+
   return vmap(const(x))
 
 
 def linear(scale: Array, bias: Numeric) -> Mean:
+  """
+  Linear mean function.
+
+  Computes `y = f(x) = scale * x + bias`.
+
+  Returns:
+    A linear mean function.
+  """
+
   def mean(value: Array) -> Array:
     return jnp.dot(scale, value) + bias
 

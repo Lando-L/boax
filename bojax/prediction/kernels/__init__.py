@@ -15,11 +15,13 @@
 """The kernels sub-package."""
 
 from bojax._src.prediction.kernels.alias import (
-    matern_five_halves as matern_five_halves,
+  matern_five_halves as matern_five_halves,
 )
-from bojax._src.prediction.kernels.alias import matern_half as matern_half
 from bojax._src.prediction.kernels.alias import (
-    matern_three_halves as matern_three_halves,
+  matern_one_half as matern_one_half,
+)
+from bojax._src.prediction.kernels.alias import (
+  matern_three_halves as matern_three_halves,
 )
 from bojax._src.prediction.kernels.alias import periodic as periodic
 from bojax._src.prediction.kernels.alias import rbf as rbf

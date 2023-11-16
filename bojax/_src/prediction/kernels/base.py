@@ -22,9 +22,30 @@ from bojax._src.typing import Array
 
 
 class Kernel(Protocol):
+  """Base interfaces for kernels."""
+
   def __call__(self, x: Array, y: Array) -> Array:
-    """Calculates kernel function to pairs of inputs."""
+    """
+    Calculates kernel function to pairs of inputs.
+
+    Args:
+      x: A vector.
+      y: A vector.
+
+    Returns:
+      The value of the kernel function.
+    """
 
 
 def kernel(kernel_fn: Kernel) -> Kernel:
+  """
+  Transforms a single value kernel function into a batched kernel function.
+
+  Args:
+    kernel_fn: The single value kernel function.
+
+  Returns:
+    The batched kernel function.
+  """
+
   return vmap(vmap(kernel_fn, in_axes=(None, 0)), in_axes=(0, None))

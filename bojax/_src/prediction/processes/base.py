@@ -22,5 +22,15 @@ T = TypeVar('T')
 
 
 class Process(Protocol, Generic[T]):
+  """Base interface for stochastic processes."""
+
   def __call__(self, value: Array) -> T:
-    """Stochastic Process."""
+    """
+    Stochastic Process.
+
+    Args:
+      value: The input of the stochastic process.
+
+    Returns:
+      The stochastic process evaluated at the given inputs.
+    """

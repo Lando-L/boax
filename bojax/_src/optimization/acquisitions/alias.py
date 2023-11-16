@@ -29,30 +29,26 @@ def scale_improvement(loc: Array, scale: Array, best: Numeric) -> Array:
   return (loc - best) / scale
 
 
-def upper_confidence_bound(beta: Numeric, process: Process) -> Acquisition:
-  def acquisition(value: Array, **kwargs) -> Array:
-    loc, cov = process(value)
-    scale = jnp.vectorize(compose(jnp.sqrt, jnp.diag), signature='(k,k)->(k)')(
-      cov
-    )
-    return loc + jnp.sqrt(beta) * scale
-
-  return acquisition
-
-
-def scaled_posterior_mean(weights: Array, process: Process) -> Acquisition:
-  def acquisition(value: Array, **kwargs) -> Array:
-    loc, _ = process(value)
-    return loc @ weights
-
-  return acquisition
-
-
 def log_probability_of_improvement(
   best: Numeric, process: Process
 ) -> Acquisition:
-  def acquisition(value: Array, **kwargs) -> Array:
-    loc, cov = process(value)
+  """
+  The Log Probability of Improvement acquisition function.
+
+  Logarithm of the probability of improvement over the best function value observed so far.
+
+  `logPI(x) = log(P(y >= best_f)), y ~ f(x)`
+
+  Args:
+    best: The best function value observed so far.
+    process: A gaussian posterior.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  def acquisition(candidates: Array, **kwargs) -> Array:
+    loc, cov = process(candidates)
     scale = jnp.vectorize(compose(jnp.sqrt, jnp.diag), signature='(k,k)->(k)')(
       cov
     )
@@ -63,6 +59,27 @@ def log_probability_of_improvement(
 
 
 def log_expected_improvement(best: Numeric, process: Process) -> Acquisition:
+  """
+  The Log Expected Improvement acquisition function.
+
+  Logarithm of the expected improvement over the best function value observed so far.
+
+  `LogEI(x) = log(E(max(f(x) - best_f, 0))),`
+
+  where the expectation is taken over the value of stochastic function `f` at `x`.
+
+  References:
+    Ament, Sebastian, et al. "Unexpected improvements to expected improvement for bayesian optimization."
+    arXiv preprint arXiv:2310.20708 (2023).
+
+  Args:
+    best: The best function value observed so far.
+    process: A gaussian posterior.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
   _log2 = math.log(2)
   _neg_inv_sqrt_eps = -1e6
   _neg_inv_sqrt2 = -(2**-0.5)
@@ -100,12 +117,39 @@ def log_expected_improvement(best: Numeric, process: Process) -> Acquisition:
       ),
     )
 
-  def acquisition(value: Array, **kwargs) -> Array:
-    loc, cov = process(value)
+  def acquisition(candidates: Array, **kwargs) -> Array:
+    loc, cov = process(candidates)
     scale = jnp.vectorize(compose(jnp.sqrt, jnp.diag), signature='(k,k)->(k)')(
       cov
     )
     x = scale_improvement(loc, scale, best)
     return log_ei(x)
+
+  return acquisition
+
+
+def upper_confidence_bound(beta: Numeric, process: Process) -> Acquisition:
+  """
+  The Upper Confidence Bound (UBC) acquisition function.
+
+  Upper confidence bound comprises of the posterior mean plus an additional term:
+  the posterior standard deviation weighted by a trade-off parameter, `beta`.
+
+  `UCB(x) = loc(x) + sqrt(beta) * scale(x)`
+
+  Args:
+    beta: The mean and covariance trade-off parameter.
+    process: A gaussian posterior.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  def acquisition(candidates: Array, **kwargs) -> Array:
+    loc, cov = process(candidates)
+    scale = jnp.vectorize(compose(jnp.sqrt, jnp.diag), signature='(k,k)->(k)')(
+      cov
+    )
+    return loc + jnp.sqrt(beta) * scale
 
   return acquisition

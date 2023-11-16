@@ -15,15 +15,12 @@
 """The acquisition sub-package."""
 
 from bojax._src.optimization.acquisitions.alias import (
-    log_expected_improvement as log_expected_improvement,
+  log_expected_improvement as log_expected_improvement,
 )
 from bojax._src.optimization.acquisitions.alias import (
-    log_probability_of_improvement as log_probability_of_improvement,
+  log_probability_of_improvement as log_probability_of_improvement,
 )
 from bojax._src.optimization.acquisitions.alias import (
-    scaled_posterior_mean as scaled_posterior_mean,
-)
-from bojax._src.optimization.acquisitions.alias import (
-    upper_confidence_bound as upper_confidence_bound,
+  upper_confidence_bound as upper_confidence_bound,
 )
 from bojax._src.optimization.acquisitions.base import Acquisition as Acquisition

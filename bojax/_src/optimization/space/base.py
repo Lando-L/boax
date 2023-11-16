@@ -20,5 +20,16 @@ from bojax._src.typing import Array
 
 
 class SearchSpace(Protocol):
+  """Base interface for search space sampling functions."""
+
   def __call__(self, num_samples: int, **kwargs) -> Array:
-    """Samples `num_samples` points from the search space."""
+    """
+    Samples `num_samples` points from the search space.
+
+    Args:
+      num_samples: The number of samples.
+      kwargs: Additional keyword arguments.
+
+    Returns:
+      Samples from the search space.
+    """
