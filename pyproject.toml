@@ -2,6 +2,39 @@
 name = "bojax"
 requires-python = ">=3.10"
 description = "Bojax is a Bayesian Optimization library for JAX."
+keywords = []
+authors = []
+dependencies = [
+    "numpy>=1.26.2",
+    "jax>=0.4.20",
+    "jaxlib>=0.4.20",
+    "chex>=0.1.84",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+testing = [
+    "tensorflow_probability>=0.22.1",
+]
+
+[project.urls]
+homepage = "https://github.com/Lando-L/bojax"
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+version = {attr = "bojax.version.__version__"
+
+[tool.setuptools.packages.find]
+include = ["bojax*"]
 
 [tool.ruff]
 line-length = 80
