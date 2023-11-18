@@ -77,14 +77,13 @@ def scale(x: Numeric) -> Bijector:
   """
 
   inv_x = 1 / x
-  batch_shape = lax.broadcast_shapes(shift.shape, scale.shape)
 
   def forward(value: Array) -> Array:
-    out_shape = lax.broadcast_shapes(batch_shape, value.shape)
+    out_shape = lax.broadcast_shapes(x.shape, value.shape)
     return jnp.broadcast_to(x, out_shape) * value
 
   def inverse(value: Array) -> Array:
-    out_shape = lax.broadcast_shapes(batch_shape, value.shape)
+    out_shape = lax.broadcast_shapes(x.shape, value.shape)
     return jnp.broadcast_to(inv_x, out_shape) * value
 
   return Bijector(

@@ -12,24 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for search space sampling functions."""
 
-from typing import Protocol
+"""Current bojax version at head on GitHub"""
 
-from bojax._src.typing import Array
-
-
-class SearchSpace(Protocol):
-  """Base interface for search space sampling functions."""
-
-  def __call__(self, num_samples: int, **kwargs) -> Array:
-    """
-    Samples `num_samples` points from the search space.
-
-    Args:
-      num_samples: The number of samples.
-      kwargs: Additional keyword arguments.
-
-    Returns:
-      Samples from the search space.
-    """
+__version__ = '0.0.1'

@@ -21,8 +21,8 @@ from jax.scipy.optimize import minimize
 
 from bojax._src.optimization.acquisitions.base import Acquisition
 from bojax._src.optimization.maximizers.base import Maximizer
-from bojax._src.optimization.space.alias import continuous
-from bojax._src.typing import Array, Numeric
+from bojax._src.optimization.spaces.base import SearchSpace
+from bojax._src.typing import Numeric
 from bojax._src.util import compose
 
 
@@ -39,18 +39,14 @@ def bfgs(num_initial_samples: int) -> Maximizer:
     The corresponding `Maximizer`.
   """
 
-  def maximizer(acquisition: Acquisition, bounds: Array) -> Numeric:
+  def maximizer(acquisition: Acquisition, space: SearchSpace) -> Numeric:
     results = minimize(
-      fun=compose(
-        jnp.negative, jnp.sum, acquisition, itemgetter((..., jnp.newaxis))
-      ),
-      x0=continuous(bounds)(num_initial_samples)[..., 0],
+      fun=compose(jnp.negative, jnp.sum, acquisition, itemgetter((..., jnp.newaxis))),
+      x0=space.sample(num_initial_samples)[..., 0],
       method='bfgs',
     )
 
-    candidates = jnp.clip(
-      results.x[..., jnp.newaxis], a_min=bounds[..., 0], a_max=bounds[..., 1]
-    )
+    candidates = jnp.clip(results.x[..., jnp.newaxis], a_min=space.bounds[..., 0], a_max=space.bounds[..., 1])
 
     return candidates, acquisition(candidates)
 

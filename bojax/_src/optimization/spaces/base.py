@@ -12,26 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for acquisition function maximizers."""
+"""Base interface for search spaces."""
 
-from typing import Protocol, Tuple
+from typing import NamedTuple, Protocol
 
-from bojax._src.optimization.acquisitions.base import Acquisition
-from bojax._src.optimization.spaces.base import SearchSpace
 from bojax._src.typing import Array
 
 
-class Maximizer(Protocol):
-  """Base interface for acquisition function maximizers."""
+class SearchSpaceSampleFn(Protocol):
+  """Base interface for search space sampling functions."""
 
-  def __call__(self, acquisition: Acquisition, space: SearchSpace) -> Tuple[Array, Array]:
+  def __call__(self, num_samples: int, **kwargs) -> Array:
     """
-    Maximizes an acquisition within the given bounds.
+    Samples `num_samples` points from the search space.
 
     Args:
-      acquisition: The acquisition function to be maximized.
-      space: The search space to be maximimzed over.
+      num_samples: The number of samples.
+      kwargs: Additional keyword arguments.
 
     Returns:
-      A tuple of candidates and their acquisition values.
+      Samples from the search space.
     """
+
+
+class SearchSpace(NamedTuple):
+  """Base interface for search spaces."""
+
+  ndims: Array
+  bounds: Array
+  sample: SearchSpaceSampleFn

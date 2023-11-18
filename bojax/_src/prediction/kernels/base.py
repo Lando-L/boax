@@ -16,8 +16,6 @@
 
 from typing import Protocol
 
-from jax import vmap
-
 from bojax._src.typing import Array
 
 
@@ -35,17 +33,3 @@ class Kernel(Protocol):
     Returns:
       The value of the kernel function.
     """
-
-
-def kernel(kernel_fn: Kernel) -> Kernel:
-  """
-  Transforms a single value kernel function into a batched kernel function.
-
-  Args:
-    kernel_fn: The single value kernel function.
-
-  Returns:
-    The batched kernel function.
-  """
-
-  return vmap(vmap(kernel_fn, in_axes=(None, 0)), in_axes=(0, None))

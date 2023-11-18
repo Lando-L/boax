@@ -24,11 +24,11 @@ class Mean(Protocol):
 
   def __call__(self, value: Array) -> Array:
     """
-    Returns the mean function.
+    Returns the mean.
 
     Args:
       value: Input to the mean function.
 
     Returns:
-      The mean function.
+      The mean.
     """

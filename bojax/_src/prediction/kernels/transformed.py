@@ -17,6 +17,7 @@
 from typing import Callable
 
 from jax import numpy as jnp
+from jax import vmap
 
 from bojax._src.prediction.kernels.base import Kernel
 from bojax._src.typing import Numeric

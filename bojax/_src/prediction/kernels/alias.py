@@ -16,7 +16,7 @@
 
 from jax import numpy as jnp
 
-from bojax._src.prediction.kernels.base import Kernel, kernel
+from bojax._src.prediction.kernels.base import Kernel
 from bojax._src.typing import Array, Numeric
 
 
@@ -48,10 +48,10 @@ def rbf(length_scale: Numeric) -> Kernel:
     A RBF `Kernel`.
   """
 
-  def kernel_fn(x, y):
+  def kernel(x, y):
     return jnp.exp(-0.5 * squared_distance(x / length_scale, y / length_scale))
 
-  return kernel(kernel_fn)
+  return kernel
 
 
 def matern_one_half(length_scale: Numeric) -> Kernel:
@@ -67,12 +67,12 @@ def matern_one_half(length_scale: Numeric) -> Kernel:
     A matern one half `Kernel`.
   """
 
-  def kernel_fn(x, y):
+  def kernel(x, y):
     return jnp.exp(
       -jnp.linalg.norm(jnp.subtract(x / length_scale, y / length_scale))
     )
 
-  return kernel(kernel_fn)
+  return kernel
 
 
 def matern_three_halves(length_scale: Numeric) -> Kernel:
@@ -90,14 +90,14 @@ def matern_three_halves(length_scale: Numeric) -> Kernel:
     A matern three halves `Kernel`.
   """
 
-  def kernel_fn(x, y):
+  def kernel(x, y):
     K = jnp.linalg.norm(
       jnp.subtract(x / length_scale, y / length_scale)
     ) * jnp.sqrt(3)
     K = (1.0 + K) * jnp.exp(-K)
     return K
 
-  return kernel(kernel_fn)
+  return kernel
 
 
 def matern_five_halves(length_scale: Numeric) -> Kernel:
@@ -115,14 +115,14 @@ def matern_five_halves(length_scale: Numeric) -> Kernel:
     A matern five halves `Kernel`.
   """
 
-  def kernel_fn(x, y):
+  def kernel(x, y):
     K = jnp.linalg.norm(
       jnp.subtract(x / length_scale, y / length_scale)
     ) * jnp.sqrt(5)
     K = (1.0 + K + K**2 / 3.0) * jnp.exp(-K)
     return K
 
-  return kernel(kernel_fn)
+  return kernel
 
 
 def periodic(
@@ -140,9 +140,9 @@ def periodic(
     A periodic `Kernel`.
   """
 
-  def kernel_fn(x, y):
+  def kernel(x, y):
     sine_squared = (jnp.sin(jnp.pi * (x - y) / period) / length_scale) ** 2
     K = variance * jnp.exp(-0.5 * jnp.sum(sine_squared, axis=0))
     return K
 
-  return kernel(kernel_fn)
+  return kernel

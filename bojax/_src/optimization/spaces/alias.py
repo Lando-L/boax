@@ -16,8 +16,8 @@
 
 from jax import numpy as jnp
 
-from bojax._src.optimization.space import util as space_util
-from bojax._src.optimization.space.base import SearchSpace
+from bojax._src.optimization.spaces import util as space_util
+from bojax._src.optimization.spaces.base import SearchSpace
 from bojax._src.typing import Array
 
 # The maximum dimension we support. This is limited by the number of primes in the PRIMES array.
@@ -71,4 +71,8 @@ def continuous(bounds: Array) -> SearchSpace:
       num_samples
     )
 
-  return sample
+  return SearchSpace(
+    ndims,
+    bounds,
+    sample
+  )

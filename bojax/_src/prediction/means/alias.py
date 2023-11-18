@@ -15,7 +15,6 @@
 """Alias for mean functions."""
 
 from jax import numpy as jnp
-from jax import vmap
 
 from bojax._src.prediction.means.base import Mean
 from bojax._src.typing import Array, Numeric
@@ -31,7 +30,7 @@ def zero() -> Mean:
   Returns:
     A zero mean function.
   """
-  return vmap(const(jnp.zeros(())))
+  return const(jnp.zeros(()))
 
 
 def constant(x: Numeric) -> Mean:
@@ -44,7 +43,7 @@ def constant(x: Numeric) -> Mean:
     A constant mean function.
   """
 
-  return vmap(const(x))
+  return const(x)
 
 
 def linear(scale: Array, bias: Numeric) -> Mean:
@@ -60,4 +59,4 @@ def linear(scale: Array, bias: Numeric) -> Mean:
   def mean(value: Array) -> Array:
     return jnp.dot(scale, value) + bias
 
-  return vmap(mean)
+  return mean
