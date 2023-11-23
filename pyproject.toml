@@ -23,7 +23,8 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 testing = [
-    "tensorflow_probability>=0.22.1",
+    "absl-py>=2.0.0",
+    "pytest>=7.4.3",
 ]
 
 [project.urls]
@@ -31,7 +32,7 @@ homepage = "https://github.com/Lando-L/bojax"
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
-version = {attr = "bojax.version.__version__"
+version = {attr = "bojax.version.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["bojax*"]
