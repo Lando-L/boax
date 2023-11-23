@@ -69,7 +69,7 @@ def matern_one_half(length_scale: Numeric) -> Kernel:
 
   def kernel(x, y):
     return jnp.exp(
-      -jnp.linalg.norm(jnp.subtract(x / length_scale, y / length_scale))
+      -jnp.sqrt(squared_distance(x / length_scale, y / length_scale))
     )
 
   return kernel
@@ -91,9 +91,9 @@ def matern_three_halves(length_scale: Numeric) -> Kernel:
   """
 
   def kernel(x, y):
-    K = jnp.linalg.norm(
-      jnp.subtract(x / length_scale, y / length_scale)
-    ) * jnp.sqrt(3)
+    K = jnp.sqrt(3) * jnp.sqrt(
+      squared_distance(x / length_scale, y / length_scale)
+    )
     K = (1.0 + K) * jnp.exp(-K)
     return K
 
@@ -104,7 +104,7 @@ def matern_five_halves(length_scale: Numeric) -> Kernel:
   """
   Matern kernel with parameter 5/2.
 
-  Computes `k(x, y) = (1 + z + (z ** 2) / 3) * exp(-z)`,
+  Computes `k(x, y) = (1 + z + z**2 / 3) * exp(-z)`,
 
   with `z = sqrt(5) * ||x - y|| / length_scale`.
 
@@ -116,9 +116,9 @@ def matern_five_halves(length_scale: Numeric) -> Kernel:
   """
 
   def kernel(x, y):
-    K = jnp.linalg.norm(
-      jnp.subtract(x / length_scale, y / length_scale)
-    ) * jnp.sqrt(5)
+    K = jnp.sqrt(5) * jnp.sqrt(
+      squared_distance(x / length_scale, y / length_scale)
+    )
     K = (1.0 + K + K**2 / 3.0) * jnp.exp(-K)
     return K
 

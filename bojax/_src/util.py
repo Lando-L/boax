@@ -45,7 +45,7 @@ def const(c: T) -> Callable:
     A function that returns the given constant.
   """
 
-  def __fn(_) -> T:
+  def __fn(*args, **kwargs) -> T:
     return c
 
   return __fn

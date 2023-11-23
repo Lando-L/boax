@@ -29,7 +29,7 @@ def prior(
   mean: Mean,
   kernel: Kernel,
   noise: Numeric,
-  jitter: Numeric = 1e-3,
+  jitter: Numeric = 1e-6,
 ) -> Process[Tuple[Array, Array]]:
   """
   Gaussian prior.
@@ -46,7 +46,7 @@ def prior(
 
   def process(value: Array) -> Tuple[Array, Array]:
     Kxx = kernel(value, value)
-    loc = mean(value).flatten()
+    loc = mean(value)
     cov = Kxx + (noise + jitter) * jnp.identity(Kxx.shape[-1])
 
     return loc, cov
@@ -60,7 +60,7 @@ def posterior(
   mean: Mean,
   kernel: Kernel,
   noise: Numeric,
-  jitter: Numeric = 1e-3,
+  jitter: Numeric = 1e-6,
 ) -> Process[Tuple[Array, Array]]:
   """
   Gaussian posterior.
@@ -78,8 +78,8 @@ def posterior(
   """
 
   def process(value: Array) -> Tuple[Array, Array]:
-    mx = mean(x_train).flatten()
-    mz = mean(value).flatten()
+    mx = mean(x_train)
+    mz = mean(value)
 
     Kxx = kernel(x_train, x_train)
     Kxz = kernel(x_train, value)

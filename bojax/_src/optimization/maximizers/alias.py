@@ -41,12 +41,18 @@ def bfgs(num_initial_samples: int) -> Maximizer:
 
   def maximizer(acquisition: Acquisition, space: SearchSpace) -> Numeric:
     results = minimize(
-      fun=compose(jnp.negative, jnp.sum, acquisition, itemgetter((..., jnp.newaxis))),
+      fun=compose(
+        jnp.negative, jnp.sum, acquisition, itemgetter((..., jnp.newaxis))
+      ),
       x0=space.sample(num_initial_samples)[..., 0],
       method='bfgs',
     )
 
-    candidates = jnp.clip(results.x[..., jnp.newaxis], a_min=space.bounds[..., 0], a_max=space.bounds[..., 1])
+    candidates = jnp.clip(
+      results.x[..., jnp.newaxis],
+      a_min=space.bounds[..., 0],
+      a_max=space.bounds[..., 1],
+    )
 
     return candidates, acquisition(candidates)
 

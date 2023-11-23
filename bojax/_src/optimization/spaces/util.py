@@ -27,7 +27,7 @@ def primes_less_than(n):
   Returns:
     The sorted array of primes.
   """
-  
+
   j = 3
   primes = np.ones((n + 1) // 2, dtype=bool)
 

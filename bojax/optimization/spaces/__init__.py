@@ -16,4 +16,3 @@
 
 from bojax._src.optimization.spaces.alias import continuous as continuous
 from bojax._src.optimization.spaces.base import SearchSpace as SearchSpace
-from bojax._src.optimization.spaces.base import SearchSpaceSampleFn as SearchSpace

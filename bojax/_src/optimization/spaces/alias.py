@@ -71,8 +71,4 @@ def continuous(bounds: Array) -> SearchSpace:
       num_samples
     )
 
-  return SearchSpace(
-    ndims,
-    bounds,
-    sample
-  )
+  return SearchSpace(ndims, bounds, sample)
