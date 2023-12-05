@@ -77,23 +77,24 @@ def posterior(
     The gaussian posterior `Proccess`.
   """
 
+  mx = mean(x_train)
+
+  Kxx = kernel(x_train, x_train) + (noise + jitter) * jnp.identity(x_train.shape[0])
+  chol = scipy.linalg.cholesky(Kxx, lower=True)
+  kinvy = scipy.linalg.solve_triangular(
+    chol.T, scipy.linalg.solve_triangular(chol, y_train - mx, lower=True)
+  )
+
   def process(value: Array) -> Tuple[Array, Array]:
-    mx = mean(x_train)
     mz = mean(value)
 
-    Kxx = kernel(x_train, x_train)
     Kxz = kernel(x_train, value)
     Kzz = kernel(value, value)
 
-    K = Kxx + (noise + jitter) * jnp.identity(Kxx.shape[-1])
-    chol = scipy.linalg.cholesky(K, lower=True)
-    kinvy = scipy.linalg.solve_triangular(
-      chol.T, scipy.linalg.solve_triangular(chol, y_train - mx, lower=True)
-    )
     v = scipy.linalg.solve_triangular(chol, Kxz, lower=True)
 
     loc = mz + jnp.dot(Kxz.T, kinvy)
-    cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(Kzz.shape[-1])
+    cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(value.shape[0])
 
     return loc, cov
 

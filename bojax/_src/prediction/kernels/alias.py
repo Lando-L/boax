@@ -14,6 +14,8 @@
 
 """Alias for kernels."""
 
+import math
+
 from jax import numpy as jnp
 
 from bojax._src.prediction.kernels.base import Kernel
@@ -32,7 +34,27 @@ def squared_distance(x: Array, y: Array) -> Array:
     Squared distance.
   """
 
-  return jnp.sum(x**2) + jnp.sum(y**2) - 2 * jnp.inner(x, y)
+  return jnp.sum((x - y)**2)
+
+
+def euclidean_distance(x: Array, y: Array) -> Array:
+  """
+  Computes the euclidean distance between vectors `x` and `y`.
+
+  Args:
+    x: A vector.
+    y: A vector.
+
+  Returns:
+    Euclidean distance.
+  """
+
+  pdist = x - y
+  is_zero = jnp.allclose(pdist, 0.)
+  masked_pdist = jnp.where(is_zero, jnp.ones_like(pdist), pdist)
+  euclidean = jnp.linalg.norm(masked_pdist, ord=2)
+
+  return jnp.where(is_zero, 0, euclidean)
 
 
 def rbf(length_scale: Numeric) -> Kernel:
@@ -68,9 +90,7 @@ def matern_one_half(length_scale: Numeric) -> Kernel:
   """
 
   def kernel(x, y):
-    return jnp.exp(
-      -jnp.sqrt(squared_distance(x / length_scale, y / length_scale))
-    )
+    return jnp.exp(-euclidean_distance(x / length_scale, y / length_scale))
 
   return kernel
 
@@ -90,10 +110,10 @@ def matern_three_halves(length_scale: Numeric) -> Kernel:
     A matern three halves `Kernel`.
   """
 
+  sqrt_3 = math.sqrt(3)
+
   def kernel(x, y):
-    K = jnp.sqrt(3) * jnp.sqrt(
-      squared_distance(x / length_scale, y / length_scale)
-    )
+    K = sqrt_3 * euclidean_distance(x / length_scale, y / length_scale)
     K = (1.0 + K) * jnp.exp(-K)
     return K
 
@@ -115,10 +135,10 @@ def matern_five_halves(length_scale: Numeric) -> Kernel:
     A matern five halves `Kernel`.
   """
 
+  sqrt_5 = math.sqrt(5)
+
   def kernel(x, y):
-    K = jnp.sqrt(5) * jnp.sqrt(
-      squared_distance(x / length_scale, y / length_scale)
-    )
+    K = sqrt_5 * euclidean_distance(x / length_scale, y / length_scale)
     K = (1.0 + K + K**2 / 3.0) * jnp.exp(-K)
     return K
 
