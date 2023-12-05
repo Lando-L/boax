@@ -100,7 +100,7 @@ def train_step(state, iteration):
 (next_params, next_opt_state), history = lax.scan(jit(train_step), (params, opt_state), jnp.arange(500))
 ```
 
-3. Construct and optimize a an acquisition function
+3. Construct and optimize an acquisition function
 ```python
 from bojax.optimization import acquisitions, maximizers, spaces
 
