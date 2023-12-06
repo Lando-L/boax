@@ -22,12 +22,17 @@ classifiers = [
 dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
+docs = [
+    "matplotlib>=3.8.2",
+    "sphinx>=7.2.6"
+]
+
 examples = [
     "matplotlib>=3.8.2",
     "optax>=0.4.1",
 ]
 
-testing = [
+tests = [
     "absl-py>=2.0.0",
     "pytest>=7.4.3",
     "pytest-cov>=4.1.0",
