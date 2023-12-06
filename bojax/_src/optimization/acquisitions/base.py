@@ -22,13 +22,12 @@ from bojax._src.typing import Array
 class Acquisition(Protocol):
   """Base interface for acquisition functions."""
 
-  def __call__(self, candidates: Array, **kwargs) -> Array:
+  def __call__(self, candidates: Array) -> Array:
     """
     Evaluates the acquisition function on a set of `candidates`.
 
     Args:
       candidates: The candidate set.
-      kwargs: Additional keyword arguments
 
     Returns:
       The acquisition function values of the given set of candidates.

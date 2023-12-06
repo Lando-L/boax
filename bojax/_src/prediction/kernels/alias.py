@@ -34,7 +34,7 @@ def squared_distance(x: Array, y: Array) -> Array:
     Squared distance.
   """
 
-  return jnp.sum((x - y)**2)
+  return jnp.sum((x - y) ** 2)
 
 
 def euclidean_distance(x: Array, y: Array) -> Array:
@@ -50,7 +50,7 @@ def euclidean_distance(x: Array, y: Array) -> Array:
   """
 
   pdist = x - y
-  is_zero = jnp.allclose(pdist, 0.)
+  is_zero = jnp.allclose(pdist, 0.0)
   masked_pdist = jnp.where(is_zero, jnp.ones_like(pdist), pdist)
   euclidean = jnp.linalg.norm(masked_pdist, ord=2)
 

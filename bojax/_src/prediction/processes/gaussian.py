@@ -79,7 +79,9 @@ def posterior(
 
   mx = mean(x_train)
 
-  Kxx = kernel(x_train, x_train) + (noise + jitter) * jnp.identity(x_train.shape[0])
+  Kxx = kernel(x_train, x_train) + (noise + jitter) * jnp.identity(
+    x_train.shape[0]
+  )
   chol = scipy.linalg.cholesky(Kxx, lower=True)
   kinvy = scipy.linalg.solve_triangular(
     chol.T, scipy.linalg.solve_triangular(chol, y_train - mx, lower=True)
