@@ -37,7 +37,7 @@ class SearchSpaceSampleFn(Protocol):
 class SearchSpace(NamedTuple):
   """
   Base interface for search spaces.
-  
+
   Attributes:
     ndims: Number of dimensions.
     bounds: Bounds of the search space.
