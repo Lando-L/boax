@@ -3,7 +3,8 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from bojax._src.prediction.bijectors.alias import (
+from boax.prediction.bijectors import (
+  chain,
   exp,
   identity,
   log,
@@ -11,7 +12,6 @@ from bojax._src.prediction.bijectors.alias import (
   shift,
   softplus,
 )
-from bojax._src.prediction.bijectors.transformed import chain
 
 
 def assert_bijector(bijector, value, expected):

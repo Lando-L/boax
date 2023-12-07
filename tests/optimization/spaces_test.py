@@ -2,7 +2,7 @@ import numpy as np
 from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 
-from bojax._src.optimization.spaces.alias import continuous
+from boax.optimization.spaces.alias import continuous
 
 
 class SpacesTest(parameterized.TestCase):

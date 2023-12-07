@@ -3,13 +3,14 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from bojax._src.prediction.kernels.alias import (
+from boax.prediction.kernels import (
+  combine,
   matern_five_halves,
   matern_one_half,
   matern_three_halves,
   rbf,
+  scale,
 )
-from bojax._src.prediction.kernels.transformed import combine, scale
 
 
 class KernelsTest(parameterized.TestCase):

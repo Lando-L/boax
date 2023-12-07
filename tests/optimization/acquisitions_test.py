@@ -3,12 +3,12 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from bojax._src.optimization.acquisitions.alias import (
+from boax.optimization.acquisitions.alias import (
   log_expected_improvement,
   log_probability_of_improvement,
   upper_confidence_bound,
 )
-from bojax._src.util import const
+from boax.util import const
 
 
 class AcquisitionsTest(parameterized.TestCase):

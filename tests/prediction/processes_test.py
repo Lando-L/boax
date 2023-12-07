@@ -5,8 +5,8 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random, vmap
 
-from bojax._src.prediction.kernels.alias import rbf
-from bojax._src.prediction.processes.gaussian import posterior, prior
+from boax.prediction.kernels import rbf
+from boax.prediction.processes import gaussian
 
 
 class ProcessesTest(parameterized.TestCase):
@@ -20,7 +20,9 @@ class ProcessesTest(parameterized.TestCase):
     mean = itemgetter((..., 0))
     kernel = vmap(vmap(rbf(length_scale), in_axes=(None, 0)), in_axes=(0, None))
 
-    result = prior(mean, kernel, noise, jitter)(xs)
+    process = gaussian(mean, kernel, noise, jitter)
+
+    result = process.prior(xs)
     expected = xs[..., 0], kernel(xs, xs) + (noise + jitter) * jnp.identity(10)
 
     np.testing.assert_allclose(result[0], expected[0], atol=1e-4)

@@ -1,38 +1,38 @@
-# Bojax: A Bayesian Optimization library for JAX.
+# Boax: A Bayesian Optimization library for JAX.
 
 [**Overview**](#overview)
 | [**Installation**](#installation)
 | [**Getting Started**](#getting-started)
-| [**Documentation**](https://github.com/Lando-L/bojax)
+| [**Documentation**](https://github.com/Lando-L/boax)
 
-*Bojax is currently in early alpha and under active development!*
+*Boax is currently in early alpha and under active development!*
 
 ## Overview
 
-Bojax is a composable library of core components for Bayesian Optimization
+Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**. It comes with a low-level interfaces for:
 
-* **Fitting a Gaussian Process model to data** (`bojax.prediction`): Bijectors, Kernels, Mean Functions, Gaussian Processes
-* **Constructing and optimizing acquisition functions** (`bojax.optimization`) Acquisition Functions, Maximizers, Search Spaces
+* **Fitting a Gaussian Process model to data** (`boax.prediction`): Bijectors, Kernels, Mean Functions, Gaussian Processes
+* **Constructing and optimizing acquisition functions** (`boax.optimization`) Acquisition Functions, Maximizers, Search Spaces
 
 ## Installation
 
-You can install the latest released version of Bojax from PyPI via:
+You can install the latest released version of Boax from PyPI via:
 
 ```sh
-pip install bojax
+pip install bayesian-optimization-jax
 ```
 
 or you can install the latest development version from GitHub:
 
 ```sh
-pip install git+https://github.com/Lando-L/bojax.git
+pip install git+https://github.com/Lando-L/boax.git
 ```
 
 ## Getting Started
 
 Here is a quick start example of the two main compoments that form the Bayesian optimization loop.
-For more details check out the [docs](https://github.com/Lando-L/bojax) and our [tutorials](https://github.com/Lando-L/bojax/blob/main/examples).
+For more details check out the [docs](https://github.com/Lando-L/boax) and our [tutorials](https://github.com/Lando-L/boax/blob/main/examples).
 
 1. Create a dataset from a noisy sinusoid.
 
@@ -65,8 +65,8 @@ from jax import vmap
 
 import optax
 
-from bojax.prediction import bijectors, kernels, means
-from bojax.prediction.processes import gaussian
+from boax.prediction import bijectors, kernels, means
+from boax.prediction.processes import gaussian
 
 bijector = bijectors.softplus()
 
@@ -102,7 +102,7 @@ def train_step(state, iteration):
 
 3. Construct and optimize an acquisition function
 ```python
-from bojax.optimization import acquisitions, maximizers, spaces
+from boax.optimization import acquisitions, maximizers, spaces
 
 posterior = gaussian.posterior(
     x_train,
@@ -118,19 +118,19 @@ candidates, scores = maximizers.bfgs(50)(
 )
 ```
 
-## Citing Bojax
+## Citing Boax
 
-To cite Bojax please use the citation:
+To cite Boax please use the citation:
 
 ```bibtex
-@software{bojax2023github,
+@software{boax2023github,
   author = {Lando L{\"o}per},
   title = {{B}ojax: A Bayesian Optimization library for {JAX}},
-  url = {https://github.com/Lando-L/bojax},
+  url = {https://github.com/Lando-L/boax},
   version = {0.0.1},
   year = {2023},
 }
 ```
 
 In the above bibtex entry, the version number
-is intended to be that from [bojax/version.py](https://github.com/Lando-L/bojax/blob/main/bojax/version.py), and the year corresponds to the project's open-source release.
+is intended to be that from [boax/version.py](https://github.com/Lando-L/boax/blob/main/boax/version.py), and the year corresponds to the project's open-source release.

@@ -3,7 +3,7 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from bojax._src.prediction.means.alias import constant, linear, zero
+from boax.prediction.means import constant, linear, zero
 
 
 class MeansTest(parameterized.TestCase):

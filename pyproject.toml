@@ -1,7 +1,7 @@
 [project]
-name = "bojax"
+name = "boax"
 requires-python = ">=3.10"
-description = "Bojax is a Bayesian Optimization library for JAX."
+description = "Boax is a Bayesian Optimization library for JAX."
 keywords = []
 authors = []
 dependencies = [
@@ -29,7 +29,7 @@ docs = [
 
 examples = [
     "matplotlib>=3.8.2",
-    "optax>=0.4.1",
+    "optax>=0.1.7",
 ]
 
 tests = [
@@ -39,14 +39,14 @@ tests = [
 ]
 
 [project.urls]
-homepage = "https://github.com/Lando-L/bojax"
+homepage = "https://github.com/Lando-L/boax"
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
-version = {attr = "bojax.version.__version__"}
+version = {attr = "boax.version.__version__"}
 
 [tool.setuptools.packages.find]
-include = ["bojax*"]
+include = ["boax*"]
 
 [tool.ruff]
 line-length = 80
