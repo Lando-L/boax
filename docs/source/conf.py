@@ -6,17 +6,25 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Bojax'
-copyright = '2023, The Bojax authors'
-author = 'The Bojax authors'
+project = 'Boax'
+copyright = '2023, The Boax authors'
+author = 'The Boax authors'
 release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = [
+  'sphinx.ext.autodoc',
+  'sphinx.ext.doctest',
+  'sphinx.ext.autosummary',
+  'sphinx.ext.duration',
+  'sphinx_autodoc_typehints',
+  'myst_nb',
+]
 
 templates_path = ['_templates']
+source_suffix = ['.rst', '.ipynb', '.md']
 exclude_patterns = []
 
 

@@ -104,7 +104,7 @@ def log_expected_improvement(best: Numeric, process: Process) -> Acquisition:
 
 def upper_confidence_bound(beta: Numeric, process: Process) -> Acquisition:
   """
-  The Upper Confidence Bound (UBC) acquisition function.
+  The Upper Confidence Bound (UCB) acquisition function.
 
   Upper confidence bound comprises of the posterior mean plus an additional term:
   the posterior standard deviation weighted by a trade-off parameter, `beta`.

@@ -20,7 +20,7 @@ that is **designed for flexibility**. It comes with a low-level interfaces for:
 You can install the latest released version of Boax from PyPI via:
 
 ```sh
-pip install bayesian-optimization-jax
+pip install boax
 ```
 
 or you can install the latest development version from GitHub:
@@ -42,14 +42,28 @@ from jax import config
 # Double precision is highly recommended.
 config.update("jax_enable_x64", True)
 
+from functools import partial
+
+from jax import jit
+from jax import lax
 from jax import numpy as jnp
 from jax import random
+from jax import scipy
+from jax import value_and_grad
+from jax import vmap
 
-sample_key, noise_key = random.split(random.key(0))
+import optax
+import matplotlib.pyplot as plt
+
+from boax.prediction import bijectors, kernels, means, processes
+from boax.optimization import acquisitions, maximizers, spaces
+
+space = spaces.continuous(jnp.array([[-3, 3]]))
 
 def objective(x):
   return jnp.sin(4 * x[..., 0]) + jnp.cos(2 * x[..., 0])
 
+sample_key, noise_key = random.split(random.key(0))
 x_train = random.uniform(sample_key, minval=-3, maxval=3, shape=(10, 1))
 y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 ```
@@ -57,21 +71,10 @@ y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 2. Fit a Gaussian Process model to the training dataset.
 
 ```python
-from jax import jit
-from jax import lax
-from jax import scipy
-from jax import value_and_grad
-from jax import vmap
-
-import optax
-
-from boax.prediction import bijectors, kernels, means
-from boax.prediction.processes import gaussian
-
 bijector = bijectors.softplus()
 
-def prior(params):
-  return gaussian.prior(
+def process(params):
+  return processes.gaussian(
     vmap(means.zero()),
     vmap(vmap(kernels.scale(bijector.forward(params['amplitude']), kernels.rbf(bijector.forward(params['length_scale']))), in_axes=(None, 0)), in_axes=(0, None)),
     bijector.forward(params['noise']),
@@ -88,7 +91,7 @@ opt_state = optimizer.init(params)
 
 def train_step(state, iteration):
   def loss_fn(params):            
-    loc, scale = prior(params)(x_train)
+    loc, scale = process(params).prior(x_train)
     return -scipy.stats.multivariate_normal.logpdf(y_train, loc, scale)
 
   loss, grads = value_and_grad(loss_fn)(state[0])
@@ -97,25 +100,21 @@ def train_step(state, iteration):
 
   return (params, opt_state), loss
 
-(next_params, next_opt_state), history = lax.scan(jit(train_step), (params, opt_state), jnp.arange(500))
+(next_params, next_opt_state), history = lax.scan(
+  jit(train_step),
+  (params, opt_state),
+  jnp.arange(500)
+)
 ```
 
 3. Construct and optimize an acquisition function
 ```python
-from boax.optimization import acquisitions, maximizers, spaces
-
-posterior = gaussian.posterior(
-    x_train,
-    y_train,
-    vmap(means.zero()),
-    vmap(vmap(kernels.scale(bijector.forward(next_params['amplitude']), kernels.rbf(bijector.forward(next_params['length_scale']))), in_axes=(None, 0)), in_axes=(0, None)),
-    bijector.forward(next_params['noise']),
+acqusition = acquisitions.upper_confidence_bound(
+    2,
+    partial(process(next_params).posterior, observation_index_points=x_train, observations=y_train)
 )
 
-candidates, scores = maximizers.bfgs(50)(
-  jit(acquisitions.upper_confidence_bound(2, posterior)),
-  space.continous(jnp.array([[-3., 3.]]))
-)
+candidates, scores = maximizers.bfgs(50)(acqusition, space)
 ```
 
 ## Citing Boax
@@ -125,7 +124,7 @@ To cite Boax please use the citation:
 ```bibtex
 @software{boax2023github,
   author = {Lando L{\"o}per},
-  title = {{B}ojax: A Bayesian Optimization library for {JAX}},
+  title = {{B}oax: A Bayesian Optimization library for {JAX}},
   url = {https://github.com/Lando-L/boax},
   version = {0.0.1},
   year = {2023},

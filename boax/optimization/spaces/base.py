@@ -20,15 +20,14 @@ from boax.typing import Array
 
 
 class SearchSpaceSampleFn(Protocol):
-  """Base interface for search space sampling functions."""
+  """A callable type for the `sample` attribute of a `SearchSpaces`."""
 
-  def __call__(self, num_samples: int, **kwargs) -> Array:
+  def __call__(self, num_samples: int) -> Array:
     """
     Samples `num_samples` points from the search space.
 
     Args:
       num_samples: The number of samples.
-      kwargs: Additional keyword arguments.
 
     Returns:
       Samples from the search space.
@@ -36,7 +35,14 @@ class SearchSpaceSampleFn(Protocol):
 
 
 class SearchSpace(NamedTuple):
-  """Base interface for search spaces."""
+  """
+  Base interface for search spaces.
+  
+  Attributes:
+    ndims: Number of dimensions.
+    bounds: Bounds of the search space.
+    sample: A pure function which samples a number of points from the search space.
+  """
 
   ndims: Array
   bounds: Array
