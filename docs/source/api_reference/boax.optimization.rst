@@ -25,9 +25,13 @@ Acquisition Functions
 .. autosummary::
   :toctree: generated
 
-  log_expected_improvement
+  probability_of_improvement
   log_probability_of_improvement
+  expected_improvement
+  log_expected_improvement
   upper_confidence_bound
+  posterior_mean
+  posterior_scale
 
 
 boax.optimization.maximizers

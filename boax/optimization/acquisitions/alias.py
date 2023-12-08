@@ -15,17 +15,62 @@
 """Alias for acquisition functions."""
 
 import math
+from operator import itemgetter
+from typing import Callable, Tuple
 
 from jax import numpy as jnp
 from jax import scipy
 
 from boax.optimization.acquisitions.base import Acquisition
-from boax.prediction.processes.base import Process
 from boax.typing import Array, Numeric
+from boax.util import compose, tupled
+
+
+def analytic(
+  posterior: Callable[[Array], Tuple[Array, Array]],
+) -> Callable[[Array], Tuple[Array, Array]]:
+  def acquisition(candidates: Array) -> Tuple[Array, Array]:
+    loc, cov = posterior(candidates)
+    scale = jnp.sqrt(jnp.diag(cov))
+    return loc, scale
+
+  return acquisition
+
+
+def scaled_improvement(best: Numeric) -> Callable[[Array, Array], Array]:
+  def acquisition(loc: Array, scale: Array) -> Array:
+    return (loc - best) / scale
+
+  return acquisition
+
+
+def probability_of_improvement(
+  best: Numeric, posterior: Callable[[Array], Tuple[Array, Array]]
+) -> Acquisition:
+  """
+  The Probability of Improvement acquisition function.
+
+  Probability of improvement over the best function value observed so far.
+
+  `PI(x) = P(y >= best_f), y ~ f(x)`
+
+  Args:
+    best: The best function value observed so far.
+    process: A gaussian posterior.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  return compose(
+    scipy.stats.norm.cdf,
+    tupled(scaled_improvement(best)),
+    analytic(posterior),
+  )
 
 
 def log_probability_of_improvement(
-  best: Numeric, process: Process
+  best: Numeric, posterior: Callable[[Array], Tuple[Array, Array]]
 ) -> Acquisition:
   """
   The Log Probability of Improvement acquisition function.
@@ -42,15 +87,43 @@ def log_probability_of_improvement(
     The corresponding `Acquisition`.
   """
 
-  def acquisition(candidates: Array) -> Array:
-    loc, cov = process(candidates)
-    scale = jnp.sqrt(jnp.diag(cov))
-    return scipy.stats.norm.logcdf(loc, loc=best, scale=scale)
+  return compose(
+    scipy.stats.norm.logcdf,
+    tupled(scaled_improvement(best)),
+    analytic(posterior),
+  )
 
-  return acquisition
+
+def expected_improvement(
+  best: Numeric, posterior: Callable[[Array], Tuple[Array, Array]]
+) -> Acquisition:
+  """
+  The Expected Improvement acquisition function.
+
+  Expected improvement over the best function value observed so far.
+
+  `EI(x) = E(max(f(x) - best_f, 0)),`
+
+  where the expectation is taken over the value of stochastic function `f` at `x`.
+
+  Args:
+    best: The best function value observed so far.
+    process: A gaussian posterior.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  def ei(loc: Array, scale: Array) -> Array:
+    u = scaled_improvement(best)(loc, scale)
+    return (scipy.stats.norm.pdf(u) + u * scipy.stats.norm.cdf(u)) * scale
+
+  return compose(tupled(ei), analytic(posterior))
 
 
-def log_expected_improvement(best: Numeric, process: Process) -> Acquisition:
+def log_expected_improvement(
+  best: Numeric, posterior: Callable[[Array], Tuple[Array, Array]]
+) -> Acquisition:
   """
   The Log Expected Improvement acquisition function.
 
@@ -78,10 +151,24 @@ def log_expected_improvement(best: Numeric, process: Process) -> Acquisition:
   c2 = math.log(math.pi / 2) / 2
 
   def log1mexp(x):
-    return jnp.where(-log2 < x, jnp.log(jnp.expm1(-x)), jnp.log1p(jnp.exp(-x)))
+    upper = jnp.where(x > -log2, x, -log2)
+    lower = jnp.where(x <= -log2, x, -log2)
+
+    return jnp.where(
+      x > -log2,
+      jnp.log(-jnp.expm1(upper)),
+      jnp.log1p(-jnp.exp(lower))
+    )
 
   def logerfcx(x):
-    return jnp.log(jnp.exp(x**2) * scipy.special.erfc(x))
+    upper = jnp.where(x > 0., x, 0.)
+    lower = jnp.where(x <= 0., x, 0.)
+
+    return jnp.where(
+      x > 0,
+      jnp.log(jnp.exp(upper**2) * scipy.special.erfc(upper)),
+      jnp.log(scipy.special.erfc(lower)) + lower**2,
+    )
 
   def log_ei_upper(x):
     return jnp.log(scipy.stats.norm.pdf(x) + x * scipy.stats.norm.cdf(x))
@@ -92,17 +179,25 @@ def log_expected_improvement(best: Numeric, process: Process) -> Acquisition:
     )
 
   def logh(x):
-    return jnp.where(x > -1, log_ei_upper(x), log_ei_lower(x))
+    upper = jnp.where(x > -1., x, -1.)
+    lower = jnp.where(x <= -1., x, -1.)
 
-  def acquisition(candidates: Array) -> Array:
-    loc, cov = process(candidates)
-    scale = jnp.sqrt(jnp.diag(cov))
-    return logh((loc - best) / scale) + jnp.log(scale)
+    return jnp.where(
+      x > -1,
+      log_ei_upper(upper),
+      log_ei_lower(lower)
+    )
 
-  return acquisition
+  def lei(loc: Array, scale: Array) -> Array:
+    u = scaled_improvement(best)(loc, scale)
+    return logh(u) + jnp.log(scale)
+
+  return compose(tupled(lei), analytic(posterior))
 
 
-def upper_confidence_bound(beta: Numeric, process: Process) -> Acquisition:
+def upper_confidence_bound(
+  beta: Numeric, posterior: Callable[[Array], Tuple[Array, Array]]
+) -> Acquisition:
   """
   The Upper Confidence Bound (UCB) acquisition function.
 
@@ -113,15 +208,45 @@ def upper_confidence_bound(beta: Numeric, process: Process) -> Acquisition:
 
   Args:
     beta: The mean and covariance trade-off parameter.
-    process: A gaussian posterior.
+    posterior: A gaussian posterior.
 
   Returns:
     The corresponding `Acquisition`.
   """
 
-  def acquisition(candidates: Array) -> Array:
-    loc, cov = process(candidates)
-    scale = jnp.sqrt(jnp.diag(cov))
+  def ucb(loc: Array, scale: Array) -> Array:
     return loc + jnp.sqrt(beta) * scale
 
-  return acquisition
+  return compose(tupled(ucb), analytic(posterior))
+
+
+def posterior_mean(
+  posterior: Callable[[Array], Tuple[Array, Array]],
+) -> Acquisition:
+  """
+  The Posterior mean acquisition function.
+
+  Args:
+    posterior: A gaussian posterior.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  return compose(itemgetter(0), analytic(posterior))
+
+
+def posterior_scale(
+  posterior: Callable[[Array], Tuple[Array, Array]],
+) -> Acquisition:
+  """
+  The Posterior scale acquisition function.
+
+  Args:
+    posterior: A gaussian posterior.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  return compose(itemgetter(1), analytic(posterior))

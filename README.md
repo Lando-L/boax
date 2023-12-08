@@ -56,22 +56,22 @@ import optax
 import matplotlib.pyplot as plt
 
 from boax.prediction import bijectors, kernels, means, processes
-from boax.optimization import acquisitions, maximizers, spaces
+from boax.optimization import acquisitions, maximizers
 
-space = spaces.continuous(jnp.array([[-3, 3]]))
+bounds = jnp.array([[-3, 3]])
 
 def objective(x):
   return jnp.sin(4 * x[..., 0]) + jnp.cos(2 * x[..., 0])
 
 sample_key, noise_key = random.split(random.key(0))
-x_train = random.uniform(sample_key, minval=-3, maxval=3, shape=(10, 1))
+x_train = random.uniform(sample_key, minval=bounds[0, 0], maxval=bounds[0, 1], shape=(10, 1))
 y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 ```
 
 2. Fit a Gaussian Process model to the training dataset.
 
 ```python
-bijector = bijectors.softplus()
+bijector = bijectors.softplus
 
 def process(params):
   return processes.gaussian(
@@ -114,7 +114,7 @@ acqusition = acquisitions.upper_confidence_bound(
     partial(process(next_params).posterior, observation_index_points=x_train, observations=y_train)
 )
 
-candidates, scores = maximizers.bfgs(50)(acqusition, space)
+candidates, scores = maximizers.bfgs(50, bounds)(acqusition)
 ```
 
 ## Citing Boax

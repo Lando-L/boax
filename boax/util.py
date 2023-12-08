@@ -69,3 +69,37 @@ def compose(*fns: Callable) -> Callable:
     return __fn
 
   return reduce(__reduce_fn, fns)
+
+
+def tupled(f: Callable) -> Callable:
+  """
+  Transforms function to take a tuple as its argument.
+
+  Args:
+    fns: Functions to transform.
+
+  Returns:
+    The transformed function.
+  """
+
+  def __fn(x):
+    return f(*x)
+
+  return __fn
+
+
+def untupled(f: Callable) -> Callable:
+  """
+  Transforms function to take a regular list arguments.
+
+  Args:
+    fns: Functions to transform.
+
+  Returns:
+    The transformed function.
+  """
+
+  def __fn(*xs):
+    return f(tuple(xs))
+
+  return __fn
