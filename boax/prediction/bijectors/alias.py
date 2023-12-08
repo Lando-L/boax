@@ -14,28 +14,19 @@
 
 """Alias for bijectors."""
 
+from functools import partial
+
 from jax import lax, nn
 from jax import numpy as jnp
 
 from boax.prediction.bijectors.base import Bijector
-from boax.typing import Array, Numeric
+from boax.typing import Numeric
 from boax.util import identity as identity_fn
 
-
-def identity() -> Bijector:
-  """
-  Identity bijector.
-
-  Computes `y = f(x) = x`.
-
-  Returns:
-    An identity `Bijector`.
-  """
-
-  return Bijector(
-    identity_fn,
-    identity_fn,
-  )
+identity = Bijector(identity_fn, identity_fn)
+log = Bijector(jnp.log, jnp.exp)
+exp = Bijector(jnp.exp, jnp.log)
+softplus = Bijector(nn.softplus, lambda x: x + jnp.log(-jnp.expm1(-x)))
 
 
 def shift(x: Numeric) -> Bijector:
@@ -51,16 +42,7 @@ def shift(x: Numeric) -> Bijector:
     A shift `Bijector`.
   """
 
-  def forward(value: Array) -> Array:
-    return value + x
-
-  def inverse(value: Array) -> Array:
-    return value - x
-
-  return Bijector(
-    forward,
-    inverse,
-  )
+  return Bijector(partial(lax.add, y=x), partial(lax.sub, y=x))
 
 
 def scale(x: Numeric) -> Bijector:
@@ -76,83 +58,4 @@ def scale(x: Numeric) -> Bijector:
     A scale `Bijector`.
   """
 
-  inv_x = 1 / x
-
-  def forward(value: Array) -> Array:
-    out_shape = lax.broadcast_shapes(x.shape, value.shape)
-    return jnp.broadcast_to(x, out_shape) * value
-
-  def inverse(value: Array) -> Array:
-    out_shape = lax.broadcast_shapes(x.shape, value.shape)
-    return jnp.broadcast_to(inv_x, out_shape) * value
-
-  return Bijector(
-    forward,
-    inverse,
-  )
-
-
-def log():
-  """
-  Logarithmic bijector.
-
-  Computes `y = f(x) = log(x)`.
-
-  Returns:
-    A logarithmic `Bijector`.
-  """
-
-  def forward(value: Array) -> Array:
-    return jnp.log(value)
-
-  def inverse(value: Array) -> Array:
-    return jnp.exp(value)
-
-  return Bijector(
-    forward,
-    inverse,
-  )
-
-
-def exp():
-  """
-  Exponential bijector.
-
-  Computes `y = f(x) = exp(x)`.
-
-  Returns:
-    An exponential `Bijector`.
-  """
-
-  def forward(value: Array) -> Array:
-    return jnp.exp(value)
-
-  def inverse(value: Array) -> Array:
-    return jnp.log(value)
-
-  return Bijector(
-    forward,
-    inverse,
-  )
-
-
-def softplus():
-  """
-  Softplus bijector.
-
-  Computes `y = f(x) = Log[1 + exp(x)]`.
-
-  Returns:
-    A softplus `Bijector`.
-  """
-
-  def forward(value: Array) -> Array:
-    return nn.softplus(value)
-
-  def inverse(value: Array) -> Array:
-    return value + jnp.log(-jnp.expm1(-value))
-
-  return Bijector(
-    forward,
-    inverse,
-  )
+  return Bijector(partial(lax.mul, y=x), partial(lax.div, y=x))

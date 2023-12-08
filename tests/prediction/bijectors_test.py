@@ -25,19 +25,19 @@ def assert_bijector(bijector, value, expected):
 class BijectorsTest(parameterized.TestCase):
   def test_identity(self):
     value = random.uniform(random.key(0), shape=(10,))
-    assert_bijector(identity(), value, value)
+    assert_bijector(identity, value, value)
 
   def test_exp(self):
     value = random.uniform(random.key(0), shape=(10,))
-    assert_bijector(exp(), value, jnp.exp(value))
+    assert_bijector(exp, value, jnp.exp(value))
 
   def test_log(self):
     value = random.uniform(random.key(0), shape=(10,))
-    assert_bijector(log(), value, jnp.log(value))
+    assert_bijector(log, value, jnp.log(value))
 
   def test_softplus(self):
     value = random.uniform(random.key(0), shape=(10,))
-    assert_bijector(softplus(), value, jnp.log(1 + jnp.exp(value)))
+    assert_bijector(softplus, value, jnp.log(1 + jnp.exp(value)))
 
   def test_scale(self):
     value = random.uniform(random.key(0), shape=(10,))
