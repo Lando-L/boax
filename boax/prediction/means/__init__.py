@@ -14,7 +14,7 @@
 
 """The means sub-package."""
 
-from .alias import constant as constant
+from .alias import const as const
 from .alias import linear as linear
 from .alias import zero as zero
 from .base import Mean as Mean

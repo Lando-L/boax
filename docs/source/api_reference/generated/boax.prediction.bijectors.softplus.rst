@@ -3,4 +3,4 @@
 
 .. currentmodule:: boax.prediction.bijectors
 
-.. autofunction:: softplus
+.. autodata:: softplus

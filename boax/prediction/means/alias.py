@@ -18,32 +18,10 @@ from jax import numpy as jnp
 
 from boax.prediction.means.base import Mean
 from boax.typing import Array, Numeric
-from boax.util import const
+from boax.util import const as const_fn
 
-
-def zero() -> Mean:
-  """
-  Zero mean function.
-
-  Computes `y = f(x) = 0`.
-
-  Returns:
-    A zero mean function.
-  """
-  return const(jnp.zeros(()))
-
-
-def constant(x: Numeric) -> Mean:
-  """
-  Constant mean function.
-
-  Computes `y = f(x) = c`.
-
-  Returns:
-    A constant mean function.
-  """
-
-  return const(x)
+zero : Mean = const_fn(jnp.zeros(()))
+const : Mean = const_fn
 
 
 def linear(scale: Array, bias: Numeric) -> Mean:

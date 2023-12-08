@@ -23,10 +23,10 @@ from boax.prediction.bijectors.base import Bijector
 from boax.typing import Numeric
 from boax.util import identity as identity_fn
 
-identity = Bijector(identity_fn, identity_fn)
-log = Bijector(jnp.log, jnp.exp)
-exp = Bijector(jnp.exp, jnp.log)
-softplus = Bijector(nn.softplus, lambda x: x + jnp.log(-jnp.expm1(-x)))
+identity : Bijector = Bijector(identity_fn, identity_fn)
+log : Bijector = Bijector(jnp.log, jnp.exp)
+exp : Bijector = Bijector(jnp.exp, jnp.log)
+softplus : Bijector = Bijector(nn.softplus, lambda x: x + jnp.log(-jnp.expm1(-x)))
 
 
 def shift(x: Numeric) -> Bijector:
