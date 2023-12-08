@@ -37,12 +37,12 @@ For more details check out the [docs](https://boax.readthedocs.io/en/latest/) an
 1. Create a dataset from a noisy sinusoid.
 
 ```python
+from functools import partial
+
 from jax import config
 
 # Double precision is highly recommended.
 config.update("jax_enable_x64", True)
-
-from functools import partial
 
 from jax import jit
 from jax import lax
@@ -75,7 +75,7 @@ bijector = bijectors.softplus
 
 def process(params):
   return processes.gaussian(
-    vmap(means.zero()),
+    vmap(means.zero),
     vmap(vmap(kernels.scale(bijector.forward(params['amplitude']), kernels.rbf(bijector.forward(params['length_scale']))), in_axes=(None, 0)), in_axes=(0, None)),
     bijector.forward(params['noise']),
   )

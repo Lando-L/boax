@@ -88,7 +88,7 @@ Mean Functions
   :toctree: generated
 
   zero
-  constant
+  const
   linear
 
 

@@ -27,8 +27,9 @@ docs = [
     "matplotlib>=3.8.2",
     "myst-nb>=1.0.0",
     "optax>=0.1.7",
-    "sphinx>=7.2.6",
-    "sphinx-autodoc-typehints>=1.25.2",
+    "sphinx>=6.2.1",
+    "sphinx-autodoc-typehints>=1.23.0",
+    "sphinx-book-theme>=1.0.1",
 ]
 
 examples = [
