@@ -17,22 +17,18 @@
 from typing import Protocol, Tuple
 
 from boax.optimization.acquisitions.base import Acquisition
-from boax.optimization.spaces.base import SearchSpace
 from boax.typing import Array
 
 
 class Maximizer(Protocol):
   """Base interface for acquisition function maximizers."""
 
-  def __call__(
-    self, acquisition: Acquisition, space: SearchSpace
-  ) -> Tuple[Array, Array]:
+  def __call__(self, acquisition: Acquisition) -> Tuple[Array, Array]:
     """
-    Maximizes an acquisition within the given bounds.
+    Maximizes an acquisition.
 
     Args:
       acquisition: The acquisition function to be maximized.
-      space: The search space to be maximimzed over.
 
     Returns:
       A tuple of candidates and their acquisition values.

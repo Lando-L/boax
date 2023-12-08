@@ -50,28 +50,3 @@ Maximizers
   :toctree: generated
 
   bfgs
-
-
-boax.optimization.spaces
-------------------------
-
-.. currentmodule:: boax.optimization.spaces
-
-
-Search Space Types
-^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: SearchSpaceSampleFn
-    :members:
-
-.. autoclass:: SearchSpace
-    :members:
-
-
-Search Spaces
-^^^^^^^^^^^^^
-
-.. autosummary::
-  :toctree: generated
-
-  continuous

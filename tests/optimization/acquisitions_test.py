@@ -3,7 +3,7 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from boax.optimization.acquisitions.alias import (
+from boax.optimization.acquisitions import (
   log_expected_improvement,
   log_probability_of_improvement,
   upper_confidence_bound,

@@ -16,4 +16,3 @@
 
 from . import acquisitions as acquisitions
 from . import maximizers as maximizers
-from . import spaces as spaces
