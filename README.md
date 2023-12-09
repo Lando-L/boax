@@ -12,8 +12,8 @@
 Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**. It comes with a low-level interfaces for:
 
-* **Fitting a Gaussian Process model to data** (`boax.prediction`): Bijectors, Kernels, Mean Functions, Gaussian Processes
-* **Constructing and optimizing acquisition functions** (`boax.optimization`) Acquisition Functions, Maximizers, Search Spaces
+* **Fitting a Gaussian Process model to data** (`boax.prediction`): Kernels, Mean Functions, Gaussian Processes
+* **Constructing and optimizing acquisition functions** (`boax.optimization`) Acquisition Functions, Maximizers
 
 ## Installation
 
@@ -46,6 +46,7 @@ config.update("jax_enable_x64", True)
 
 from jax import jit
 from jax import lax
+from jax import nn
 from jax import numpy as jnp
 from jax import random
 from jax import scipy
@@ -55,7 +56,7 @@ from jax import vmap
 import optax
 import matplotlib.pyplot as plt
 
-from boax.prediction import bijectors, kernels, means, processes
+from boax.prediction import kernels, means, processes
 from boax.optimization import acquisitions, maximizers
 
 bounds = jnp.array([[-3, 3]])
@@ -71,13 +72,11 @@ y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 2. Fit a Gaussian Process model to the training dataset.
 
 ```python
-bijector = bijectors.softplus
-
 def process(params):
   return processes.gaussian(
     vmap(means.zero),
-    vmap(vmap(kernels.scale(bijector.forward(params['amplitude']), kernels.rbf(bijector.forward(params['length_scale']))), in_axes=(None, 0)), in_axes=(0, None)),
-    bijector.forward(params['noise']),
+    vmap(vmap(kernels.scale(nn.softplus(params['amplitude']), kernels.rbf(nn.softplus(params['length_scale']))), in_axes=(None, 0)), in_axes=(0, None)),
+    nn.softplus(params['noise']),
   )
 
 params = {

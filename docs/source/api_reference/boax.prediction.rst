@@ -6,40 +6,6 @@
 Implements functionalities to fit Gaussian Process models to data.
 
 
-boax.prediction.bijectors
--------------------------
-
-.. currentmodule:: boax.prediction.bijectors
-
-
-Bijector Types
-^^^^^^^^^^^^^^
-
-.. autoclass:: Bijector
-    :members:
-
-.. autoclass:: BijectorForwardFn
-    :members:
-
-.. autoclass:: BijectorInverseFn
-    :members:
-
-
-Bijectors
-^^^^^^^^^
-
-.. autosummary::
-  :toctree: generated
-
-  exp
-  identity
-  log
-  scale
-  shift
-  softplus
-  chain
-
-
 boax.prediction.kernels
 -----------------------
 
