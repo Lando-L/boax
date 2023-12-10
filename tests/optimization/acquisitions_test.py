@@ -16,18 +16,6 @@ from boax.util import const
 
 
 class AcquisitionsTest(parameterized.TestCase):
-  def test_upper_confidence_bound(self):
-    key1, key2 = random.split(random.key(0))
-
-    loc = random.uniform(key1, (10,))
-    cov = random.uniform(key2, (10,)) * jnp.identity(10)
-    candidates = jnp.empty((1, 1))
-
-    ucb = upper_confidence_bound(1.0, const((loc, cov)))(candidates)
-    expected = loc + jnp.sqrt(jnp.diag(cov))
-
-    np.testing.assert_allclose(ucb, expected, atol=1e-4)
-
   def test_expected_improvement(self):
     loc = jnp.array(-0.5)
     cov = jnp.eye(1)
@@ -47,6 +35,18 @@ class AcquisitionsTest(parameterized.TestCase):
     lpi = log_probability_of_improvement(1.96, const((loc, cov)))(candidates)
 
     np.testing.assert_allclose(jnp.log(pi), lpi, atol=1e-4)
+
+  def test_upper_confidence_bound(self):
+    key1, key2 = random.split(random.key(0))
+
+    loc = random.uniform(key1, (10,))
+    cov = random.uniform(key2, (10,)) * jnp.identity(10)
+    candidates = jnp.empty((1, 1))
+
+    ucb = upper_confidence_bound(1.0, const((loc, cov)))(candidates)
+    expected = loc + jnp.sqrt(jnp.diag(cov))
+
+    np.testing.assert_allclose(ucb, expected, atol=1e-4)
 
   def test_posterior(self):
     loc = jnp.zeros(())

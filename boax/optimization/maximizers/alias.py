@@ -21,38 +21,9 @@ from jax.scipy.optimize import minimize
 
 from boax.optimization.acquisitions.base import Acquisition
 from boax.optimization.maximizers.base import Maximizer
-from boax.optimization.maximizers.util import primes_less_than
+from boax.optimization.maximizers.util import halton_sequence
 from boax.typing import Array, Numeric
 from boax.util import compose
-
-# The maximum dimension we support. This is limited by the number of primes in the PRIMES array.
-MAX_DIMENSION = 10000
-PRIMES = primes_less_than(104729 + 1)
-assert len(PRIMES) == MAX_DIMENSION
-
-
-def halton_sequence(num_samples: int, ndims: int) -> Array:
-  if ndims < 1 or ndims > MAX_DIMENSION:
-    raise ValueError(
-      f'Dimension must be between 1 and {MAX_DIMENSION}. Supplied {ndims}'
-    )
-  
-  radixes = PRIMES[0:ndims][..., jnp.newaxis]
-  indices = jnp.reshape(jnp.arange(num_samples) + 1, [-1, 1, 1])
-
-  max_sizes_by_axes = jnp.floor(jnp.log(num_samples) / jnp.log(radixes) + 1)
-  max_size = jnp.max(max_sizes_by_axes)
-
-  exponents_by_axes = jnp.tile(
-    jnp.array([jnp.arange(max_size)]), jnp.array([ndims, 1])
-  )
-  weight_mask = exponents_by_axes < max_sizes_by_axes
-  capped_exponents = jnp.where(weight_mask, exponents_by_axes, jnp.zeros(()))
-  weights = radixes**capped_exponents
-
-  coeffs = jnp.floor_divide(indices, weights) * weight_mask % radixes
-
-  return jnp.sum(coeffs / (radixes * weights), axis=-1)
 
 
 def bfgs(num_initial_samples: int, bounds: Array) -> Maximizer:
@@ -71,10 +42,9 @@ def bfgs(num_initial_samples: int, bounds: Array) -> Maximizer:
   lower_bounds = bounds[..., 0]
   upper_bounds = bounds[..., 1]
 
-  initial_samples = lower_bounds + (upper_bounds - lower_bounds) * halton_sequence(
-    num_initial_samples,
-    ndims
-  )
+  initial_samples = lower_bounds + (
+    upper_bounds - lower_bounds
+  ) * halton_sequence(num_initial_samples, ndims)
 
   def maximizer(acquisition: Acquisition) -> Numeric:
     results = minimize(

@@ -14,13 +14,14 @@
 
 """Alias for stochastic processes."""
 
+from functools import partial
 from typing import Tuple
 
-from jax import numpy as jnp
-from jax import scipy
+from jax import jit
 
 from boax.prediction.kernels.base import Kernel
 from boax.prediction.means.base import Mean
+from boax.prediction.processes import functions
 from boax.prediction.processes.base import Process
 from boax.typing import Array, Numeric
 
@@ -41,33 +42,17 @@ def gaussian(
     The gaussian `Proccess`.
   """
 
-  def prior(index_points: Array) -> Tuple[Array, Array]:
-    Kxx = kernel(index_points, index_points)
-    loc = mean(index_points)
-    cov = Kxx + (noise + jitter) * jnp.identity(Kxx.shape[-1])
-
-    return loc, cov
-
-  def posterior(
-    index_points: Array, observation_index_points: Array, observations: Array
-  ) -> Tuple[Array, Array]:
-    mz = mean(index_points)
-    mx = mean(observation_index_points)
-
-    Kxx = kernel(observation_index_points, observation_index_points)
-    Kxz = kernel(observation_index_points, index_points)
-    Kzz = kernel(index_points, index_points)
-
-    K = Kxx + (noise + jitter) * jnp.identity(observation_index_points.shape[0])
-    chol = scipy.linalg.cholesky(K, lower=True)
-    kinvy = scipy.linalg.solve_triangular(
-      chol.T, scipy.linalg.solve_triangular(chol, observations - mx, lower=True)
-    )
-    v = scipy.linalg.solve_triangular(chol, Kxz, lower=True)
-
-    loc = mz + jnp.dot(Kxz.T, kinvy)
-    cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(index_points.shape[0])
-
-    return loc, cov
-
-  return Process(prior, posterior)
+  return Process(
+    jit(
+      partial(functions.gaussian.prior, mean=mean, kernel=kernel, jitter=jitter)
+    ),
+    jit(
+      partial(
+        functions.gaussian.posterior,
+        mean=mean,
+        kernel=kernel,
+        noise=noise,
+        jitter=jitter,
+      )
+    ),
+  )

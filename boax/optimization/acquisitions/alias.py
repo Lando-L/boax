@@ -14,34 +14,16 @@
 
 """Alias for acquisition functions."""
 
-import math
+from functools import partial
 from operator import itemgetter
 from typing import Callable, Tuple
 
-from jax import numpy as jnp
-from jax import scipy
+from jax import jit, scipy
 
+from boax.optimization.acquisitions import functions
 from boax.optimization.acquisitions.base import Acquisition
 from boax.typing import Array, Numeric
 from boax.util import compose, tupled
-
-
-def analytic(
-  posterior: Callable[[Array], Tuple[Array, Array]],
-) -> Callable[[Array], Tuple[Array, Array]]:
-  def acquisition(candidates: Array) -> Tuple[Array, Array]:
-    loc, cov = posterior(candidates)
-    scale = jnp.sqrt(jnp.diag(cov))
-    return loc, scale
-
-  return acquisition
-
-
-def scaled_improvement(best: Numeric) -> Callable[[Array, Array], Array]:
-  def acquisition(loc: Array, scale: Array) -> Array:
-    return (loc - best) / scale
-
-  return acquisition
 
 
 def probability_of_improvement(
@@ -62,10 +44,13 @@ def probability_of_improvement(
     The corresponding `Acquisition`.
   """
 
-  return compose(
-    scipy.stats.norm.cdf,
-    tupled(scaled_improvement(best)),
-    analytic(posterior),
+  return jit(
+    compose(
+      scipy.stats.norm.cdf,
+      tupled(partial(functions.analytic.scaled_improvement, best=best)),
+      tupled(functions.analytic.analytic),
+      posterior,
+    )
   )
 
 
@@ -87,10 +72,13 @@ def log_probability_of_improvement(
     The corresponding `Acquisition`.
   """
 
-  return compose(
-    scipy.stats.norm.logcdf,
-    tupled(scaled_improvement(best)),
-    analytic(posterior),
+  return jit(
+    compose(
+      scipy.stats.norm.logcdf,
+      tupled(partial(functions.analytic.scaled_improvement, best=best)),
+      tupled(functions.analytic.analytic),
+      posterior,
+    )
   )
 
 
@@ -114,11 +102,13 @@ def expected_improvement(
     The corresponding `Acquisition`.
   """
 
-  def ei(loc: Array, scale: Array) -> Array:
-    u = scaled_improvement(best)(loc, scale)
-    return (scipy.stats.norm.pdf(u) + u * scipy.stats.norm.cdf(u)) * scale
-
-  return compose(tupled(ei), analytic(posterior))
+  return jit(
+    compose(
+      tupled(partial(functions.analytic.ei, best=best)),
+      tupled(functions.analytic.analytic),
+      posterior,
+    )
+  )
 
 
 def log_expected_improvement(
@@ -145,54 +135,13 @@ def log_expected_improvement(
     The corresponding `Acquisition`.
   """
 
-  log2 = math.log(2)
-  inv_sqrt2 = 1 / math.sqrt(2)
-  c1 = math.log(2 * math.pi) / 2
-  c2 = math.log(math.pi / 2) / 2
-
-  def log1mexp(x):
-    upper = jnp.where(x > -log2, x, -log2)
-    lower = jnp.where(x <= -log2, x, -log2)
-
-    return jnp.where(
-      x > -log2,
-      jnp.log(-jnp.expm1(upper)),
-      jnp.log1p(-jnp.exp(lower))
+  return jit(
+    compose(
+      tupled(partial(functions.analytic.lei, best=best)),
+      tupled(functions.analytic.analytic),
+      posterior,
     )
-
-  def logerfcx(x):
-    upper = jnp.where(x > 0., x, 0.)
-    lower = jnp.where(x <= 0., x, 0.)
-
-    return jnp.where(
-      x > 0,
-      jnp.log(jnp.exp(upper**2) * scipy.special.erfc(upper)),
-      jnp.log(scipy.special.erfc(lower)) + lower**2,
-    )
-
-  def log_ei_upper(x):
-    return jnp.log(scipy.stats.norm.pdf(x) + x * scipy.stats.norm.cdf(x))
-
-  def log_ei_lower(x):
-    return (
-      -(x**2) / 2 - c1 + log1mexp(logerfcx(-x * inv_sqrt2) * jnp.abs(x) + c2)
-    )
-
-  def logh(x):
-    upper = jnp.where(x > -1., x, -1.)
-    lower = jnp.where(x <= -1., x, -1.)
-
-    return jnp.where(
-      x > -1,
-      log_ei_upper(upper),
-      log_ei_lower(lower)
-    )
-
-  def lei(loc: Array, scale: Array) -> Array:
-    u = scaled_improvement(best)(loc, scale)
-    return logh(u) + jnp.log(scale)
-
-  return compose(tupled(lei), analytic(posterior))
+  )
 
 
 def upper_confidence_bound(
@@ -214,10 +163,13 @@ def upper_confidence_bound(
     The corresponding `Acquisition`.
   """
 
-  def ucb(loc: Array, scale: Array) -> Array:
-    return loc + jnp.sqrt(beta) * scale
-
-  return compose(tupled(ucb), analytic(posterior))
+  return jit(
+    compose(
+      tupled(partial(functions.analytic.ucb, beta=beta)),
+      tupled(functions.analytic.analytic),
+      posterior,
+    )
+  )
 
 
 def posterior_mean(
@@ -233,7 +185,9 @@ def posterior_mean(
     The corresponding `Acquisition`.
   """
 
-  return compose(itemgetter(0), analytic(posterior))
+  return jit(
+    compose(itemgetter(0), tupled(functions.analytic.analytic), posterior)
+  )
 
 
 def posterior_scale(
@@ -249,4 +203,6 @@ def posterior_scale(
     The corresponding `Acquisition`.
   """
 
-  return compose(itemgetter(1), analytic(posterior))
+  return jit(
+    compose(itemgetter(1), tupled(functions.analytic.analytic), posterior)
+  )
