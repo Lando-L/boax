@@ -12,14 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The kernels sub-package."""
+"""The kernel functions sub-package."""
 
-from .alias import matern_five_halves as matern_five_halves
-from .alias import matern_one_half as matern_one_half
-from .alias import matern_three_halves as matern_three_halves
-from .alias import periodic as periodic
-from .alias import rbf as rbf
-from .base import Kernel as Kernel
-from .base import from_kernel_function as from_kernel_function
-from .transformed import combine as combine
-from .transformed import scale as scale
+from . import matern as matern
+from . import periodic as periodic
+from . import rbf as rbf

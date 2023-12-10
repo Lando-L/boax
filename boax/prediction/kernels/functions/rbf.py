@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The kernels sub-package."""
+"""Radial Basis Function (RBF) kernels."""
 
-from .alias import matern_five_halves as matern_five_halves
-from .alias import matern_one_half as matern_one_half
-from .alias import matern_three_halves as matern_three_halves
-from .alias import periodic as periodic
-from .alias import rbf as rbf
-from .base import Kernel as Kernel
-from .base import from_kernel_function as from_kernel_function
-from .transformed import combine as combine
-from .transformed import scale as scale
+from jax import numpy as jnp
+
+from boax.prediction.kernels.functions.util import squared_distance
+from boax.typing import Numeric
+
+
+def rbf(x: Numeric, y: Numeric, length_scale: Numeric) -> Numeric:
+  return jnp.exp(-0.5 * squared_distance(x / length_scale, y / length_scale))

@@ -15,13 +15,37 @@
 """Alias for mean functions."""
 
 from jax import numpy as jnp
+from jax import vmap
 
 from boax.prediction.means.base import Mean
 from boax.typing import Array, Numeric
-from boax.util import const as const_fn
+from boax.util import const
 
-zero : Mean = const_fn(jnp.zeros(()))
-const : Mean = const_fn
+
+def zero() -> Mean:
+  """
+  Zero function.
+
+  Computes `y = f(x) = 0`.
+
+  Returns:
+    A zero mean function.
+  """
+
+  return vmap(const(jnp.zeros(())))
+
+
+def constant(x: Numeric) -> Mean:
+  """
+  Constant function.
+
+  Computes `y = f(x) = c`.
+
+  Returns:
+    A constant mean function.
+  """
+
+  return vmap(const(x))
 
 
 def linear(scale: Array, bias: Numeric) -> Mean:

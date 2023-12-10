@@ -12,14 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The kernels sub-package."""
+"""Periodic kernels."""
 
-from .alias import matern_five_halves as matern_five_halves
-from .alias import matern_one_half as matern_one_half
-from .alias import matern_three_halves as matern_three_halves
-from .alias import periodic as periodic
-from .alias import rbf as rbf
-from .base import Kernel as Kernel
-from .base import from_kernel_function as from_kernel_function
-from .transformed import combine as combine
-from .transformed import scale as scale
+from jax import numpy as jnp
+
+from boax.typing import Numeric
+
+
+def periodic(
+  x: Numeric,
+  y: Numeric,
+  length_scale: Numeric,
+  variance: Numeric,
+  period: Numeric,
+) -> Numeric:
+  sine_squared = (jnp.sin(jnp.pi * (x - y) / period) / length_scale) ** 2
+  K = variance * jnp.exp(-0.5 * jnp.sum(sine_squared, axis=0))
+  return K

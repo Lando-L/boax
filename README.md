@@ -74,8 +74,8 @@ y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 ```python
 def process(params):
   return processes.gaussian(
-    vmap(means.zero),
-    vmap(vmap(kernels.scale(nn.softplus(params['amplitude']), kernels.rbf(nn.softplus(params['length_scale']))), in_axes=(None, 0)), in_axes=(0, None)),
+    means.zero(),
+    kernels.scale(nn.softplus(params['amplitude']), kernels.rbf(nn.softplus(params['length_scale']))),
     nn.softplus(params['noise']),
   )
 

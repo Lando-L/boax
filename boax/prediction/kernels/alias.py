@@ -14,47 +14,11 @@
 
 """Alias for kernels."""
 
-import math
+from functools import partial
 
-from jax import numpy as jnp
-
-from boax.prediction.kernels.base import Kernel
-from boax.typing import Array, Numeric
-
-
-def squared_distance(x: Array, y: Array) -> Array:
-  """
-  Computes the squared distance between vectors `x` and `y`.
-
-  Args:
-    x: A vector.
-    y: A vector.
-
-  Returns:
-    Squared distance.
-  """
-
-  return jnp.sum((x - y) ** 2)
-
-
-def euclidean_distance(x: Array, y: Array) -> Array:
-  """
-  Computes the euclidean distance between vectors `x` and `y`.
-
-  Args:
-    x: A vector.
-    y: A vector.
-
-  Returns:
-    Euclidean distance.
-  """
-
-  pdist = x - y
-  is_zero = jnp.allclose(pdist, 0.0)
-  masked_pdist = jnp.where(is_zero, jnp.ones_like(pdist), pdist)
-  euclidean = jnp.linalg.norm(masked_pdist, ord=2)
-
-  return jnp.where(is_zero, 0, euclidean)
+from boax.prediction.kernels import functions
+from boax.prediction.kernels.base import Kernel, from_kernel_function
+from boax.typing import Numeric
 
 
 def rbf(length_scale: Numeric) -> Kernel:
@@ -70,10 +34,9 @@ def rbf(length_scale: Numeric) -> Kernel:
     A RBF `Kernel`.
   """
 
-  def kernel(x, y):
-    return jnp.exp(-0.5 * squared_distance(x / length_scale, y / length_scale))
-
-  return kernel
+  return from_kernel_function(
+    partial(functions.rbf.rbf, length_scale=length_scale)
+  )
 
 
 def matern_one_half(length_scale: Numeric) -> Kernel:
@@ -89,10 +52,9 @@ def matern_one_half(length_scale: Numeric) -> Kernel:
     A matern one half `Kernel`.
   """
 
-  def kernel(x, y):
-    return jnp.exp(-euclidean_distance(x / length_scale, y / length_scale))
-
-  return kernel
+  return from_kernel_function(
+    partial(functions.matern.one_half, length_scale=length_scale)
+  )
 
 
 def matern_three_halves(length_scale: Numeric) -> Kernel:
@@ -110,14 +72,9 @@ def matern_three_halves(length_scale: Numeric) -> Kernel:
     A matern three halves `Kernel`.
   """
 
-  sqrt_3 = math.sqrt(3)
-
-  def kernel(x, y):
-    K = sqrt_3 * euclidean_distance(x / length_scale, y / length_scale)
-    K = (1.0 + K) * jnp.exp(-K)
-    return K
-
-  return kernel
+  return from_kernel_function(
+    partial(functions.matern.three_halves, length_scale=length_scale)
+  )
 
 
 def matern_five_halves(length_scale: Numeric) -> Kernel:
@@ -135,14 +92,9 @@ def matern_five_halves(length_scale: Numeric) -> Kernel:
     A matern five halves `Kernel`.
   """
 
-  sqrt_5 = math.sqrt(5)
-
-  def kernel(x, y):
-    K = sqrt_5 * euclidean_distance(x / length_scale, y / length_scale)
-    K = (1.0 + K + K**2 / 3.0) * jnp.exp(-K)
-    return K
-
-  return kernel
+  return from_kernel_function(
+    partial(functions.matern.five_halves, length_scale=length_scale)
+  )
 
 
 def periodic(
@@ -160,9 +112,11 @@ def periodic(
     A periodic `Kernel`.
   """
 
-  def kernel(x, y):
-    sine_squared = (jnp.sin(jnp.pi * (x - y) / period) / length_scale) ** 2
-    K = variance * jnp.exp(-0.5 * jnp.sum(sine_squared, axis=0))
-    return K
-
-  return kernel
+  return from_kernel_function(
+    partial(
+      functions.periodic.periodic,
+      length_scale=length_scale,
+      variance=variance,
+      period=period,
+    )
+  )

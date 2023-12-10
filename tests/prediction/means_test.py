@@ -3,14 +3,14 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from boax.prediction.means import const, linear, zero
+from boax.prediction.means import constant, linear, zero
 
 
 class MeansTest(parameterized.TestCase):
   def test_zero(self):
     value = jnp.empty((10,))
 
-    result = zero(value)
+    result = zero()(value)
     expected = jnp.zeros(())
 
     np.testing.assert_allclose(result, expected, atol=1e-4)
@@ -19,7 +19,7 @@ class MeansTest(parameterized.TestCase):
     x = jnp.array(2.0)
     value = jnp.empty((10,))
 
-    result = const(x)(value)
+    result = constant(x)(value)
     expected = x
 
     np.testing.assert_allclose(result, expected, atol=1e-4)
