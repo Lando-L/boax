@@ -12,8 +12,14 @@
 Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**. It comes with a low-level interfaces for:
 
-* **Fitting a Gaussian Process model to data** (`boax.prediction`): Kernels, Mean Functions, Gaussian Processes
-* **Constructing and optimizing acquisition functions** (`boax.optimization`) Acquisition Functions, Maximizers, Samplers
+* **Fitting a Gaussian Process model to data** (`boax.prediction`):
+  * Kernels
+  * Mean Functions
+  * Gaussian Processes
+* **Constructing and optimizing acquisition functions** (`boax.optimization`):
+  * Acquisition Functions
+  * Maximizers
+  * Samplers
 
 ## Installation
 
@@ -131,7 +137,7 @@ To cite Boax please use the citation:
   author = {Lando L{\"o}per},
   title = {{B}oax: A Bayesian Optimization library for {JAX}},
   url = {https://github.com/Lando-L/boax},
-  version = {0.0.1},
+  version = {0.0.2},
   year = {2023},
 }
 ```
