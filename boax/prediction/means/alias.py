@@ -14,9 +14,8 @@
 
 """Alias for mean functions."""
 
-from jax import jit
+from jax import jit, vmap
 from jax import numpy as jnp
-from jax import vmap
 
 from boax.prediction.means.base import Mean
 from boax.typing import Array, Numeric

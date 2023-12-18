@@ -17,12 +17,10 @@
 import math
 
 from jax import numpy as jnp
-from jax import random
-from jax import scipy
+from jax import random, scipy
 
 from boax.optimization.samplers.functions.util import primes_less_than
 from boax.typing import Array, PRNGKey
-
 
 # The maximum dimension we support. This is limited by the number of primes in the PRIMES array.
 sqrt2 = math.sqrt(2)
@@ -63,7 +61,9 @@ def halton_sequence(key: PRNGKey, num_samples: int, ndims: int) -> Array:
   base_values = jnp.sum(shuffled / (radixes * weights), axis=-1)
   zero_correction = random.uniform(correction_key, (ndims, 1))
 
-  return base_values + (zero_correction / (radixes ** max_sizes_by_axes)).flatten()
+  return (
+    base_values + (zero_correction / (radixes**max_sizes_by_axes)).flatten()
+  )
 
 
 def halton_shuffle(key: PRNGKey, coeffs: Array, radixes: Array) -> Array:
@@ -72,7 +72,9 @@ def halton_shuffle(key: PRNGKey, coeffs: Array, radixes: Array) -> Array:
   num_coeffs = coeffs.shape[-1]
 
   permutations = halton_permutations(key, radixes.flatten(), num_coeffs)
-  radix_offsets = jnp.reshape(jnp.hstack([jnp.array(0), jnp.cumsum(iradixes[:-1])]), (-1, 1))
+  radix_offsets = jnp.reshape(
+    jnp.hstack([jnp.array(0), jnp.cumsum(iradixes[:-1])]), (-1, 1)
+  )
   offsets = radix_offsets + jnp.arange(num_coeffs) * jnp.sum(iradixes)
 
   return permutations[icoeffs + offsets]
@@ -81,17 +83,14 @@ def halton_shuffle(key: PRNGKey, coeffs: Array, radixes: Array) -> Array:
 def halton_permutations(key: PRNGKey, dims: Array, num_results: int) -> Array:
   max_size = jnp.max(dims)
   mask = jnp.arange(max_size) >= dims[..., jnp.newaxis]
-  
-  indices = jnp.stack(
-    jnp.where(~jnp.tile(mask, (num_results, 1, 1))),
-    axis=-1
-  )
+
+  indices = jnp.stack(jnp.where(~jnp.tile(mask, (num_results, 1, 1))), axis=-1)
 
   samples = jnp.argsort(
     jnp.where(
       mask,
-      jnp.arange(max_size) + 10.,
-      random.uniform(key, (num_results, dims.size, max_size))
+      jnp.arange(max_size) + 10.0,
+      random.uniform(key, (num_results, dims.size, max_size)),
     )
   )
 

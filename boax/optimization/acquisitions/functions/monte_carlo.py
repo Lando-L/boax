@@ -14,10 +14,8 @@
 
 """Monte Carlo acquisition functions."""
 
-from jax import lax
+from jax import lax, nn, scipy
 from jax import numpy as jnp
-from jax import nn
-from jax import scipy
 
 from boax.typing import Array, Numeric
 

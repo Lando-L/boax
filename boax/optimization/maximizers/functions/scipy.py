@@ -17,24 +17,26 @@
 from functools import partial
 from typing import Tuple
 
-from jax.scipy import optimize
 from jax import numpy as jnp
+from jax.scipy import optimize
 
 from boax.optimization.acquisitions.base import Acquisition
-from boax.util import compose
 from boax.typing import Array
+from boax.util import compose
 
 
-def bfgs(candidates: Array, acquisition: Acquisition, bounds: Array) -> Tuple[Array, Array]:
+def bfgs(
+  candidates: Array, acquisition: Acquisition, bounds: Array
+) -> Tuple[Array, Array]:
   results = optimize.minimize(
     fun=compose(
       jnp.negative,
       jnp.sum,
       acquisition,
-      partial(jnp.reshape, newshape=candidates.shape)
+      partial(jnp.reshape, newshape=candidates.shape),
     ),
     x0=candidates.flatten(),
-    method='bfgs'
+    method='bfgs',
   )
 
   clipped = jnp.clip(

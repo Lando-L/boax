@@ -22,8 +22,8 @@ from .alias import (
 from .alias import posterior_mean as posterior_mean
 from .alias import posterior_scale as posterior_scale
 from .alias import probability_of_improvement as probability_of_improvement
-from .alias import upper_confidence_bound as upper_confidence_bound
 from .alias import q_expected_improvement as q_expected_improvement
 from .alias import q_probability_of_improvement as q_probability_of_improvement
 from .alias import q_upper_confidence_bound as q_upper_confidence_bound
+from .alias import upper_confidence_bound as upper_confidence_bound
 from .base import Acquisition as Acquisition

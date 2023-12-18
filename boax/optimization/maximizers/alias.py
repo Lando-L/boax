@@ -16,12 +16,18 @@
 
 from functools import partial
 
-from boax.optimization.maximizers.base import Maximizer
 from boax.optimization.maximizers import functions
+from boax.optimization.maximizers.base import Maximizer
 from boax.typing import Array, Numeric
 
 
-def bfgs(bounds: Array, q: int, num_restarts: int, num_raw_samples: int, eta: Numeric = 1.0) -> Maximizer:
+def bfgs(
+  bounds: Array,
+  q: int,
+  num_restarts: int,
+  num_raw_samples: int,
+  eta: Numeric = 1.0,
+) -> Maximizer:
   """
   The BFGS acquisition function maximizer.
 
@@ -48,5 +54,5 @@ def bfgs(bounds: Array, q: int, num_restarts: int, num_raw_samples: int, eta: Nu
     maximize=partial(
       functions.scipy.bfgs,
       bounds=bounds,
-    )
+    ),
   )

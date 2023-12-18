@@ -226,12 +226,12 @@ def q_expected_improvement(
   Returns:
     The corresponding `Acquisition`.
   """
-  
+
   return jit(
     compose(
       partial(functions.monte_carlo.qei, best=best),
       tupled(partial(functions.monte_carlo.sampler, base_samples=base_samples)),
-      posterior
+      posterior,
     )
   )
 
@@ -242,12 +242,11 @@ def q_probability_of_improvement(
   base_samples: Array,
   posterior: Model[Tuple[Array, Array]],
 ) -> Acquisition:
-  
   return jit(
     compose(
       partial(functions.monte_carlo.qpoi, best=best, tau=tau),
       tupled(partial(functions.monte_carlo.sampler, base_samples=base_samples)),
-      posterior
+      posterior,
     )
   )
 
@@ -257,13 +256,12 @@ def q_upper_confidence_bound(
   base_samples: Array,
   posterior: Model[Tuple[Array, Array]],
 ) -> Acquisition:
-  
   beta_prime = lax.sqrt(beta * math.pi / 2)
 
   return jit(
     compose(
       partial(functions.monte_carlo.qucb, beta=beta_prime),
       tupled(partial(functions.monte_carlo.sampler, base_samples=base_samples)),
-      posterior
+      posterior,
     )
   )

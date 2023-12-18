@@ -14,12 +14,11 @@
 
 """The maximizer initialization functions."""
 
-from jax import nn
+from jax import nn, random
 from jax import numpy as jnp
-from jax import random
 
-from boax.optimization.samplers.alias import halton_uniform
 from boax.optimization.acquisitions.base import Acquisition
+from boax.optimization.samplers.alias import halton_uniform
 from boax.typing import Array, Numeric, PRNGKey
 
 
@@ -33,7 +32,9 @@ def q_batch_initialization(
   eta: Numeric,
 ) -> Array:
   raw_key, sample_key = random.split(key)
-  raw_samples = halton_uniform(bounds[:, 0], bounds[:, 1])(raw_key, num_raw_samples * q)
+  raw_samples = halton_uniform(bounds[:, 0], bounds[:, 1])(
+    raw_key, num_raw_samples * q
+  )
 
   candidates = jnp.reshape(raw_samples, (num_raw_samples, q, -1))
   values = acquisition(candidates)

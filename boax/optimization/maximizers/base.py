@@ -39,7 +39,9 @@ class MaximizerInitFn(Protocol):
 class MaximizerMaximizationFn(Protocol):
   """Base interface for maximization functions."""
 
-  def __call__(self, candidates: Array, acquisition: Acquisition) -> Tuple[Array, Array]:
+  def __call__(
+    self, candidates: Array, acquisition: Acquisition
+  ) -> Tuple[Array, Array]:
     """
     Maximizes an acquisition.
 

@@ -14,7 +14,9 @@ class AcquisitionsTest(parameterized.TestCase):
     candidates = jnp.empty((10, 1, 1))
 
     ei = acquisitions.expected_improvement(0.0, const((loc, cov)))(candidates)
-    lei = acquisitions.log_expected_improvement(0.0, const((loc, cov)))(candidates)
+    lei = acquisitions.log_expected_improvement(0.0, const((loc, cov)))(
+      candidates
+    )
 
     np.testing.assert_allclose(jnp.log(ei), lei, atol=1e-4)
 
@@ -23,8 +25,12 @@ class AcquisitionsTest(parameterized.TestCase):
     cov = jnp.eye(1)
     candidates = jnp.empty((10, 1, 1))
 
-    pi = acquisitions.probability_of_improvement(1.96, const((loc, cov)))(candidates)
-    lpi = acquisitions.log_probability_of_improvement(1.96, const((loc, cov)))(candidates)
+    pi = acquisitions.probability_of_improvement(1.96, const((loc, cov)))(
+      candidates
+    )
+    lpi = acquisitions.log_probability_of_improvement(1.96, const((loc, cov)))(
+      candidates
+    )
 
     np.testing.assert_allclose(jnp.log(pi), lpi, atol=1e-4)
 
@@ -35,7 +41,9 @@ class AcquisitionsTest(parameterized.TestCase):
     cov = random.uniform(key2, (10,)) * jnp.identity(10)
     candidates = jnp.empty((10, 1, 1))
 
-    ucb = acquisitions.upper_confidence_bound(1.0, const((loc, cov)))(candidates)
+    ucb = acquisitions.upper_confidence_bound(1.0, const((loc, cov)))(
+      candidates
+    )
     expected = loc + jnp.sqrt(jnp.diag(cov))
 
     np.testing.assert_allclose(ucb, expected, atol=1e-4)

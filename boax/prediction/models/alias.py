@@ -19,18 +19,15 @@ from typing import Tuple
 
 from jax import jit
 
-from boax.prediction.means.base import Mean
 from boax.prediction.kernels.base import Kernel
-from boax.prediction.models.base import Model
+from boax.prediction.means.base import Mean
 from boax.prediction.models import functions
+from boax.prediction.models.base import Model
 from boax.typing import Array, Numeric
 
 
 def gaussian_process(
-  mean: Mean,
-  kernel: Kernel,
-  noise: Numeric,
-  jitter: Numeric = 1e-6
+  mean: Mean, kernel: Kernel, noise: Numeric, jitter: Numeric = 1e-6
 ) -> Model[Tuple[Array, Array]]:
   """
   Gaussian process model.
@@ -51,7 +48,7 @@ def gaussian_process(
       mean=mean,
       kernel=kernel,
       noise=noise,
-      jitter=jitter
+      jitter=jitter,
     )
   )
 
@@ -62,7 +59,7 @@ def gaussian_process_regression(
   mean: Mean,
   kernel: Kernel,
   noise: Numeric,
-  jitter: Numeric = 1e-6
+  jitter: Numeric = 1e-6,
 ) -> Model[Tuple[Array, Array]]:
   """
   Gaussian process regression model.
@@ -87,6 +84,6 @@ def gaussian_process_regression(
       mean=mean,
       kernel=kernel,
       noise=noise,
-      jitter=jitter
+      jitter=jitter,
     )
   )

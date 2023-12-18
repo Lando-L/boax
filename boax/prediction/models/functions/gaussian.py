@@ -29,7 +29,7 @@ def prior(
   mean: Mean,
   kernel: Kernel,
   noise: Numeric,
-  jitter: Numeric
+  jitter: Numeric,
 ) -> Tuple[Array, Array]:
   Kxx = kernel(index_points, index_points)
   loc = mean(index_points)
