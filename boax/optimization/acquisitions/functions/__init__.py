@@ -15,3 +15,4 @@
 """The acquisition functions sub-package."""
 
 from . import analytic as analytic
+from . import monte_carlo as monte_carlo

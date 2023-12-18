@@ -27,8 +27,8 @@ class Acquisition(Protocol):
     Evaluates the acquisition function on a set of `candidates`.
 
     Args:
-      candidates: The candidate set.
+      candidates: The `n x q x d`-dim candidate set.
 
     Returns:
-      The acquisition function values of the given set of candidates.
+      The `n`-dim acquisition function values of the given set of candidates.
     """

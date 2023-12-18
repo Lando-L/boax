@@ -14,53 +14,39 @@
 
 """Alias for acquisition function maximizers."""
 
-from operator import itemgetter
+from functools import partial
 
-from jax import numpy as jnp
-from jax.scipy.optimize import minimize
-
-from boax.optimization.acquisitions.base import Acquisition
 from boax.optimization.maximizers.base import Maximizer
-from boax.optimization.maximizers.util import halton_sequence
+from boax.optimization.maximizers import functions
 from boax.typing import Array, Numeric
-from boax.util import compose
 
 
-def bfgs(num_initial_samples: int, bounds: Array) -> Maximizer:
+def bfgs(bounds: Array, q: int, num_restarts: int, num_raw_samples: int, eta: Numeric = 1.0) -> Maximizer:
   """
   The BFGS acquisition function maximizer.
 
   Args:
-    num_initial_samples: The number of initial samples used by the maximizer.
     bounds: The bounds of the search space.
+    q: The q batch size
+    num_restarts: The number of maximization restarts.
+    num_initial_samples: The number of initial samples used by the maximizer.
+    eta: The temperature parameter.
 
   Returns:
     The corresponding `Maximizer`.
   """
 
-  ndims = bounds.shape[0]
-  lower_bounds = bounds[..., 0]
-  upper_bounds = bounds[..., 1]
-
-  initial_samples = lower_bounds + (
-    upper_bounds - lower_bounds
-  ) * halton_sequence(num_initial_samples, ndims)
-
-  def maximizer(acquisition: Acquisition) -> Numeric:
-    results = minimize(
-      fun=compose(
-        jnp.negative, jnp.sum, acquisition, itemgetter((..., jnp.newaxis))
-      ),
-      x0=initial_samples[..., 0],
-      method='bfgs',
+  return Maximizer(
+    init=partial(
+      functions.initialization.q_batch_initialization,
+      bounds=bounds,
+      q=q,
+      num_restarts=num_restarts,
+      num_raw_samples=num_raw_samples,
+      eta=eta,
+    ),
+    maximize=partial(
+      functions.scipy.bfgs,
+      bounds=bounds,
     )
-
-    candidates = jnp.clip(
-      results.x[..., jnp.newaxis],
-      a_min=bounds[..., 0],
-      a_max=bounds[..., 1],
-    )
-
-    return candidates, acquisition(candidates)
-
-  return maximizer
+  )

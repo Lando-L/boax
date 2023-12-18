@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimization module."""
+"""The maximizer functions sub-package."""
 
-from . import acquisitions as acquisitions
-from . import maximizers as maximizers
-from . import samplers as samplers
+from . import initialization as initialization
+from . import scipy as scipy

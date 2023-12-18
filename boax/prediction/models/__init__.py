@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimization module."""
+"""The models sub-package."""
 
-from . import acquisitions as acquisitions
-from . import maximizers as maximizers
-from . import samplers as samplers
+from .alias import gaussian_process as gaussian_process
+from .alias import gaussian_process_regression as gaussian_process_regression
+from .base import Model as Model

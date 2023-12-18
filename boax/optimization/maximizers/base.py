@@ -14,22 +14,52 @@
 
 """Base interface for acquisition function maximizers."""
 
-from typing import Protocol, Tuple
+from typing import NamedTuple, Protocol, Tuple
 
 from boax.optimization.acquisitions.base import Acquisition
-from boax.typing import Array
+from boax.typing import Array, PRNGKey
 
 
-class Maximizer(Protocol):
-  """Base interface for acquisition function maximizers."""
+class MaximizerInitFn(Protocol):
+  """Base interface for maximization functions."""
 
-  def __call__(self, acquisition: Acquisition) -> Tuple[Array, Array]:
+  def __call__(self, key: PRNGKey, acquisition: Acquisition) -> Array:
     """
     Maximizes an acquisition.
 
     Args:
+      key: The pseudo-random number generator key.
       acquisition: The acquisition function to be maximized.
 
     Returns:
       A tuple of candidates and their acquisition values.
     """
+
+
+class MaximizerMaximizationFn(Protocol):
+  """Base interface for maximization functions."""
+
+  def __call__(self, candidates: Array, acquisition: Acquisition) -> Tuple[Array, Array]:
+    """
+    Maximizes an acquisition.
+
+    Args:
+      candidates: Initial candidates.
+      acquisition: The acquisition function to be maximized.
+
+    Returns:
+      A tuple of candidates and their acquisition values.
+    """
+
+
+class Maximizer(NamedTuple):
+  """
+  Base interface for acquisition function maximizers.
+
+  Attributes:
+    init: Initializes candidates for a given acquisition function.
+    maximize: Maximizes a given acquisition function.
+  """
+
+  init: MaximizerInitFn
+  maximize: MaximizerMaximizationFn

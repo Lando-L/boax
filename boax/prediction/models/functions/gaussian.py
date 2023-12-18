@@ -25,11 +25,15 @@ from boax.typing import Array, Numeric
 
 
 def prior(
-  index_points: Array, mean: Mean, kernel: Kernel, jitter: Numeric
+  index_points: Array,
+  mean: Mean,
+  kernel: Kernel,
+  noise: Numeric,
+  jitter: Numeric
 ) -> Tuple[Array, Array]:
   Kxx = kernel(index_points, index_points)
   loc = mean(index_points)
-  cov = Kxx + jitter * jnp.identity(Kxx.shape[-1])
+  cov = Kxx + (noise + jitter) * jnp.identity(Kxx.shape[-1])
   return loc, cov
 
 
@@ -60,3 +64,34 @@ def posterior(
   cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(index_points.shape[0])
 
   return loc, cov
+
+
+# def variational(
+#   index_points: Array,
+#   inducing_points: Array,
+#   variational_mean: Array,
+#   variational_root_cov: Array,
+#   mean: Mean,
+#   kernel: Kernel,
+#   jitter: Numeric,
+# ) -> Tuple[Array, Array]:
+#   mx = mean(inducing_points)
+#   mz = mean(index_points)
+
+#   Kxx = kernel(inducing_points, inducing_points)
+#   Kxz = kernel(inducing_points, index_points)
+#   Kzz = kernel(index_points, index_points)
+
+#   Lz = jnp.linalg.cholesky(Kxx + jitter * jnp.identity(inducing_points.shape[0]), lower=True)
+#   Lz_inv_Kxz = scipy.linalg.solve_triangular(Lz, Kxz, lower=True)
+#   Kxx_inv_Kxz = scipy.linalg.solve_triangular(Lz.T, Lz_inv_Kxz)
+#   Kxx_inv_Kxz_sqrt = jnp.matmul(Kxx_inv_Kxz.T, variational_root_cov)
+
+#   loc = mz + jnp.matmul(Kxx_inv_Kxz.T, variational_mean - mx)
+#   cov = (
+#     Kzz
+#     - jnp.matmul(Lz_inv_Kxz.T, Lz_inv_Kxz)
+#     + jnp.matmul(Kxx_inv_Kxz_sqrt, Kxx_inv_Kxz_sqrt.T)
+#   ) + jitter * jnp.identity(inducing_points.shape[0])
+
+#   return loc, cov

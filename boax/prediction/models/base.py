@@ -12,8 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimization module."""
+"""Base interface for surrogate models."""
 
-from . import acquisitions as acquisitions
-from . import maximizers as maximizers
-from . import samplers as samplers
+from typing import Generic, Protocol, TypeVar
+
+from boax.typing import Array
+
+T = TypeVar('T')
+
+
+class Model(Protocol, Generic[T]):
+  """Base interface for posterior functions."""
+
+  def __call__(self, index_points: Array) -> T:
+    """
+    Computes the posterior over model outputs at the provided index points.
+
+    Args:
+      index_points: The `n x d` index points.
+
+    Returns:
+      The model evaluated at the given index points.
+    """

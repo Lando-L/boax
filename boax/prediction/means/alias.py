@@ -14,6 +14,7 @@
 
 """Alias for mean functions."""
 
+from jax import jit
 from jax import numpy as jnp
 from jax import vmap
 
@@ -32,7 +33,7 @@ def zero() -> Mean:
     A zero mean function.
   """
 
-  return vmap(const(jnp.zeros(())))
+  return jit(vmap(const(jnp.zeros(()))))
 
 
 def constant(x: Numeric) -> Mean:
@@ -45,7 +46,7 @@ def constant(x: Numeric) -> Mean:
     A constant mean function.
   """
 
-  return vmap(const(x))
+  return jit(vmap(const(x)))
 
 
 def linear(scale: Array, bias: Numeric) -> Mean:
@@ -61,4 +62,4 @@ def linear(scale: Array, bias: Numeric) -> Mean:
   def mean(value: Array) -> Array:
     return jnp.dot(scale, value) + bias
 
-  return mean
+  return jit(mean)

@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The processes sub-package."""
+"""The sampler functions sub-package."""
 
-from .alias import gaussian as gaussian
-from .base import PosteriorFn as PosteriorFn
-from .base import PriorFn as PriorFn
-from .base import Process as Process
+from . import quasi_random as quasi_random

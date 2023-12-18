@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimization module."""
+"""The samplers sub-package."""
 
-from . import acquisitions as acquisitions
-from . import maximizers as maximizers
-from . import samplers as samplers
+from .alias import halton_normal as halton_normal
+from .alias import halton_uniform as halton_uniform
+from .base import Sampler as Sampler

@@ -12,8 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimization module."""
+"""Base interface for samplers."""
 
-from . import acquisitions as acquisitions
-from . import maximizers as maximizers
-from . import samplers as samplers
+from typing import Protocol
+
+from boax.typing import Array, PRNGKey
+
+
+class Sampler(Protocol):
+  """Base interface for acquisition functions."""
+
+  def __call__(self, key: PRNGKey, num_results: int) -> Array:
+    """
+    Evaluates the acquisition function on a set of `candidates`.
+
+    Args:
+      candidates: The candidate set.
+
+    Returns:
+      The acquisition function values of the given set of candidates.
+    """

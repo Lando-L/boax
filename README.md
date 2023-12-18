@@ -13,7 +13,7 @@ Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**. It comes with a low-level interfaces for:
 
 * **Fitting a Gaussian Process model to data** (`boax.prediction`): Kernels, Mean Functions, Gaussian Processes
-* **Constructing and optimizing acquisition functions** (`boax.optimization`) Acquisition Functions, Maximizers
+* **Constructing and optimizing acquisition functions** (`boax.optimization`) Acquisition Functions, Maximizers, Samplers
 
 ## Installation
 
@@ -56,15 +56,15 @@ from jax import vmap
 import optax
 import matplotlib.pyplot as plt
 
-from boax.prediction import kernels, means, processes
-from boax.optimization import acquisitions, maximizers
+from boax.prediction import kernels, means, models
+from boax.optimization import acquisitions, maximizers, samplers
 
 bounds = jnp.array([[-3, 3]])
 
 def objective(x):
   return jnp.sin(4 * x[..., 0]) + jnp.cos(2 * x[..., 0])
 
-sample_key, noise_key = random.split(random.key(0))
+sample_key, noise_key, maximizer_key = random.split(random.key(0), 3)
 x_train = random.uniform(sample_key, minval=bounds[0, 0], maxval=bounds[0, 1], shape=(10, 1))
 y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 ```
@@ -72,12 +72,18 @@ y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 2. Fit a Gaussian Process model to the training dataset.
 
 ```python
-def process(params):
-  return processes.gaussian(
+def prior(amplitude, length_scale, noise):
+  return models.gaussian_process(
     means.zero(),
-    kernels.scale(nn.softplus(params['amplitude']), kernels.rbf(nn.softplus(params['length_scale']))),
-    nn.softplus(params['noise']),
+    kernels.scale(nn.softplus(amplitude), kernels.rbf(nn.softplus(length_scale))),
+    nn.softplus(noise),
   )
+
+optimizer = optax.adam(0.01)
+
+def target_log_prob(params):
+  mean, cov = prior(**params)(x_train)
+  return -scipy.stats.multivariate_normal.logpdf(y_train, mean, cov)
 
 params = {
   'amplitude': jnp.zeros(()),
@@ -85,15 +91,8 @@ params = {
   'noise': jnp.array(-5.),
 }
 
-optimizer = optax.adam(0.01)
-opt_state = optimizer.init(params)
-
 def train_step(state, iteration):
-  def loss_fn(params):            
-    loc, scale = process(params).prior(x_train)
-    return -scipy.stats.multivariate_normal.logpdf(y_train, loc, scale)
-
-  loss, grads = value_and_grad(loss_fn)(state[0])
+  loss, grads = value_and_grad(target_log_prob)(state[0])
   updates, opt_state = optimizer.update(grads, state[1])
   params = optax.apply_updates(state[0], updates)
 
@@ -101,19 +100,26 @@ def train_step(state, iteration):
 
 (next_params, next_opt_state), history = lax.scan(
   jit(train_step),
-  (params, opt_state),
+  (params, optimizer.init(params)),
   jnp.arange(500)
 )
 ```
 
 3. Construct and optimize an acquisition function
 ```python
-acqusition = acquisitions.upper_confidence_bound(
-    2,
-    partial(process(next_params).posterior, observation_index_points=x_train, observations=y_train)
+surrogate = models.gaussian_process_regression(
+  x_train,
+  y_train,
+  means.zero(),
+  kernels.scale(nn.softplus(next_params['amplitude']), kernels.rbf(nn.softplus(next_params['length_scale']))),
+  nn.softplus(next_params['noise']),
 )
 
-candidates, scores = maximizers.bfgs(50, bounds)(acqusition)
+acqf = acquisitions.upper_confidence_bound(2.0, surrogate)
+maximizer = maximizers.bfgs(bounds, q=1, num_restarts=25, num_raw_samples=500)
+
+init_candidates = maximizer.init(maximizer_key, acqf)
+candidates, values = maximizer.maximize(init_candidates, acqf)
 ```
 
 ## Citing Boax

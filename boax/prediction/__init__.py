@@ -16,4 +16,4 @@
 
 from . import kernels as kernels
 from . import means as means
-from . import processes as processes
+from . import models as models
