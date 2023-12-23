@@ -28,6 +28,11 @@ def scale(amplitude: Numeric, inner: Kernel) -> Kernel:
 
   Computes `k(x, y) = amplitude * inner(x, y)`.
 
+  Example:
+    >>> inner = rbf(jnp.array([0.2, 3.0]))
+    >>> kernel = scale(3.0, inner)
+    >>> Kxx = kernel(xs, xs)
+
   Args:
     amplitude: The parameter controlling the maximum of the kernel.
     inner: The inner kernel.
@@ -47,6 +52,11 @@ def combine(operator: Callable, *kernels: Kernel) -> Kernel:
   Combine kernel.
 
   Combines a sequence of kernels using the an `operator`.
+
+  Example:
+    >>> inners = list(map(rbf, [0.2, 0.3, 0.4]))
+    >>> kernel = combine(partial(jnp.sum, axis=0), *inners)
+    >>> Kxx = kernel(xs, xs)
 
   Args:
     operator: The operator used for the combination.

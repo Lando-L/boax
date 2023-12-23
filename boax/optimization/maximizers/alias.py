@@ -31,6 +31,12 @@ def bfgs(
   """
   The BFGS acquisition function maximizer.
 
+  Example:
+    >>> acqf = upper_confidence_bound(2.0, surrogate)
+    >>> maximizer = bfgs(bounds, q=1, num_restarts=25, num_raw_samples=500)
+    >>> init_candidates = maximizer.init(key, acqf)
+    >>> candidates, values = maximizer.maximize(init_candidates, acqf)
+
   Args:
     bounds: The bounds of the search space.
     q: The q batch size

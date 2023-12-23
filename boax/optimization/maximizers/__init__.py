@@ -16,3 +16,5 @@
 
 from .alias import bfgs as bfgs
 from .base import Maximizer as Maximizer
+from .base import MaximizerInitFn as MaximizerInitFn
+from .base import MaximizerMaximizationFn as MaximizerMaximizationFn

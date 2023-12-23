@@ -22,11 +22,16 @@ T = TypeVar('T')
 
 
 class Model(Protocol, Generic[T]):
-  """Base interface for posterior functions."""
+  """
+  A callable type for surrogate models.
+
+  A model takes a set of `n x d`-dim index points as input
+  and returns a posterior prediction of type `T`.
+  """
 
   def __call__(self, index_points: Array) -> T:
     """
-    Computes the posterior over model outputs at the provided index points.
+    Computes the posterior prediction at the index points.
 
     Args:
       index_points: The `n x d` index points.

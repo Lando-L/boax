@@ -30,7 +30,11 @@ def gaussian_process(
   mean: Mean, kernel: Kernel, noise: Numeric, jitter: Numeric = 1e-6
 ) -> Model[Tuple[Array, Array]]:
   """
-  Gaussian process model.
+  The gaussian process model.
+
+  Example:
+    >>> model = gaussian_process(mean, kernel, 1e-4)
+    >>> mean, cov = model(xs)
 
   Args:
     mean: The process' mean function.
@@ -62,7 +66,11 @@ def gaussian_process_regression(
   jitter: Numeric = 1e-6,
 ) -> Model[Tuple[Array, Array]]:
   """
-  Gaussian process regression model.
+  The gaussian process regression model.
+
+  Example:
+    >>> model = gaussian_process_regression(x_train, y_train, mean, kernel, 1e-4)
+    >>> mean, cov = model(xs)
 
   Args:
     observation_index_points: The index observation points.

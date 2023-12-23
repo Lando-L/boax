@@ -24,9 +24,13 @@ from boax.util import const
 
 def zero() -> Mean:
   """
-  Zero function.
+  The zero mean function.
 
   Computes `y = f(x) = 0`.
+
+  Example:
+    >>> mean = zero()
+    >>> ys = mean(xs)
 
   Returns:
     A zero mean function.
@@ -37,9 +41,13 @@ def zero() -> Mean:
 
 def constant(x: Numeric) -> Mean:
   """
-  Constant function.
+  The constant mean function.
 
   Computes `y = f(x) = c`.
+
+  Example:
+    >>> mean = constant(1.96)
+    >>> ys = mean(xs)
 
   Returns:
     A constant mean function.
@@ -50,9 +58,13 @@ def constant(x: Numeric) -> Mean:
 
 def linear(scale: Array, bias: Numeric) -> Mean:
   """
-  Linear mean function.
+  The linear mean function.
 
   Computes `y = f(x) = scale * x + bias`.
+
+  Example:
+    >>> mean = linear(jnp.array([0.2, 3.0]), 5.0)
+    >>> ys = mean(xs)
 
   Returns:
     A linear mean function.

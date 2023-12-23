@@ -22,18 +22,23 @@ from boax.typing import Array, Numeric
 
 
 class Kernel(Protocol):
-  """Base interfaces for kernels."""
+  """
+  A callable type for kernels.
+
+  A kernel takes two `n x d`-dim arrays as input and returns
+  an `n x n`-dim matrix of kernel function values.
+  """
 
   def __call__(self, x: Array, y: Array) -> Array:
     """
-    Calculates kernel function to pairs of inputs.
+    Calculates the kernel function of a pair of inputs.
 
     Args:
-      x: A vector.
-      y: A vector.
+      x: The first `n x d`-dim array.
+      y: The second `n x d`-dim array.
 
     Returns:
-      The value of the kernel function.
+      A matrix indicating the kernel function values.
     """
 
 
@@ -41,13 +46,13 @@ def from_kernel_function(
   kernel_fn: Callable[[Numeric, Numeric], Numeric],
 ) -> Kernel:
   """
-  Transforms a kernel function into a `Kernel`.
+  Transforms a kernel function into a _kernel_.
 
   Args:
     kernel_fn: The kernel function to be transformed.
 
   Returns:
-    The transformed kernel.
+    The corresponding `Kernel`.
   """
 
   return jit(vmap(vmap(kernel_fn, in_axes=(None, 0)), in_axes=(0, None)))

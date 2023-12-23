@@ -28,6 +28,21 @@ from boax.util import compose
 def halton_uniform(
   minval: Array = jnp.zeros((1,)), maxval: Array = jnp.ones((1,))
 ) -> Sampler:
+  """
+  The quasi-MC uniform sampler based on halton sequences.
+
+  Example:
+    >>> sampler = halton_uniform(jnp.zeros((5,)), jnp.ones((5,)))
+    >>> base_samples = sampler(key, 128)
+
+  Args:
+    minval: The inclusive minimum value.
+    maxval: The exclusive maximum value.
+
+  Returns:
+    The corresponding `Sampler`.
+  """
+
   out_shape = lax.broadcast_shapes(minval.shape, maxval.shape)
 
   if out_shape[0] < 1 or out_shape[0] > functions.quasi_random.MAX_DIMENSION:
@@ -46,6 +61,21 @@ def halton_uniform(
 def halton_normal(
   loc: Array = jnp.zeros((1,)), scale: Array = jnp.ones((1,))
 ) -> Sampler:
+  """
+  The quasi-MC normal sampler based on halton sequences.
+
+  Example:
+    >>> sampler = halton_normal(jnp.zeros((5,)), jnp.ones((5,)))
+    >>> base_samples = sampler(key, 128)
+
+  Args:
+    loc: The location parameter.
+    scale: The scale parameter.
+
+  Returns:
+    The corresponding `Sampler`.
+  """
+
   out_shape = lax.broadcast_shapes(loc.shape, scale.shape)
 
   if out_shape[0] < 1 or out_shape[0] > functions.quasi_random.MAX_DIMENSION:

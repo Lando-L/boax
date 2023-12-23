@@ -9,8 +9,14 @@ Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**.
 
 It comes with a low-level interfaces for:
-   * **Fitting a Gaussian Process model to data** (`boax.prediction`): Bijectors, Kernels, Mean Functions, Gaussian Processes
-   * **Constructing and optimizing acquisition functions** (`boax.optimization`) Acquisition Functions, Maximizers
+   * **Fitting a Gaussian Process model to data** (`boax.prediction`):
+      * Kernels
+      * Mean Functions
+      * Surrogate Models
+   * **Constructing and optimizing acquisition functions** (`boax.optimization`)
+      * Acquisition Functions
+      * Maximizers
+      * Samplers
 
 ----
 
@@ -33,5 +39,4 @@ can be used to obtain the most recent version of Boax::
    :maxdepth: 2
 
    guides/Getting_Started
-   guides/index
    api_reference/index

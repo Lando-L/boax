@@ -20,15 +20,20 @@ from boax.typing import Array
 
 
 class Mean(Protocol):
-  """Base interface for mean functions."""
+  """
+  A callable type for mean functions.
+
+  A mean functions takes a `n x d`-dim array as input and returns
+  an `n`-dim array of mean function values.
+  """
 
   def __call__(self, value: Array) -> Array:
     """
-    Returns the mean.
+    Calculates the mean function to a set of inputs.
 
     Args:
-      value: Input to the mean function.
+      value: The inputs to the mean function.
 
     Returns:
-      The mean.
+      The `n`-dim mean function values at the inputs.
     """

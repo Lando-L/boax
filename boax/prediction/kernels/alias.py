@@ -18,14 +18,18 @@ from functools import partial
 
 from boax.prediction.kernels import functions
 from boax.prediction.kernels.base import Kernel, from_kernel_function
-from boax.typing import Numeric
+from boax.typing import Array, Numeric
 
 
-def rbf(length_scale: Numeric) -> Kernel:
+def rbf(length_scale: Array) -> Kernel:
   """
-  Radial basis function (RBF) kernel.
+  The Radial basis function (RBF) kernel.
 
   Computes `k(x, y) = exp(-||x - y||**2 / (2 * length_scale**2))`.
+
+  Example:
+    >>> kernel = rbf(jnp.array([0.2, 3.0]))
+    >>> Kxx = kernel(xs, xs)
 
   Args:
     length_scale: The parameter controlling how sharp or wide the kernel is.
@@ -39,11 +43,15 @@ def rbf(length_scale: Numeric) -> Kernel:
   )
 
 
-def matern_one_half(length_scale: Numeric) -> Kernel:
+def matern_one_half(length_scale: Array) -> Kernel:
   """
-  Matern kernel with parameter 1/2.
+  The Matern kernel with parameter 1/2.
 
   Computes `k(x, y) = exp(-||x - y|| / length_scale)`.
+
+  Example:
+    >>> kernel = matern_one_half(jnp.array([0.2, 3.0]))
+    >>> Kxx = kernel(xs, xs)
 
   Args:
     length_scale: The parameter controlling how sharp or wide the kernel is.
@@ -57,13 +65,17 @@ def matern_one_half(length_scale: Numeric) -> Kernel:
   )
 
 
-def matern_three_halves(length_scale: Numeric) -> Kernel:
+def matern_three_halves(length_scale: Array) -> Kernel:
   """
-  Matern kernel with parameter 3/2.
+  The Matern kernel with parameter 3/2.
 
   Computes `k(x, y) = (1 + z) * exp(-z)`,
 
   with `z = sqrt(3) * ||x - y|| / length_scale`.
+
+  Example:
+    >>> kernel = matern_three_halves(jnp.array([0.2, 3.0]))
+    >>> Kxx = kernel(xs, xs)
 
   Args:
     length_scale: The parameter controlling how sharp or wide the kernel is.
@@ -77,13 +89,17 @@ def matern_three_halves(length_scale: Numeric) -> Kernel:
   )
 
 
-def matern_five_halves(length_scale: Numeric) -> Kernel:
+def matern_five_halves(length_scale: Array) -> Kernel:
   """
-  Matern kernel with parameter 5/2.
+  The Matern kernel with parameter 5/2.
 
   Computes `k(x, y) = (1 + z + z**2 / 3) * exp(-z)`,
 
   with `z = sqrt(5) * ||x - y|| / length_scale`.
+
+  Example:
+    >>> kernel = matern_five_halves(jnp.array([0.2, 3.0]))
+    >>> Kxx = kernel(xs, xs)
 
   Args:
     length_scale: The parameter controlling how sharp or wide the kernel is.
@@ -97,11 +113,13 @@ def matern_five_halves(length_scale: Numeric) -> Kernel:
   )
 
 
-def periodic(
-  length_scale: Numeric, variance: Numeric, period: Numeric
-) -> Kernel:
+def periodic(length_scale: Array, variance: Numeric, period: Numeric) -> Kernel:
   """
-  Periodic kernel.
+  The Periodic kernel.
+
+  Example:
+    >>> kernel = periodic(jnp.array([0.2, 3.0]), 1.0, 2.0)
+    >>> Kxx = kernel(xs, xs)
 
   Args:
     length_scale: The parameter controlling how sharp or wide the kernel is.

@@ -20,7 +20,12 @@ from boax.typing import Array
 
 
 class Acquisition(Protocol):
-  """Base interface for acquisition functions."""
+  """
+  A callable type for acquisition functions.
+
+  An acquisition function takes a `n x q x d`-dim candidate set as input
+  and returns an `n`-dim array of acquisition values.
+  """
 
   def __call__(self, candidates: Array) -> Array:
     """
@@ -30,5 +35,5 @@ class Acquisition(Protocol):
       candidates: The `n x q x d`-dim candidate set.
 
     Returns:
-      The `n`-dim acquisition function values of the given set of candidates.
+      The `n`-dim acquisition function values at the given design points.
     """

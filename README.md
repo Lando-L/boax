@@ -12,10 +12,10 @@
 Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**. It comes with a low-level interfaces for:
 
-* **Fitting a Gaussian Process model to data** (`boax.prediction`):
+* **Fitting a surrogate model to data** (`boax.prediction`):
   * Kernels
   * Mean Functions
-  * Gaussian Processes
+  * Surrogate Models
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
   * Acquisition Functions
   * Maximizers
@@ -75,7 +75,7 @@ x_train = random.uniform(sample_key, minval=bounds[0, 0], maxval=bounds[0, 1], s
 y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 ```
 
-2. Fit a Gaussian Process model to the training dataset.
+2. Fit a Gaussian Process surrogate model to the training dataset.
 
 ```python
 def prior(amplitude, length_scale, noise):
@@ -111,7 +111,7 @@ def train_step(state, iteration):
 )
 ```
 
-3. Construct and optimize an acquisition function
+3. Construct and optimize an UCB acquisition function.
 ```python
 surrogate = models.gaussian_process_regression(
   x_train,

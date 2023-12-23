@@ -20,15 +20,21 @@ from boax.typing import Array, PRNGKey
 
 
 class Sampler(Protocol):
-  """Base interface for acquisition functions."""
+  """
+  A callable type for sampling functions.
+
+  A sampler takes a PRNG key and a number of results as input
+  and returns `num_results` samples.
+  """
 
   def __call__(self, key: PRNGKey, num_results: int) -> Array:
     """
-    Evaluates the acquisition function on a set of `candidates`.
+    Draws `num_results` of samples.
 
     Args:
-      candidates: The candidate set.
+      key: The pseudo-random number generator key.
+      candidates: The number of results to return.
 
     Returns:
-      The acquisition function values of the given set of candidates.
+      A set of `num_results` samples.
     """

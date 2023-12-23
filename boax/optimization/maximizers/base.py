@@ -21,46 +21,65 @@ from boax.typing import Array, PRNGKey
 
 
 class MaximizerInitFn(Protocol):
-  """Base interface for maximization functions."""
+  """
+  A callable type for the `init` step of a `Maximizer`.
+
+  The `init` step takes PRNG key and an `Acquisition` function
+  to construct the initial `n x q x d`-dim candidates for the maximizer.
+  """
 
   def __call__(self, key: PRNGKey, acquisition: Acquisition) -> Array:
     """
-    Maximizes an acquisition.
+    The `init` function.
 
     Args:
       key: The pseudo-random number generator key.
-      acquisition: The acquisition function to be maximized.
+      acquisition: The acquisition function.
 
     Returns:
-      A tuple of candidates and their acquisition values.
+      An initial set of `n x q x d`-dim candidates.
     """
 
 
 class MaximizerMaximizationFn(Protocol):
-  """Base interface for maximization functions."""
+  """
+  A callable type for the `maximize` step of a `Maximizer`.
+
+  The `maximizer` step takes a set of `n x q x d`-dim initial candidates
+  and an `Acquisition` function to find the function's maxima.
+  """
 
   def __call__(
     self, candidates: Array, acquisition: Acquisition
   ) -> Tuple[Array, Array]:
     """
-    Maximizes an acquisition.
+    The `maximize` function.
 
     Args:
-      candidates: Initial candidates.
-      acquisition: The acquisition function to be maximized.
+      candidates: The set of initial candidates.
+      acquisition: The acquisition function.
 
     Returns:
-      A tuple of candidates and their acquisition values.
+      A tuple of maxima candidates and their acquisition values.
     """
 
 
 class Maximizer(NamedTuple):
   """
-  Base interface for acquisition function maximizers.
+  A pair of pure functions implementing acqusition function maximization.
+
+  Boax acquisition function maximizers are all implemented as _maximizer_.
+  A maximizer is defined as a pair of pure functions, which are combined
+  together in  a `NamedTuple` so that they can be referred to by name.
 
   Attributes:
-    init: Initializes candidates for a given acquisition function.
-    maximize: Maximizes a given acquisition function.
+    init: A pure function which, when called with a PRNG key and an
+      `Acquisition` function, returns a set of initial candidates
+      for the acqusition function maximization process.
+    maximize: A pure function which takes as input an initial set of
+      maxima candidates and an `Acquisition` function to find. The
+      maximize function then returns the found maxima and their
+      corresponding acquisition values.
   """
 
   init: MaximizerInitFn

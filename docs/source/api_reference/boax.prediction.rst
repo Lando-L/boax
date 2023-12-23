@@ -1,82 +1,103 @@
 ``boax.prediction`` module
-===========================
+============================
 
 .. currentmodule:: boax.prediction
 
-Implements functionalities to fit Gaussian Process models to data.
+Implements functionalities to fit a surrogate model to data.
 
 
 boax.prediction.kernels
------------------------
+------------------------------
 
 .. currentmodule:: boax.prediction.kernels
 
 
 Kernel Types
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 
 .. autoclass:: Kernel
     :members:
 
 
-Kernels
-^^^^^^^
+Kernel Functions
+~~~~~~~~~~~~~~~~
+
+
+Radial Basis Kernels
+^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
 
   rbf
+
+
+Mater Kernels
+^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
   matern_one_half
   matern_three_halves
   matern_five_halves
+
+
+Periodic Kernels
+^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
   periodic
-  combine
-  scale
 
 
 boax.prediction.means
-----------------------
+----------------------------
 
 .. currentmodule:: boax.prediction.means
 
 
 Mean Types
-^^^^^^^^^^
+~~~~~~~~~~
 
 .. autoclass:: Mean
     :members:
 
 
 Mean Functions
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 .. autosummary::
   :toctree: generated
 
   zero
-  const
+  constant
   linear
 
 
-boax.prediction.processes
+boax.prediction.models
 --------------------------
 
-.. currentmodule:: boax.prediction.processes
+.. currentmodule:: boax.prediction.models
 
 
-Process Types
-^^^^^^^^^^^^^
+Model Types
+~~~~~~~~~~~
 
-.. autoclass:: Process
+.. autoclass:: Model
     :members:
 
-.. autoclass:: PriorFn
-    :members:
 
-.. autoclass:: PosteriorFn
-    :members:
+Models
+~~~~~~
+
+
+Gaussian Process Models
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
 
-  gaussian
+  gaussian_process
+  gaussian_process_regression
