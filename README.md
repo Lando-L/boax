@@ -38,7 +38,7 @@ pip install git+https://github.com/Lando-L/boax.git
 ## Getting Started
 
 Here is a quick start example of the two main compoments that form the Bayesian optimization loop.
-For more details check out the [docs](https://boax.readthedocs.io/en/latest/) and our [tutorials](https://github.com/Lando-L/boax/blob/main/examples).
+For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
 
 1. Create a dataset from a noisy sinusoid.
 
@@ -137,7 +137,7 @@ To cite Boax please use the citation:
   author = {Lando L{\"o}per},
   title = {{B}oax: A Bayesian Optimization library for {JAX}},
   url = {https://github.com/Lando-L/boax},
-  version = {0.0.2},
+  version = {0.0.3},
   year = {2023},
 }
 ```
