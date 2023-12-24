@@ -16,7 +16,6 @@ Acquisition Types
 ~~~~~~~~~~~~~~~~~
 
 .. autoclass:: Acquisition
-    :members:
 
 
 Acquisition Functions
@@ -59,7 +58,6 @@ Maximizer Types
 ~~~~~~~~~~~~~~~
 
 .. autoclass:: Maximizer
-    :members:
 
 
 Maximizers
@@ -81,7 +79,6 @@ Sampler Types
 ~~~~~~~~~~~~~
 
 .. autoclass:: Sampler
-    :members:
 
 
 Samplers

@@ -22,7 +22,6 @@ extensions = [
   'sphinx.ext.duration',
   'sphinx.ext.napoleon',
   'sphinx_autodoc_typehints',
-  'sphinx_book_theme',
 ]
 
 templates_path = ['_templates']

@@ -16,7 +16,6 @@ Kernel Types
 ~~~~~~~~~~~~
 
 .. autoclass:: Kernel
-    :members:
 
 
 Kernel Functions
@@ -62,7 +61,6 @@ Mean Types
 ~~~~~~~~~~
 
 .. autoclass:: Mean
-    :members:
 
 
 Mean Functions
@@ -86,7 +84,6 @@ Model Types
 ~~~~~~~~~~~
 
 .. autoclass:: Model
-    :members:
 
 
 Models
