@@ -3,7 +3,7 @@ from jax import numpy as jnp
 from jax import random
 
 from boax.optimization import maximizers
-from boax.util import const
+from boax.utils.functools import const
 
 
 class MaximizersTest(parameterized.TestCase):

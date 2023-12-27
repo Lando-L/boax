@@ -12,15 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The kernels sub-package."""
+"""The stats sub-package."""
 
-from .alias import matern_five_halves as matern_five_halves
-from .alias import matern_one_half as matern_one_half
-from .alias import matern_three_halves as matern_three_halves
-from .alias import periodic as periodic
-from .alias import rbf as rbf
-from .base import Kernel as Kernel
-from .base import from_kernel_function as from_kernel_function
-from .transformed import product as product
-from .transformed import scaled as scaled
-from .transformed import sum as sum
+from typing import Tuple
+
+from jax import numpy as jnp
+from jax import scipy
+
+from boax.utils.typing import Array
+
+
+def mvn_to_norm(mean: Array, cov: Array) -> Tuple[Array, Array]:
+  return mean, jnp.sqrt(jnp.diag(cov))
+
+
+def sample_mvn(mean: Array, cov: Array, base_samples: Array) -> Array:
+  return mean + jnp.dot(scipy.linalg.cholesky(cov, lower=True), base_samples)
+
+
+def scale_improvement(loc: Array, scale: Array, best: Array) -> Array:
+  return (loc - best) / scale

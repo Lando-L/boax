@@ -12,15 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The kernels sub-package."""
+"""Range constraints."""
 
-from .alias import matern_five_halves as matern_five_halves
-from .alias import matern_one_half as matern_one_half
-from .alias import matern_three_halves as matern_three_halves
-from .alias import periodic as periodic
-from .alias import rbf as rbf
-from .base import Kernel as Kernel
-from .base import from_kernel_function as from_kernel_function
-from .transformed import product as product
-from .transformed import scaled as scaled
-from .transformed import sum as sum
+from jax import scipy
+
+from boax.utils.typing import Array, Numeric
+
+
+def le(loc: Array, scale: Array, x: Numeric) -> Array:
+  return scipy.stats.norm.sf(x, loc, scale)
+
+
+def lle(loc: Array, scale: Array, x: Numeric) -> Array:
+  return scipy.stats.norm.logsf(x, loc, scale)
+
+
+def ge(loc: Array, scale: Array, x: Numeric) -> Array:
+  return scipy.stats.norm.cdf(x, loc, scale)
+
+
+def lge(loc: Array, scale: Array, x: Numeric) -> Array:
+  return scipy.stats.norm.logcdf(x, loc, scale)

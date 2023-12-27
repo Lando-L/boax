@@ -19,7 +19,7 @@ import math
 from jax import numpy as jnp
 
 from boax.prediction.kernels.functions.util import euclidean_distance
-from boax.typing import Numeric
+from boax.utils.typing import Numeric
 
 sqrt_3 = math.sqrt(3)
 sqrt_5 = math.sqrt(5)

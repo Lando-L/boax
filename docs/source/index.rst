@@ -15,6 +15,7 @@ It comes with a low-level interfaces for:
       * Surrogate Models
    * **Constructing and optimizing acquisition functions** (`boax.optimization`)
       * Acquisition Functions
+      * Constraint Functions
       * Maximizers
       * Samplers
 

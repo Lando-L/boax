@@ -14,14 +14,10 @@
 
 """Monte Carlo acquisition functions."""
 
-from jax import lax, nn, scipy
+from jax import lax, nn
 from jax import numpy as jnp
 
-from boax.typing import Array, Numeric
-
-
-def sampler(mean: Array, cov: Array, base_samples: Array) -> Array:
-  return mean + jnp.dot(scipy.linalg.cholesky(cov, lower=True), base_samples)
+from boax.utils.typing import Array, Numeric
 
 
 def qei(values: Array, best: Numeric) -> Array:

@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The kernels sub-package."""
+"""The typing sub-package."""
 
-from .alias import matern_five_halves as matern_five_halves
-from .alias import matern_one_half as matern_one_half
-from .alias import matern_three_halves as matern_three_halves
-from .alias import periodic as periodic
-from .alias import rbf as rbf
-from .base import Kernel as Kernel
-from .base import from_kernel_function as from_kernel_function
-from .transformed import product as product
-from .transformed import scaled as scaled
-from .transformed import sum as sum
+import chex
+
+Array = chex.Array
+Numeric = chex.Numeric
+PRNGKey = chex.PRNGKey

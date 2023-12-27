@@ -18,7 +18,7 @@ from typing import Callable, Protocol
 
 from jax import jit, vmap
 
-from boax.typing import Array, Numeric
+from boax.utils.typing import Array, Numeric
 
 
 class Kernel(Protocol):

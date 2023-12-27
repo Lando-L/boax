@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Alias for JAX typing."""
+"""The constrains sub-package."""
 
-import chex
-
-Array = chex.Array
-Numeric = chex.Numeric
-PRNGKey = chex.PRNGKey
+from .alias import greater_or_equal as greater_or_equal
+from .alias import less_or_equal as less_or_equal
+from .alias import log_greater_or_equal as log_greater_or_equal
+from .alias import log_less_or_equal as log_less_or_equal
+from .base import Constraint as Constraint

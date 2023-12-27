@@ -18,6 +18,7 @@ that is **designed for flexibility**. It comes with a low-level interfaces for:
   * Surrogate Models
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
   * Acquisition Functions
+  * Constraint Functions
   * Maximizers
   * Samplers
 
@@ -43,8 +44,6 @@ For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
 1. Create a dataset from a noisy sinusoid.
 
 ```python
-from functools import partial
-
 from jax import config
 
 # Double precision is highly recommended.
@@ -57,13 +56,11 @@ from jax import numpy as jnp
 from jax import random
 from jax import scipy
 from jax import value_and_grad
-from jax import vmap
 
 import optax
-import matplotlib.pyplot as plt
 
 from boax.prediction import kernels, means, models
-from boax.optimization import acquisitions, maximizers, samplers
+from boax.optimization import acquisitions, maximizers
 
 bounds = jnp.array([[-3, 3]])
 
@@ -81,11 +78,9 @@ y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 def prior(amplitude, length_scale, noise):
   return models.gaussian_process(
     means.zero(),
-    kernels.scale(nn.softplus(amplitude), kernels.rbf(nn.softplus(length_scale))),
+    kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
     nn.softplus(noise),
   )
-
-optimizer = optax.adam(0.01)
 
 def target_log_prob(params):
   mean, cov = prior(**params)(x_train)
@@ -96,6 +91,8 @@ params = {
   'length_scale': jnp.zeros(()),
   'noise': jnp.array(-5.),
 }
+
+optimizer = optax.adam(0.01)
 
 def train_step(state, iteration):
   loss, grads = value_and_grad(target_log_prob)(state[0])
@@ -117,15 +114,15 @@ surrogate = models.gaussian_process_regression(
   x_train,
   y_train,
   means.zero(),
-  kernels.scale(nn.softplus(next_params['amplitude']), kernels.rbf(nn.softplus(next_params['length_scale']))),
+  kernels.scaled(kernels.rbf(nn.softplus(next_params['length_scale'])), nn.softplus(next_params['amplitude'])),
   nn.softplus(next_params['noise']),
 )
 
-acqf = acquisitions.upper_confidence_bound(2.0, surrogate)
+acqf = acquisitions.upper_confidence_bound(surrogate, beta=2.0)
 maximizer = maximizers.bfgs(bounds, q=1, num_restarts=25, num_raw_samples=500)
 
-init_candidates = maximizer.init(maximizer_key, acqf)
-candidates, values = maximizer.maximize(init_candidates, acqf)
+candidates = maximizer.init(maximizer_key, acqf)
+next_candidates, values = maximizer.maximize(candidates, acqf)
 ```
 
 ## Citing Boax

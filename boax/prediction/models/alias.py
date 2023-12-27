@@ -23,7 +23,7 @@ from boax.prediction.kernels.base import Kernel
 from boax.prediction.means.base import Mean
 from boax.prediction.models import functions
 from boax.prediction.models.base import Model
-from boax.typing import Array, Numeric
+from boax.utils.typing import Array, Numeric
 
 
 def gaussian_process(

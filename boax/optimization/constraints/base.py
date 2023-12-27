@@ -12,28 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for mean functions."""
+"""Base interface for constrain functions."""
 
 from typing import Protocol
 
 from boax.utils.typing import Array
 
 
-class Mean(Protocol):
+class Constraint(Protocol):
   """
-  A callable type for mean functions.
+  A callable type for constraint functions.
 
-  A mean functions takes a `n x d`-dim array as input and returns
-  an `n`-dim array of mean function values.
+  A constraint function takes a `n x q x d`-dim candidate set as input
+  and returns an `n`-dim array of feasibility scores.
   """
 
-  def __call__(self, value: Array) -> Array:
+  def __call__(self, candidates: Array) -> Array:
     """
-    Calculates the mean function to a set of inputs.
+    Evaluates the constraint function on a set of `candidates`.
 
     Args:
-      value: The inputs to the mean function.
+      candidates: The `n x q x d`-dim candidate set.
 
     Returns:
-      The `n`-dim mean function values at the inputs.
+      The `n`-dim feasibility scores at the given design points.
     """

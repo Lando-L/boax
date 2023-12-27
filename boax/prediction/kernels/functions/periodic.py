@@ -16,7 +16,7 @@
 
 from jax import numpy as jnp
 
-from boax.typing import Numeric
+from boax.utils.typing import Numeric
 
 
 def periodic(

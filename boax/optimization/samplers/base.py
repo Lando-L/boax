@@ -16,7 +16,7 @@
 
 from typing import Protocol
 
-from boax.typing import Array, PRNGKey
+from boax.utils.typing import Array, PRNGKey
 
 
 class Sampler(Protocol):

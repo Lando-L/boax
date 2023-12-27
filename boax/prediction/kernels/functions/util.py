@@ -16,7 +16,7 @@
 
 from jax import numpy as jnp
 
-from boax.typing import Array
+from boax.utils.typing import Array
 
 
 def squared_distance(x: Array, y: Array) -> Array:

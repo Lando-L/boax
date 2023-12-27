@@ -21,8 +21,8 @@ from jax import numpy as jnp
 from jax.scipy import optimize
 
 from boax.optimization.acquisitions.base import Acquisition
-from boax.typing import Array
-from boax.util import compose
+from boax.utils.functools import compose
+from boax.utils.typing import Array
 
 
 def bfgs(
