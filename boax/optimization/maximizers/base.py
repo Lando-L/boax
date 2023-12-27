@@ -17,7 +17,7 @@
 from typing import NamedTuple, Protocol, Tuple
 
 from boax.optimization.acquisitions.base import Acquisition
-from boax.typing import Array, PRNGKey
+from boax.utils.typing import Array, PRNGKey
 
 
 class MaximizerInitFn(Protocol):

@@ -15,12 +15,12 @@
 """Analytic acquisition functions."""
 
 import math
-from typing import Tuple
 
 from jax import numpy as jnp
 from jax import scipy
 
-from boax.typing import Array, Numeric
+from boax.utils.stats import scale_improvement
+from boax.utils.typing import Array, Numeric
 
 log2 = math.log(2)
 inv_sqrt2 = 1 / math.sqrt(2)
@@ -28,16 +28,8 @@ c1 = math.log(2 * math.pi) / 2
 c2 = math.log(math.pi / 2) / 2
 
 
-def analytic(loc: Array, cov: Array) -> Tuple[Array, Array]:
-  return loc, jnp.sqrt(jnp.diag(cov))
-
-
-def scaled_improvement(loc: Array, scale: Array, best: Numeric) -> Array:
-  return (loc - best) / scale
-
-
 def ei(loc: Array, scale: Array, best: Numeric) -> Array:
-  u = scaled_improvement(loc, scale, best)
+  u = scale_improvement(loc, scale, best)
   return (scipy.stats.norm.pdf(u) + u * scipy.stats.norm.cdf(u)) * scale
 
 
@@ -74,7 +66,7 @@ def lei(loc: Array, scale: Array, best: Numeric) -> Array:
 
     return jnp.where(x > -1, log_ei_upper(upper), log_ei_lower(lower))
 
-  u = scaled_improvement(loc, scale, best)
+  u = scale_improvement(loc, scale, best)
   return logh(u) + jnp.log(scale)
 
 

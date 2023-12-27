@@ -16,7 +16,7 @@
 
 from typing import Protocol
 
-from boax.typing import Array
+from boax.utils.typing import Array
 
 
 class Acquisition(Protocol):

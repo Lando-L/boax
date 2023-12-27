@@ -18,7 +18,7 @@ from functools import partial
 
 from boax.prediction.kernels import functions
 from boax.prediction.kernels.base import Kernel, from_kernel_function
-from boax.typing import Array, Numeric
+from boax.utils.typing import Array, Numeric
 
 
 def rbf(length_scale: Array) -> Kernel:

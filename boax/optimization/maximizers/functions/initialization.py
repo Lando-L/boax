@@ -19,7 +19,7 @@ from jax import numpy as jnp
 
 from boax.optimization.acquisitions.base import Acquisition
 from boax.optimization.samplers.alias import halton_uniform
-from boax.typing import Array, Numeric, PRNGKey
+from boax.utils.typing import Array, Numeric, PRNGKey
 
 
 def q_batch_initialization(

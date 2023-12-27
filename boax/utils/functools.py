@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""General util functions."""
+"""The functools sub-package."""
 
 from functools import reduce
 from typing import Callable, TypeVar
@@ -53,10 +53,10 @@ def const(c: T) -> Callable:
 
 def compose(*fns: Callable) -> Callable:
   """
-  Composes a sequence of function
+  Composes a sequence of functions
 
   Args:
-    fns: Functions to compose.
+    fns: The functions to compose.
 
   Returns:
     A function composed of the sequential applications of the given functions.
@@ -69,6 +69,27 @@ def compose(*fns: Callable) -> Callable:
     return __fn
 
   return reduce(__reduce_fn, fns)
+
+
+def combine(operator: Callable, initial: T, *fns: Callable) -> Callable:
+  """
+  Combines a sequence of functions by an operator.
+
+  Args:
+    operator: The operator used to combine the functions.
+    fns: The functions to combine.
+
+  Returns:
+    A function combining the outputs of the given functions by the operator.
+  """
+
+  def __fn(*args, **kwargs):
+    def __reduce_fn(state: T, f: Callable) -> T:
+      return operator(state, f(*args, **kwargs))
+
+    return reduce(__reduce_fn, fns, initial)
+
+  return __fn
 
 
 def tupled(f: Callable) -> Callable:

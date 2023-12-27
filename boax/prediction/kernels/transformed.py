@@ -14,59 +14,72 @@
 
 """Transformation functions for kernels."""
 
-from typing import Callable
+from functools import partial
 
-from jax import numpy as jnp
+from jax import lax
 
 from boax.prediction.kernels.base import Kernel
-from boax.typing import Numeric
+from boax.utils.functools import combine, compose
+from boax.utils.typing import Numeric
 
 
-def scale(amplitude: Numeric, inner: Kernel) -> Kernel:
+def scaled(kernel: Kernel, amplitude: Numeric) -> Kernel:
   """
-  Scale kernel.
+  Scales a given kernel.
 
   Computes `k(x, y) = amplitude * inner(x, y)`.
 
   Example:
     >>> inner = rbf(jnp.array([0.2, 3.0]))
-    >>> kernel = scale(3.0, inner)
+    >>> kernel = scale(inner, 3.0)
     >>> Kxx = kernel(xs, xs)
 
   Args:
+    kernel: The kernel to be scaled.
     amplitude: The parameter controlling the maximum of the kernel.
-    inner: The inner kernel.
 
   Returns:
     A scaled `Kernel`.
   """
 
-  def kernel(x, y):
-    return amplitude * inner(x, y)
-
-  return kernel
+  return compose(partial(lax.mul, y=amplitude), kernel)
 
 
-def combine(operator: Callable, *kernels: Kernel) -> Kernel:
+def sum(*kernels: Kernel) -> Kernel:
   """
-  Combine kernel.
+  Constructs a kernel by summing a sequence of kernels.
 
-  Combines a sequence of kernels using the an `operator`.
+  Computes `k(x, y) = k1(x, y) + k2(x, y) + ... + kn(x, y)`.
 
   Example:
-    >>> inners = list(map(rbf, [0.2, 0.3, 0.4]))
-    >>> kernel = combine(partial(jnp.sum, axis=0), *inners)
+    >>> kernel = sum(map(rbf, [0.2, 0.3, 0.4]))
     >>> Kxx = kernel(xs, xs)
 
   Args:
-    operator: The operator used for the combination.
+    kernels: The sequence of kernels to sum.
+
+  Returns:
+    A sum `Kernel`.
+  """
+
+  return combine(lax.add, 0.0, *kernels)
+
+
+def product(*kernels: Kernel) -> Kernel:
+  """
+  Constructs a kernel by multiplying a sequence of kernels.
+
+  Computes `k(x, y) = k1(x, y) * k2(x, y) * ... * kn(x, y)`.
+
+  Example:
+    >>> kernel = product(map(rbf, [0.2, 0.3, 0.4]))
+    >>> Kxx = kernel(xs, xs)
+
+  Args:
     kernels: The sequence of inner kernels.
 
   Returns:
-    A combined `Kernel`.
+    A product `Kernel`.
   """
 
-  def kernel(x, y):
-    return operator(jnp.stack([k(x, y) for k in kernels]))
-
-  return kernel
+  return combine(lax.mul, 1.0, *kernels)

@@ -20,7 +20,7 @@ from jax import numpy as jnp
 from jax import random, scipy
 
 from boax.optimization.samplers.functions.util import primes_less_than
-from boax.typing import Array, PRNGKey
+from boax.utils.typing import Array, PRNGKey
 
 # The maximum dimension we support. This is limited by the number of primes in the PRIMES array.
 sqrt2 = math.sqrt(2)

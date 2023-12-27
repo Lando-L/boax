@@ -18,7 +18,7 @@ from functools import partial
 
 from boax.optimization.maximizers import functions
 from boax.optimization.maximizers.base import Maximizer
-from boax.typing import Array, Numeric
+from boax.utils.typing import Array, Numeric
 
 
 def bfgs(
@@ -32,10 +32,10 @@ def bfgs(
   The BFGS acquisition function maximizer.
 
   Example:
-    >>> acqf = upper_confidence_bound(2.0, surrogate)
+    >>> acqf = upper_confidence_bound(surrogate, surrogate)
     >>> maximizer = bfgs(bounds, q=1, num_restarts=25, num_raw_samples=500)
-    >>> init_candidates = maximizer.init(key, acqf)
-    >>> candidates, values = maximizer.maximize(init_candidates, acqf)
+    >>> candiates = maximizer.init(key, acqf)
+    >>> next_candidates, values = maximizer.maximize(candiates, acqf)
 
   Args:
     bounds: The bounds of the search space.

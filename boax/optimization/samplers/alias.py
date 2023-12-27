@@ -21,8 +21,8 @@ from jax import numpy as jnp
 
 from boax.optimization.samplers import functions
 from boax.optimization.samplers.base import Sampler
-from boax.typing import Array
-from boax.util import compose
+from boax.utils.functools import compose
+from boax.utils.typing import Array
 
 
 def halton_uniform(

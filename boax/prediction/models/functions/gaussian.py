@@ -21,7 +21,7 @@ from jax import scipy
 
 from boax.prediction.kernels.base import Kernel
 from boax.prediction.means.base import Mean
-from boax.typing import Array, Numeric
+from boax.utils.typing import Array, Numeric
 
 
 def prior(

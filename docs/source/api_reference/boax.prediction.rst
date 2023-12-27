@@ -51,6 +51,17 @@ Periodic Kernels
   periodic
 
 
+Transformed Kernels
+^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  scaled
+  sum
+  product
+
+
 boax.prediction.means
 ----------------------------
 

@@ -1,5 +1,3 @@
-from functools import partial
-
 import numpy as np
 from absl.testing import absltest, parameterized
 from jax import numpy as jnp
@@ -127,9 +125,9 @@ class KernelsTest(parameterized.TestCase):
 
     self.assertEqual(result.shape, (10, 10))
 
-  def test_scale(self):
+  def test_scaled(self):
     key1, key2 = random.split(random.key(0))
-    amplitude = 5
+    amplitude = 5.0
     length_scale = 0.2
 
     x = random.uniform(key1, shape=(10,))
@@ -137,22 +135,34 @@ class KernelsTest(parameterized.TestCase):
 
     inner = kernels.rbf(length_scale)
 
-    result = kernels.scale(amplitude, inner)(x, y)
+    result = kernels.scaled(inner, amplitude)(x, y)
     expected = amplitude * inner(x, y)
 
     np.testing.assert_allclose(result, expected, atol=1e-4)
 
-  def test_combine(self):
+  def test_sum(self):
     key1, key2 = random.split(random.key(0))
-    length_scales = [0.2, 0.3, 0.4]
 
     x = random.uniform(key1, shape=(10,))
     y = random.uniform(key2, shape=(10,))
 
-    inner = list(map(kernels.rbf, length_scales))
+    result = kernels.sum(*map(kernels.rbf, [0.2, 0.3, 0.4]))(x, y)
+    expected = (
+      kernels.rbf(0.2)(x, y) + kernels.rbf(0.3)(x, y) + kernels.rbf(0.4)(x, y)
+    )
 
-    result = kernels.combine(partial(jnp.sum, axis=0), *inner)(x, y)
-    expected = sum(kernel(x, y) for kernel in inner)
+    np.testing.assert_allclose(result, expected, atol=1e-4)
+
+  def test_product(self):
+    key1, key2 = random.split(random.key(0))
+
+    x = random.uniform(key1, shape=(10,))
+    y = random.uniform(key2, shape=(10,))
+
+    result = kernels.product(*map(kernels.rbf, [0.2, 0.3, 0.4]))(x, y)
+    expected = (
+      kernels.rbf(0.2)(x, y) * kernels.rbf(0.3)(x, y) * kernels.rbf(0.4)(x, y)
+    )
 
     np.testing.assert_allclose(result, expected, atol=1e-4)
 

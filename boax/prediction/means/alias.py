@@ -18,8 +18,8 @@ from jax import jit, vmap
 from jax import numpy as jnp
 
 from boax.prediction.means.base import Mean
-from boax.typing import Array, Numeric
-from boax.util import const
+from boax.utils.functools import const
+from boax.utils.typing import Array, Numeric
 
 
 def zero() -> Mean:

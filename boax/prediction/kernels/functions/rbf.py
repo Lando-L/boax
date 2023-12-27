@@ -17,7 +17,7 @@
 from jax import numpy as jnp
 
 from boax.prediction.kernels.functions.util import squared_distance
-from boax.typing import Numeric
+from boax.utils.typing import Numeric
 
 
 def rbf(x: Numeric, y: Numeric, length_scale: Numeric) -> Numeric:
