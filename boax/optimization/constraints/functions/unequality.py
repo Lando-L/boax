@@ -20,16 +20,16 @@ from boax.utils.typing import Array, Numeric
 
 
 def le(loc: Array, scale: Array, x: Numeric) -> Array:
-  return scipy.stats.norm.sf(x, loc, scale)
-
-
-def lle(loc: Array, scale: Array, x: Numeric) -> Array:
-  return scipy.stats.norm.logsf(x, loc, scale)
-
-
-def ge(loc: Array, scale: Array, x: Numeric) -> Array:
   return scipy.stats.norm.cdf(x, loc, scale)
 
 
-def lge(loc: Array, scale: Array, x: Numeric) -> Array:
+def lle(loc: Array, scale: Array, x: Numeric) -> Array:
   return scipy.stats.norm.logcdf(x, loc, scale)
+
+
+def ge(loc: Array, scale: Array, x: Numeric) -> Array:
+  return scipy.stats.norm.sf(x, loc, scale)
+
+
+def lge(loc: Array, scale: Array, x: Numeric) -> Array:
+  return scipy.stats.norm.logsf(x, loc, scale)
