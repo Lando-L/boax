@@ -24,7 +24,7 @@ class Acquisition(Protocol):
   A callable type for acquisition functions.
 
   An acquisition function takes a `n x q x d`-dim candidate set as input
-  and returns an `n`-dim array of acquisition values.
+  and returns a numeric acquisition value.
   """
 
   def __call__(self, candidates: Array) -> Array:
@@ -35,5 +35,5 @@ class Acquisition(Protocol):
       candidates: The `n x q x d`-dim candidate set.
 
     Returns:
-      The `n`-dim acquisition function values at the given design points.
+      The `n`-dim acquisition values.
     """

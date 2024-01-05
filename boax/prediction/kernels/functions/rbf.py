@@ -16,7 +16,7 @@
 
 from jax import numpy as jnp
 
-from boax.prediction.kernels.functions.util import squared_distance
+from boax.prediction.kernels.functions.distance import squared_distance
 from boax.utils.typing import Numeric
 
 

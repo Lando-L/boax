@@ -21,6 +21,6 @@ from .alias import periodic as periodic
 from .alias import rbf as rbf
 from .base import Kernel as Kernel
 from .base import from_kernel_function as from_kernel_function
+from .transformed import additive as additive
 from .transformed import product as product
 from .transformed import scaled as scaled
-from .transformed import sum as sum

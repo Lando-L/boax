@@ -58,12 +58,12 @@ Transformed Kernels
   :toctree: generated
 
   scaled
-  sum
+  additive
   product
 
 
 boax.prediction.means
-----------------------------
+---------------------
 
 .. currentmodule:: boax.prediction.means
 
@@ -86,7 +86,7 @@ Mean Functions
 
 
 boax.prediction.models
---------------------------
+----------------------
 
 .. currentmodule:: boax.prediction.models
 
@@ -109,3 +109,12 @@ Gaussian Process Models
 
   gaussian_process
   gaussian_process_regression
+
+
+Transformed Models
+^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  sampled

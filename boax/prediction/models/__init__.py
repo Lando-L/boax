@@ -17,3 +17,4 @@
 from .alias import gaussian_process as gaussian_process
 from .alias import gaussian_process_regression as gaussian_process_regression
 from .base import Model as Model
+from .transformed import sampled as sampled

@@ -45,21 +45,21 @@ def scaled(kernel: Kernel, amplitude: Numeric) -> Kernel:
   return compose(partial(lax.mul, y=amplitude), kernel)
 
 
-def sum(*kernels: Kernel) -> Kernel:
+def additive(*kernels: Kernel) -> Kernel:
   """
-  Constructs a kernel by summing a sequence of kernels.
+  Constructs an additive kernel which sums over a sequence of kernels.
 
   Computes `k(x, y) = k1(x, y) + k2(x, y) + ... + kn(x, y)`.
 
   Example:
-    >>> kernel = sum(map(rbf, [0.2, 0.3, 0.4]))
+    >>> kernel = additive(map(rbf, [0.2, 0.3, 0.4]))
     >>> Kxx = kernel(xs, xs)
 
   Args:
     kernels: The sequence of kernels to sum.
 
   Returns:
-    A sum `Kernel`.
+    An additive `Kernel`.
   """
 
   return combine(lax.add, 0.0, *kernels)
@@ -67,7 +67,7 @@ def sum(*kernels: Kernel) -> Kernel:
 
 def product(*kernels: Kernel) -> Kernel:
   """
-  Constructs a kernel by multiplying a sequence of kernels.
+  Constructs a product kernel which multiplies over a sequence of kernels.
 
   Computes `k(x, y) = k1(x, y) * k2(x, y) * ... * kn(x, y)`.
 

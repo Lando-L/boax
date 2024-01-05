@@ -15,20 +15,21 @@
 """Alias for constrain functions."""
 
 from functools import partial
-from typing import Tuple
 
-from jax import jit
+from jax import jit, vmap
+from jax import numpy as jnp
 
+from boax.core import distributions
+from boax.core.distributions.multivariate_normal import MultivariateNormal
 from boax.optimization.constraints import functions
 from boax.optimization.constraints.base import Constraint
 from boax.prediction.models.base import Model
-from boax.utils.functools import compose, tupled
-from boax.utils.stats import mvn_to_norm
-from boax.utils.typing import Array, Numeric
+from boax.utils.functools import compose
+from boax.utils.typing import Numeric
 
 
 def less_or_equal(
-  model: Model[Tuple[Array, Array]], bound: Numeric
+  model: Model[MultivariateNormal], bound: Numeric
 ) -> Constraint:
   """
   The Less or Equal unequality constraint.
@@ -47,15 +48,20 @@ def less_or_equal(
 
   return jit(
     compose(
-      tupled(partial(functions.unequality.le, x=bound)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.unequality.le, x=bound),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def log_less_or_equal(
-  model: Model[Tuple[Array, Array]], bound: Numeric
+  model: Model[MultivariateNormal], bound: Numeric
 ) -> Constraint:
   """
   The Log Less or Equal unequality constraint.
@@ -74,15 +80,20 @@ def log_less_or_equal(
 
   return jit(
     compose(
-      tupled(partial(functions.unequality.lle, x=bound)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.unequality.lle, x=bound),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def greater_or_equal(
-  model: Model[Tuple[Array, Array]], bound: Numeric
+  model: Model[MultivariateNormal], bound: Numeric
 ) -> Constraint:
   """
   The Greater or Equal unequality constraint.
@@ -101,15 +112,20 @@ def greater_or_equal(
 
   return jit(
     compose(
-      tupled(partial(functions.unequality.ge, x=bound)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.unequality.ge, x=bound),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def log_greater_or_equal(
-  model: Model[Tuple[Array, Array]], bound: Numeric
+  model: Model[MultivariateNormal], bound: Numeric
 ) -> Constraint:
   """
   The Log Greater or Equal unequality constraint.
@@ -128,8 +144,13 @@ def log_greater_or_equal(
 
   return jit(
     compose(
-      tupled(partial(functions.unequality.lge, x=bound)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.unequality.lge, x=bound),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )

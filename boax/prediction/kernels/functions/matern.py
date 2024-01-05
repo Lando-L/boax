@@ -18,7 +18,7 @@ import math
 
 from jax import numpy as jnp
 
-from boax.prediction.kernels.functions.util import euclidean_distance
+from boax.prediction.kernels.functions.distance import euclidean_distance
 from boax.utils.typing import Numeric
 
 sqrt_3 = math.sqrt(3)

@@ -14,11 +14,11 @@
 
 """Gaussian Process functions."""
 
-from typing import Tuple
-
 from jax import numpy as jnp
 from jax import scipy
 
+from boax.core import distributions
+from boax.core.distributions.multivariate_normal import MultivariateNormal
 from boax.prediction.kernels.base import Kernel
 from boax.prediction.means.base import Mean
 from boax.utils.typing import Array, Numeric
@@ -26,44 +26,49 @@ from boax.utils.typing import Array, Numeric
 
 def prior(
   index_points: Array,
-  mean: Mean,
-  kernel: Kernel,
-  noise: Numeric,
+  mean_fn: Mean,
+  kernel_fn: Kernel,
   jitter: Numeric,
-) -> Tuple[Array, Array]:
-  Kxx = kernel(index_points, index_points)
-  loc = mean(index_points)
-  cov = Kxx + (noise + jitter) * jnp.identity(Kxx.shape[-1])
-  return loc, cov
+) -> MultivariateNormal:
+  Kxx = kernel_fn(index_points, index_points)
+  mean = mean_fn(index_points)
+  cov = Kxx + jitter * jnp.identity(Kxx.shape[-1])
+
+  return distributions.multivariate_normal.multivariate_normal(mean, cov)
 
 
 def posterior(
   index_points: Array,
   observation_index_points: Array,
   observations: Array,
-  mean: Mean,
-  kernel: Kernel,
-  noise: Numeric,
+  mean_fn: Mean,
+  kernel_fn: Kernel,
   jitter: Numeric,
-) -> Tuple[Array, Array]:
-  mz = mean(index_points)
-  mx = mean(observation_index_points)
+) -> MultivariateNormal:
+  mz = mean_fn(index_points)
+  mx = mean_fn(observation_index_points)
 
-  Kxx = kernel(observation_index_points, observation_index_points)
-  Kxz = kernel(observation_index_points, index_points)
-  Kzz = kernel(index_points, index_points)
+  Kxx = kernel_fn(observation_index_points, observation_index_points)
+  Kxz = kernel_fn(observation_index_points, index_points)
+  Kzz = kernel_fn(index_points, index_points)
 
-  K = Kxx + (noise + jitter) * jnp.identity(observation_index_points.shape[0])
+  K = Kxx + jitter * jnp.identity(Kxx.shape[-1])
   chol = scipy.linalg.cholesky(K, lower=True)
   kinvy = scipy.linalg.solve_triangular(
     chol.T, scipy.linalg.solve_triangular(chol, observations - mx, lower=True)
   )
   v = scipy.linalg.solve_triangular(chol, Kxz, lower=True)
 
-  loc = mz + jnp.dot(Kxz.T, kinvy)
-  cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(index_points.shape[0])
+  mean = mz + jnp.dot(Kxz.T, kinvy)
+  cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(Kzz.shape[-1])
 
-  return loc, cov
+  return distributions.multivariate_normal.multivariate_normal(mean, cov)
+
+
+def likelihood(mvn: MultivariateNormal, noise: Array) -> MultivariateNormal:
+  return distributions.multivariate_normal.multivariate_normal(
+    mvn.mean, mvn.cov + noise * jnp.identity(mvn.cov.shape[-1])
+  )
 
 
 # def variational(

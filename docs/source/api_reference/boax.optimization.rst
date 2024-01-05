@@ -105,29 +105,3 @@ Maximizers
   :toctree: generated
 
   bfgs
-
-
-boax.optimization.samplers
---------------------------
-
-.. currentmodule:: boax.optimization.samplers
-
-
-Sampler Types
-~~~~~~~~~~~~~
-
-.. autoclass:: Sampler
-
-
-Samplers
-~~~~~~~~
-
-
-Quasi-Random Samplers
-^^^^^^^^^^^^^^^^^^^^^
-
-.. autosummary::
-  :toctree: generated
-
-  halton_normal
-  halton_uniform

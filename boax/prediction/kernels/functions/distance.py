@@ -14,6 +14,7 @@
 
 """Utils for kernels."""
 
+from jax import lax
 from jax import numpy as jnp
 
 from boax.utils.typing import Array
@@ -31,7 +32,11 @@ def squared_distance(x: Array, y: Array) -> Array:
     Squared distance.
   """
 
-  return jnp.sum((x - y) ** 2)
+  x_norm = jnp.sum(jnp.power(x, 2))
+  y_norm = jnp.sum(jnp.power(y, 2))
+  inner = jnp.inner(x, y)
+
+  return lax.max(x_norm + y_norm - 2 * inner, 0.0)
 
 
 def euclidean_distance(x: Array, y: Array) -> Array:

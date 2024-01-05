@@ -15,5 +15,5 @@
 """The optimization module."""
 
 from . import acquisitions as acquisitions
+from . import constraints as constraints
 from . import maximizers as maximizers
-from . import samplers as samplers

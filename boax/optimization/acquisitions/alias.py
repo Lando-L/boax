@@ -16,21 +16,23 @@
 
 import math
 from functools import partial
-from operator import itemgetter
-from typing import Tuple
+from operator import attrgetter
+from typing import Callable
 
-from jax import jit, lax, scipy
+from jax import jit, lax, vmap
+from jax import numpy as jnp
 
+from boax.core import distributions
+from boax.core.distributions.multivariate_normal import MultivariateNormal
 from boax.optimization.acquisitions import functions
 from boax.optimization.acquisitions.base import Acquisition
 from boax.prediction.models.base import Model
-from boax.utils.functools import compose, tupled
-from boax.utils.stats import mvn_to_norm, sample_mvn, scale_improvement
+from boax.utils.functools import call, compose
 from boax.utils.typing import Array, Numeric
 
 
 def probability_of_improvement(
-  model: Model[Tuple[Array, Array]], best: Numeric
+  model: Model[MultivariateNormal], best: Numeric
 ) -> Acquisition:
   """
   The Probability of Improvement acquisition function.
@@ -52,17 +54,21 @@ def probability_of_improvement(
   """
 
   return jit(
-    compose(
-      scipy.stats.norm.cdf,
-      tupled(partial(scale_improvement, best=best)),
-      tupled(mvn_to_norm),
-      model,
+      compose(
+        jnp.squeeze,
+        partial(functions.analytic.poi, best=best),
+        vmap(
+          compose(
+            distributions.multivariate_normal.multivariate_to_normal,
+            model,
+          )
+        )
+      )
     )
-  )
 
 
 def log_probability_of_improvement(
-  model: Model[Tuple[Array, Array]], best: Numeric
+  model: Model[MultivariateNormal], best: Numeric
 ) -> Acquisition:
   """
   The Log Probability of Improvement acquisition function.
@@ -85,16 +91,20 @@ def log_probability_of_improvement(
 
   return jit(
     compose(
-      scipy.stats.norm.logcdf,
-      tupled(partial(scale_improvement, best=best)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.analytic.lpoi, best=best),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def expected_improvement(
-  model: Model[Tuple[Array, Array]], best: Numeric
+  model: Model[MultivariateNormal], best: Numeric
 ) -> Acquisition:
   """
   The Expected Improvement acquisition function.
@@ -119,15 +129,20 @@ def expected_improvement(
 
   return jit(
     compose(
-      tupled(partial(functions.analytic.ei, best=best)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.analytic.ei, best=best),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def log_expected_improvement(
-  model: Model[Tuple[Array, Array]], best: Numeric
+  model: Model[MultivariateNormal], best: Numeric
 ) -> Acquisition:
   """
   The Log Expected Improvement acquisition function.
@@ -156,15 +171,20 @@ def log_expected_improvement(
 
   return jit(
     compose(
-      tupled(partial(functions.analytic.lei, best=best)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.analytic.lei, best=best),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def upper_confidence_bound(
-  model: Model[Tuple[Array, Array]], beta: Numeric
+  model: Model[MultivariateNormal], beta: Numeric
 ) -> Acquisition:
   """
   The Upper Confidence Bound (UCB) acquisition function.
@@ -188,15 +208,20 @@ def upper_confidence_bound(
 
   return jit(
     compose(
-      tupled(partial(functions.analytic.ucb, beta=beta)),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      partial(functions.analytic.ucb, beta=beta),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def posterior_mean(
-  model: Model[Tuple[Array, Array]],
+  model: Model[MultivariateNormal],
 ) -> Acquisition:
   """
   The Posterior mean acquisition function.
@@ -214,15 +239,20 @@ def posterior_mean(
 
   return jit(
     compose(
-      itemgetter(0),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      attrgetter('loc'),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def posterior_scale(
-  model: Model[Tuple[Array, Array]],
+  model: Model[MultivariateNormal],
 ) -> Acquisition:
   """
   The Posterior scale acquisition function.
@@ -240,15 +270,20 @@ def posterior_scale(
 
   return jit(
     compose(
-      itemgetter(1),
-      tupled(mvn_to_norm),
-      model,
+      jnp.squeeze,
+      attrgetter('scale'),
+      vmap(
+        compose(
+          distributions.multivariate_normal.multivariate_to_normal,
+          model,
+        )
+      )
     )
   )
 
 
 def q_expected_improvement(
-  model: Model[Tuple[Array, Array]],
+  model: Model[Callable[[Array], Array]],
   base_samples: Array,
   best: Numeric,
 ) -> Acquisition:
@@ -266,7 +301,7 @@ def q_expected_improvement(
     >>> qei = acqf(xs)
 
   Args:
-    model: A gaussian process regression surrogate model.
+    model: A surrogate model.
     base_samples: A set of samples from standard normal distribution.
     best: The best function value observed so far.
 
@@ -275,16 +310,21 @@ def q_expected_improvement(
   """
 
   return jit(
-    compose(
-      partial(functions.monte_carlo.qei, best=best),
-      tupled(partial(sample_mvn, base_samples=base_samples)),
-      model,
+    vmap(
+      compose(
+        jnp.mean,
+        partial(jnp.amax, axis=-1),
+        partial(functions.monte_carlo.qei, best=best),
+        call(base_samples),
+        vmap,
+        model,
+      )
     )
   )
 
 
 def q_probability_of_improvement(
-  model: Model[Tuple[Array, Array]],
+  model: Model[Callable[[Array], Array]],
   base_samples: Array,
   tau: Numeric,
   best: Numeric,
@@ -305,7 +345,7 @@ def q_probability_of_improvement(
     >>> qpoi = acqf(xs)
 
   Args:
-    model: A gaussian process regression surrogate model.
+    model: A surrogate model.
     base_samples: A set of samples from standard normal distribution.
     tau: The temperature parameter.
     best: The best function value observed so far.
@@ -315,16 +355,21 @@ def q_probability_of_improvement(
   """
 
   return jit(
-    compose(
-      partial(functions.monte_carlo.qpoi, best=best, tau=tau),
-      tupled(partial(sample_mvn, base_samples=base_samples)),
-      model,
+    vmap(
+      compose(
+        jnp.mean,
+        partial(jnp.amax, axis=-1),
+        partial(functions.monte_carlo.qpoi, best=best, tau=tau),
+        call(base_samples),
+        vmap,
+        model,
+      )
     )
   )
 
 
 def q_upper_confidence_bound(
-  model: Model[Tuple[Array, Array]],
+  model: Model[Callable[[Array], Array]],
   base_samples: Array,
   beta: Numeric,
 ) -> Acquisition:
@@ -340,19 +385,25 @@ def q_upper_confidence_bound(
     >>> qucb = acqf(xs)
 
   Args:
-    model: A gaussian process regression surrogate model.
+    model: A surrogate model.
     base_samples: A set of samples from standard normal distribution.
     beta: The mean and covariance trade-off parameter.
 
   Returns:
     The corresponding `Acquisition`.
   """
+
   beta_prime = lax.sqrt(beta * math.pi / 2)
 
   return jit(
-    compose(
-      partial(functions.monte_carlo.qucb, beta=beta_prime),
-      tupled(partial(sample_mvn, base_samples=base_samples)),
-      model,
+    vmap(
+      compose(
+        jnp.mean,
+        partial(jnp.amax, axis=-1),
+        partial(functions.monte_carlo.qucb, beta=beta_prime),
+        call(base_samples),
+        vmap,
+        model,
+      )
     )
   )

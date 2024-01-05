@@ -12,23 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The stats sub-package."""
+"""Alias for objectives."""
 
-from typing import Tuple
+from jax import jit
 
-from jax import numpy as jnp
-from jax import scipy
-
+from boax.core import distributions
+from boax.core.distributions.multivariate_normal import MultivariateNormal
+from boax.prediction.objectives.base import Objective
 from boax.utils.typing import Array
 
 
-def mvn_to_norm(mean: Array, cov: Array) -> Tuple[Array, Array]:
-  return mean, jnp.sqrt(jnp.diag(cov))
+def exact_marginal_log_likelihood() -> Objective[MultivariateNormal]:
+  def objective(predictions: MultivariateNormal, targets: Array):
+    return distributions.multivariate_normal.logpdf(targets, predictions)
 
-
-def sample_mvn(mean: Array, cov: Array, base_samples: Array) -> Array:
-  return mean + jnp.dot(scipy.linalg.cholesky(cov, lower=True), base_samples)
-
-
-def scale_improvement(loc: Array, scale: Array, best: Array) -> Array:
-  return (loc - best) / scale
+  return jit(objective)

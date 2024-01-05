@@ -16,11 +16,11 @@ that is **designed for flexibility**. It comes with a low-level interfaces for:
   * Kernels
   * Mean Functions
   * Surrogate Models
+  * Objectives
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
   * Acquisition Functions
   * Constraint Functions
   * Maximizers
-  * Samplers
 
 ## Installation
 
@@ -54,21 +54,20 @@ from jax import lax
 from jax import nn
 from jax import numpy as jnp
 from jax import random
-from jax import scipy
 from jax import value_and_grad
 
 import optax
 
-from boax.prediction import kernels, means, models
+from boax.prediction import kernels, means, models, objectives
 from boax.optimization import acquisitions, maximizers
 
-bounds = jnp.array([[-3, 3]])
+bounds = jnp.array([[-3.0, 3.0]])
 
 def objective(x):
   return jnp.sin(4 * x[..., 0]) + jnp.cos(2 * x[..., 0])
 
 sample_key, noise_key, maximizer_key = random.split(random.key(0), 3)
-x_train = random.uniform(sample_key, minval=bounds[0, 0], maxval=bounds[0, 1], shape=(10, 1))
+x_train = random.uniform(sample_key, minval=bounds[:, 0], maxval=bounds[:, 1], shape=(10, 1))
 y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 ```
 
@@ -83,8 +82,8 @@ def prior(amplitude, length_scale, noise):
   )
 
 def target_log_prob(params):
-  mean, cov = prior(**params)(x_train)
-  return -scipy.stats.multivariate_normal.logpdf(y_train, mean, cov)
+  y_hat = prior(**params)(x_train)
+  return -objectives.exact_marginal_log_likelihood()(y_hat, y_train)
 
 params = {
   'amplitude': jnp.zeros(()),
@@ -110,19 +109,20 @@ def train_step(state, iteration):
 
 3. Construct and optimize an UCB acquisition function.
 ```python
-surrogate = models.gaussian_process_regression(
-  x_train,
-  y_train,
-  means.zero(),
-  kernels.scaled(kernels.rbf(nn.softplus(next_params['length_scale'])), nn.softplus(next_params['amplitude'])),
-  nn.softplus(next_params['noise']),
-)
+def posterior(amplitude, length_scale, noise):
+  return models.gaussian_process_regression(
+    x_train,
+    y_train,
+    means.zero(),
+    kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
+    nn.softplus(noise),
+  )
 
+surrogate = posterior(**next_params)
 acqf = acquisitions.upper_confidence_bound(surrogate, beta=2.0)
-maximizer = maximizers.bfgs(bounds, q=1, num_restarts=25, num_raw_samples=500)
+maximizer = maximizers.bfgs(acqf, bounds, q=1, num_restarts=25, num_raw_samples=500)
 
-candidates = maximizer.init(maximizer_key, acqf)
-next_candidates, values = maximizer.maximize(candidates, acqf)
+candidates, values = maximizer(maximizer_key)
 ```
 
 ## Citing Boax

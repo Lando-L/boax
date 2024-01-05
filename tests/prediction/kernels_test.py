@@ -140,13 +140,13 @@ class KernelsTest(parameterized.TestCase):
 
     np.testing.assert_allclose(result, expected, atol=1e-4)
 
-  def test_sum(self):
+  def test_additive(self):
     key1, key2 = random.split(random.key(0))
 
     x = random.uniform(key1, shape=(10,))
     y = random.uniform(key2, shape=(10,))
 
-    result = kernels.sum(*map(kernels.rbf, [0.2, 0.3, 0.4]))(x, y)
+    result = kernels.additive(*map(kernels.rbf, [0.2, 0.3, 0.4]))(x, y)
     expected = (
       kernels.rbf(0.2)(x, y) + kernels.rbf(0.3)(x, y) + kernels.rbf(0.4)(x, y)
     )
