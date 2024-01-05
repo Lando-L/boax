@@ -13,11 +13,11 @@ It comes with a low-level interfaces for:
       * Kernels
       * Mean Functions
       * Surrogate Models
-   * **Constructing and optimizing acquisition functions** (`boax.optimization`)
+      * Objectives
+   * **Constructing and optimizing acquisition functions** (`boax.optimization`):
       * Acquisition Functions
       * Constraint Functions
       * Maximizers
-      * Samplers
 
 ----
 
@@ -40,4 +40,5 @@ can be used to obtain the most recent version of Boax::
    :maxdepth: 2
 
    guides/Getting_Started
+   guides/index
    api_reference/index
