@@ -12,31 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Utils for search space sampling functions."""
+"""The samplers sub-package."""
 
-import numpy as np
-
-
-def primes_less_than(n) -> np.ndarray:
-  """
-  Sorted array of primes such that `2 <= prime < n`.
-
-  Args:
-    n: The upper bound for primes.
-
-  Returns:
-    The sorted array of primes.
-  """
-
-  j = 3
-  primes = np.ones((n + 1) // 2, dtype=bool)
-
-  while j * j <= n:
-    if primes[j // 2]:
-      primes[j * j // 2 :: j] = False
-    j += 2
-
-  ret = 2 * np.where(primes)[0] + 1
-  ret[0] = 2  # :(
-
-  return ret
+from . import beta as beta
+from . import multivariate_normal as multivariate_normal
+from . import normal as normal
+from . import uniform as uniform

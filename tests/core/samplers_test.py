@@ -1,7 +1,7 @@
 from absl.testing import absltest, parameterized
 from jax import random
 
-from boax.optimization import samplers
+from boax.core import distributions, samplers
 
 
 class SamplersTest(parameterized.TestCase):
@@ -10,18 +10,20 @@ class SamplersTest(parameterized.TestCase):
 
     loc = random.uniform(key1, (10,))
     scale = random.uniform(key2, (10,))
+    normal = distributions.normal.normal(loc, scale)
 
-    result = samplers.halton_normal(loc, scale)(key3, 5)
+    result = samplers.halton_normal(normal)(key3, 5)
 
     self.assertEqual(result.shape, (5, 10))
 
   def test_halton_uniform(self):
     key1, key2, key3 = random.split(random.key(0), 3)
 
-    minval = random.uniform(key1, (10,))
-    maxval = minval + random.uniform(key2, (10,))
+    a = random.uniform(key1, (10,))
+    b = a + random.uniform(key2, (10,))
+    uniform = distributions.uniform.uniform(a, b)
 
-    result = samplers.halton_uniform(minval, maxval)(key3, 5)
+    result = samplers.halton_uniform(uniform)(key3, 5)
 
     self.assertEqual(result.shape, (5, 10))
 

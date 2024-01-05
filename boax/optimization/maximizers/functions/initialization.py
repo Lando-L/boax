@@ -17,8 +17,9 @@
 from jax import nn, random
 from jax import numpy as jnp
 
+from boax.core import distributions
+from boax.core.samplers.alias import halton_uniform
 from boax.optimization.acquisitions.base import Acquisition
-from boax.optimization.samplers.alias import halton_uniform
 from boax.utils.typing import Array, Numeric, PRNGKey
 
 
@@ -32,11 +33,13 @@ def q_batch_initialization(
   eta: Numeric,
 ) -> Array:
   raw_key, sample_key = random.split(key)
-  raw_samples = halton_uniform(bounds[:, 0], bounds[:, 1])(
-    raw_key, num_raw_samples * q
+
+  uniform = distributions.uniform.uniform(bounds[:, 0], bounds[:, 1])
+  candidates = jnp.reshape(
+    halton_uniform(uniform)(raw_key, num_raw_samples * q),
+    (num_raw_samples, q, -1),
   )
 
-  candidates = jnp.reshape(raw_samples, (num_raw_samples, q, -1))
   values = acquisition(candidates)
   weights = jnp.exp(eta * nn.standardize(values, axis=0))
 

@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The models sub-package."""
+"""The core module."""
 
-from .alias import gaussian_process as gaussian_process
-from .alias import gaussian_process_regression as gaussian_process_regression
-from .base import Model as Model
-from .transformed import sampled as sampled
+from . import distributions as distributions
+from . import samplers as samplers

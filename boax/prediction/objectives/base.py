@@ -12,9 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The models sub-package."""
+"""Base interface for likelihoods."""
 
-from .alias import gaussian_process as gaussian_process
-from .alias import gaussian_process_regression as gaussian_process_regression
-from .base import Model as Model
-from .transformed import sampled as sampled
+from typing import Generic, Protocol, TypeVar
+
+from boax.utils.typing import Array
+
+T = TypeVar('T')
+
+
+class Objective(Protocol, Generic[T]):
+  """
+  A callable type for objective functions.
+
+  An objective functions takes predictions of type `T` and
+  `n`-dim targets as inputs and returns the loss value.
+  """
+
+  def __call__(self, predictions: T, targets: Array) -> Array:
+    """
+    Computes the loss value.
+
+    Args:
+      predictions: The predictions.
+      targets: The `n`-dim targets.
+
+    Returns:
+      The loss values.
+    """

@@ -19,7 +19,8 @@ import math
 from jax import numpy as jnp
 from jax import scipy
 
-from boax.utils.stats import scale_improvement
+from boax.core import distributions
+from boax.core.distributions.normal import Normal
 from boax.utils.typing import Array, Numeric
 
 log2 = math.log(2)
@@ -28,12 +29,24 @@ c1 = math.log(2 * math.pi) / 2
 c2 = math.log(math.pi / 2) / 2
 
 
-def ei(loc: Array, scale: Array, best: Numeric) -> Array:
-  u = scale_improvement(loc, scale, best)
-  return (scipy.stats.norm.pdf(u) + u * scipy.stats.norm.cdf(u)) * scale
+def poi(normal: Normal, best: Numeric) -> Array:
+  u = (normal.loc - best) / normal.scale
+  return distributions.normal.cdf(u)
 
 
-def lei(loc: Array, scale: Array, best: Numeric) -> Array:
+def lpoi(normal: Normal, best: Numeric) -> Array:
+  u = (normal.loc - best) / normal.scale
+  return distributions.normal.logcdf(u)
+
+
+def ei(normal: Normal, best: Numeric) -> Array:
+  u = (normal.loc - best) / normal.scale
+  return (
+    distributions.normal.pdf(u) + u * distributions.normal.cdf(u)
+  ) * normal.scale
+
+
+def lei(normal: Normal, best: Numeric) -> Array:
   def log1mexp(x):
     upper = jnp.where(x > -log2, x, -log2)
     lower = jnp.where(x <= -log2, x, -log2)
@@ -53,7 +66,9 @@ def lei(loc: Array, scale: Array, best: Numeric) -> Array:
     )
 
   def log_ei_upper(x):
-    return jnp.log(scipy.stats.norm.pdf(x) + x * scipy.stats.norm.cdf(x))
+    return jnp.log(
+      distributions.normal.pdf(x) + x * distributions.normal.cdf(x)
+    )
 
   def log_ei_lower(x):
     return (
@@ -66,9 +81,9 @@ def lei(loc: Array, scale: Array, best: Numeric) -> Array:
 
     return jnp.where(x > -1, log_ei_upper(upper), log_ei_lower(lower))
 
-  u = scale_improvement(loc, scale, best)
-  return logh(u) + jnp.log(scale)
+  u = (normal.loc - best) / normal.scale
+  return logh(u) + jnp.log(normal.scale)
 
 
-def ucb(loc: Array, scale: Array, beta: Numeric) -> Array:
-  return loc + jnp.sqrt(beta) * scale
+def ucb(normal: Normal, beta: Numeric) -> Array:
+  return normal.loc + jnp.sqrt(beta) * normal.scale

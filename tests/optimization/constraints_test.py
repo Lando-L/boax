@@ -3,6 +3,7 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
+from boax.core.distributions import multivariate_normal
 from boax.optimization import constraints
 from boax.utils.functools import const
 
@@ -10,13 +11,14 @@ from boax.utils.functools import const
 class ConstraintsTest(parameterized.TestCase):
   def test_range(self):
     key1, key2 = random.split(random.key(0))
+    n, q, d = 10, 1, 1
 
-    loc = random.uniform(key1, (10,))
-    cov = random.uniform(key2, (10,)) * jnp.identity(10)
-    model = const((loc, cov))
+    mean = random.uniform(key1, (q,))
+    cov = random.uniform(key2, (q,)) * jnp.identity(q)
+    model = const(multivariate_normal.multivariate_normal(mean, cov))
     lower = 0.2
     upper = 0.8
-    candidates = jnp.empty(())
+    candidates = jnp.empty((n, q, d))
 
     le = constraints.less_or_equal(model, lower)(candidates)
     lle = constraints.log_less_or_equal(model, lower)(candidates)

@@ -17,3 +17,4 @@
 from . import kernels as kernels
 from . import means as means
 from . import models as models
+from . import objectives as objectives

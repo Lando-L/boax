@@ -14,22 +14,23 @@
 
 """Range constraints."""
 
-from jax import scipy
 
+from boax.core import distributions
+from boax.core.distributions.normal import Normal
 from boax.utils.typing import Array, Numeric
 
 
-def le(loc: Array, scale: Array, x: Numeric) -> Array:
-  return scipy.stats.norm.cdf(x, loc, scale)
+def le(normal: Normal, x: Numeric) -> Array:
+  return distributions.normal.cdf(x, normal)
 
 
-def lle(loc: Array, scale: Array, x: Numeric) -> Array:
-  return scipy.stats.norm.logcdf(x, loc, scale)
+def lle(normal: Normal, x: Numeric) -> Array:
+  return distributions.normal.logcdf(x, normal)
 
 
-def ge(loc: Array, scale: Array, x: Numeric) -> Array:
-  return scipy.stats.norm.sf(x, loc, scale)
+def ge(normal: Normal, x: Numeric) -> Array:
+  return distributions.normal.sf(x, normal)
 
 
-def lge(loc: Array, scale: Array, x: Numeric) -> Array:
-  return scipy.stats.norm.logsf(x, loc, scale)
+def lge(normal: Normal, x: Numeric) -> Array:
+  return distributions.normal.logsf(x, normal)

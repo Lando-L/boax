@@ -19,7 +19,9 @@ import math
 from jax import numpy as jnp
 from jax import random, scipy
 
-from boax.optimization.samplers.functions.util import primes_less_than
+from boax.core.distributions.normal import Normal
+from boax.core.distributions.uniform import Uniform
+from boax.core.samplers.functions.utils import primes_less_than
 from boax.utils.typing import Array, PRNGKey
 
 # The maximum dimension we support. This is limited by the number of primes in the PRIMES array.
@@ -29,14 +31,14 @@ PRIMES = primes_less_than(104729 + 1)
 assert len(PRIMES) == MAX_DIMENSION
 
 
-def uniform(base: Array, minval: Array, maxval: Array) -> Array:
-  return minval + (maxval - minval) * base
+def uniform(base: Array, uniform: Uniform) -> Array:
+  return uniform.a + (uniform.b - uniform.a) * base
 
 
-def normal(base: Array, loc: Array, scale: Array) -> Array:
+def normal(base: Array, normal: Normal) -> Array:
   v = 0.5 + (1 - jnp.finfo(base.dtype).eps) * (base - 0.5)
-  normal = scipy.special.erfinv(2 * v - 1) * sqrt2
-  return loc + normal * scale
+  s = scipy.special.erfinv(2 * v - 1) * sqrt2
+  return normal.loc + s * normal.scale
 
 
 def halton_sequence(key: PRNGKey, num_samples: int, ndims: int) -> Array:

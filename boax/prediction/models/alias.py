@@ -15,30 +15,34 @@
 """Alias for surrogate models."""
 
 from functools import partial
-from typing import Tuple
 
 from jax import jit
 
+from boax.core.distributions.multivariate_normal import MultivariateNormal
 from boax.prediction.kernels.base import Kernel
 from boax.prediction.means.base import Mean
 from boax.prediction.models import functions
 from boax.prediction.models.base import Model
+from boax.utils.functools import compose
 from boax.utils.typing import Array, Numeric
 
 
 def gaussian_process(
-  mean: Mean, kernel: Kernel, noise: Numeric, jitter: Numeric = 1e-6
-) -> Model[Tuple[Array, Array]]:
+  mean_fn: Mean,
+  kernel_fn: Kernel,
+  noise: Numeric,
+  jitter: Numeric = 1e-6,
+) -> Model[MultivariateNormal]:
   """
   The gaussian process model.
 
   Example:
-    >>> model = gaussian_process(mean, kernel, 1e-4)
+    >>> model = gaussian_process(mean_fn, kernel_fn, 1e-4)
     >>> mean, cov = model(xs)
 
   Args:
-    mean: The process' mean function.
-    kernel: The process' covariance function.
+    mean_fn: The process' mean function.
+    kernel_fn: The process' covariance function.
     noise: The noise variance in the Normal likelihood distribution of the model.
     jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
 
@@ -47,12 +51,17 @@ def gaussian_process(
   """
 
   return jit(
-    partial(
-      functions.gaussian.prior,
-      mean=mean,
-      kernel=kernel,
-      noise=noise,
-      jitter=jitter,
+    compose(
+      partial(
+        functions.gaussian.likelihood,
+        noise=noise,
+      ),
+      partial(
+        functions.gaussian.prior,
+        mean_fn=mean_fn,
+        kernel_fn=kernel_fn,
+        jitter=jitter,
+      ),
     )
   )
 
@@ -60,23 +69,23 @@ def gaussian_process(
 def gaussian_process_regression(
   observation_index_points: Array,
   observations: Array,
-  mean: Mean,
-  kernel: Kernel,
+  mean_fn: Mean,
+  kernel_fn: Kernel,
   noise: Numeric,
   jitter: Numeric = 1e-6,
-) -> Model[Tuple[Array, Array]]:
+) -> Model[MultivariateNormal]:
   """
   The gaussian process regression model.
 
   Example:
-    >>> model = gaussian_process_regression(x_train, y_train, mean, kernel, 1e-4)
+    >>> model = gaussian_process_regression(x_train, y_train, mean_fn, kernel_fn, 1e-4)
     >>> mean, cov = model(xs)
 
   Args:
     observation_index_points: The index observation points.
     observations: The values at the index observation points.
-    mean: The process' mean function.
-    kernel: The process' covariance function.
+    mean_fn: The process' mean function.
+    kernel_fn: The process' covariance function.
     noise: The noise variance in the Normal likelihood distribution of the model.
     jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
 
@@ -85,13 +94,18 @@ def gaussian_process_regression(
   """
 
   return jit(
-    partial(
-      functions.gaussian.posterior,
-      observation_index_points=observation_index_points,
-      observations=observations,
-      mean=mean,
-      kernel=kernel,
-      noise=noise,
-      jitter=jitter,
+    compose(
+      partial(
+        functions.gaussian.likelihood,
+        noise=noise,
+      ),
+      partial(
+        functions.gaussian.posterior,
+        observation_index_points=observation_index_points,
+        observations=observations,
+        mean_fn=mean_fn,
+        kernel_fn=kernel_fn,
+        jitter=jitter,
+      )
     )
   )

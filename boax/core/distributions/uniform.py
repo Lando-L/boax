@@ -12,28 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for acquisition functions."""
+"""The uniform distribution."""
 
-from typing import Protocol
+from typing import NamedTuple
+
+from jax import numpy as jnp
+from jax import scipy
 
 from boax.utils.typing import Array
 
 
-class Acquisition(Protocol):
+class Uniform(NamedTuple):
   """
-  A callable type for acquisition functions.
+  A tuple describing the two parameters of the uniform distribution.
 
-  An acquisition function takes a `n x q x d`-dim candidate set as input
-  and returns a numeric acquisition value.
+  Attributes:
+    a: The minium value parameter.
+    b: The maximum value parameter.
   """
+  a: Array
+  b: Array
 
-  def __call__(self, candidates: Array) -> Array:
-    """
-    Evaluates the acquisition function on a set of `candidates`.
 
-    Args:
-      candidates: The `n x q x d`-dim candidate set.
+def uniform(a: Array = jnp.zeros(()), b: Array = jnp.ones(())) -> Uniform:
+  return Uniform(a, b)
 
-    Returns:
-      The `n`-dim acquisition values.
-    """
+
+def pdf(values: Array) -> Array:
+  return scipy.stats.uniform.pdf(values)
+
+
+def logpdf(values: Array) -> Array:
+  return scipy.stats.uniform.logpdf(values)

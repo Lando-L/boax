@@ -51,6 +51,15 @@ def const(c: T) -> Callable:
   return __fn
 
 
+def call(*args, **kwargs) -> Callable:
+  """ """
+
+  def __fn(fn: Callable):
+    return fn(*args, **kwargs)
+
+  return __fn
+
+
 def compose(*fns: Callable) -> Callable:
   """
   Composes a sequence of functions
