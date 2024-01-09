@@ -12,41 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Transformation functions for models."""
+"""Alias for likelihoods."""
 
 from functools import partial
-from typing import Callable, TypeVar
 
+from jax import jit
+
+from boax.core.distributions.beta import Beta
+from boax.core.distributions.multivariate_normal import MultivariateNormal
+from boax.prediction.likelihoods import functions
 from boax.prediction.likelihoods.base import Likelihood
-from boax.prediction.models.base import Model
-from boax.utils.functools import compose
 from boax.utils.typing import Array
 
-T = TypeVar('T')
-A = TypeVar('A')
-B = TypeVar('B')
 
-
-def sampled(
-  model: Model[T], sample_fn: Callable[[T, Array], Array]
-) -> Model[Callable[[Array], Array]]:
-  return compose(
-    partial(partial, sample_fn),
-    model,
+def gaussian(
+  noise: Array,
+) -> Likelihood[MultivariateNormal, MultivariateNormal]:
+  return jit(
+    partial(
+      functions.marginal.gaussian,
+      noise=noise,
+    ),
   )
 
 
-def predictive(
-  model: Model[A],
-  likelihood_fn: Likelihood[A, B],
-) -> Model[B]:
-  return compose(
-    likelihood_fn,
-    model,
+def beta(scale: Array) -> Likelihood[Array, Beta]:
+  return jit(
+    partial(
+      functions.conditional.beta,
+      scale=scale,
+    ),
   )
-
-
-def fantisized(
-  model: Model[T], fantasy_fn: Callable[[T, Array], Array]
-) -> Model[Callable[[Array], Array]]:
-  return

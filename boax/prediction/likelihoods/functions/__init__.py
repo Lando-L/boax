@@ -12,25 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Range constraints."""
+"""The likelihood functions sub-package."""
 
-
-from boax.core import distributions
-from boax.core.distributions.normal import Normal
-from boax.utils.typing import Array, Numeric
-
-
-def le(normal: Normal, x: Numeric) -> Array:
-  return distributions.normal.cdf(x, normal)
-
-
-def lle(normal: Normal, x: Numeric) -> Array:
-  return distributions.normal.logcdf(x, normal)
-
-
-def ge(normal: Normal, x: Numeric) -> Array:
-  return distributions.normal.sf(x, normal)
-
-
-def lge(normal: Normal, x: Numeric) -> Array:
-  return distributions.normal.logsf(x, normal)
+from . import conditional as conditional
+from . import marginal as marginal

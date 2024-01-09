@@ -17,7 +17,7 @@
 from functools import partial
 
 from boax.prediction.kernels import functions
-from boax.prediction.kernels.base import Kernel, from_kernel_function
+from boax.prediction.kernels.base import Kernel
 from boax.utils.typing import Array, Numeric
 
 
@@ -38,8 +38,11 @@ def rbf(length_scale: Array) -> Kernel:
     A RBF `Kernel`.
   """
 
-  return from_kernel_function(
-    partial(functions.rbf.rbf, length_scale=length_scale)
+  return functions.utils.from_kernel_function(
+    partial(
+      functions.rbf.rbf,
+      length_scale=length_scale,
+    ),
   )
 
 
@@ -60,8 +63,11 @@ def matern_one_half(length_scale: Array) -> Kernel:
     A matern one half `Kernel`.
   """
 
-  return from_kernel_function(
-    partial(functions.matern.one_half, length_scale=length_scale)
+  return functions.utils.from_kernel_function(
+    partial(
+      functions.matern.one_half,
+      length_scale=length_scale,
+    ),
   )
 
 
@@ -84,8 +90,11 @@ def matern_three_halves(length_scale: Array) -> Kernel:
     A matern three halves `Kernel`.
   """
 
-  return from_kernel_function(
-    partial(functions.matern.three_halves, length_scale=length_scale)
+  return functions.utils.from_kernel_function(
+    partial(
+      functions.matern.three_halves,
+      length_scale=length_scale,
+    ),
   )
 
 
@@ -108,8 +117,11 @@ def matern_five_halves(length_scale: Array) -> Kernel:
     A matern five halves `Kernel`.
   """
 
-  return from_kernel_function(
-    partial(functions.matern.five_halves, length_scale=length_scale)
+  return functions.utils.from_kernel_function(
+    partial(
+      functions.matern.five_halves,
+      length_scale=length_scale,
+    ),
   )
 
 
@@ -130,7 +142,7 @@ def periodic(length_scale: Array, variance: Numeric, period: Numeric) -> Kernel:
     A periodic `Kernel`.
   """
 
-  return from_kernel_function(
+  return functions.utils.from_kernel_function(
     partial(
       functions.periodic.periodic,
       length_scale=length_scale,

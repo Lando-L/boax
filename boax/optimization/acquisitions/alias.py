@@ -19,7 +19,7 @@ from functools import partial
 from operator import attrgetter
 from typing import Callable
 
-from jax import jit, lax, vmap
+from jax import jit, lax, scipy, vmap
 from jax import numpy as jnp
 
 from boax.core import distributions
@@ -54,17 +54,18 @@ def probability_of_improvement(
   """
 
   return jit(
-      compose(
-        jnp.squeeze,
-        partial(functions.analytic.poi, best=best),
-        vmap(
-          compose(
-            distributions.multivariate_normal.multivariate_to_normal,
-            model,
-          )
+    compose(
+      jnp.squeeze,
+      scipy.stats.norm.cdf,
+      partial(functions.utils.scaled_improvement, best=best),
+      vmap(
+        compose(
+          distributions.multivariate_normal.as_normal,
+          model,
         )
-      )
+      ),
     )
+  )
 
 
 def log_probability_of_improvement(
@@ -92,13 +93,14 @@ def log_probability_of_improvement(
   return jit(
     compose(
       jnp.squeeze,
-      partial(functions.analytic.lpoi, best=best),
+      scipy.stats.norm.logcdf,
+      partial(functions.utils.scaled_improvement, best=best),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -133,10 +135,10 @@ def expected_improvement(
       partial(functions.analytic.ei, best=best),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -175,10 +177,10 @@ def log_expected_improvement(
       partial(functions.analytic.lei, best=best),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -209,13 +211,13 @@ def upper_confidence_bound(
   return jit(
     compose(
       jnp.squeeze,
-      partial(functions.analytic.ucb, beta=beta),
+      partial(distributions.normal.sample, base_samples=jnp.sqrt(beta)),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -243,10 +245,10 @@ def posterior_mean(
       attrgetter('loc'),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -274,10 +276,10 @@ def posterior_scale(
       attrgetter('scale'),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -401,6 +403,46 @@ def q_upper_confidence_bound(
         jnp.mean,
         partial(jnp.amax, axis=-1),
         partial(functions.monte_carlo.qucb, beta=beta_prime),
+        call(base_samples),
+        vmap,
+        model,
+      )
+    )
+  )
+
+
+def q_knowledge_gradient(
+  model: Model[MultivariateNormal],
+  base_samples: Array,
+  fantasies: Array,
+) -> Acquisition:
+  """
+  MC-based batch Upper Confidence Bound acquisition function.
+
+  `qUCB = E(max(mean + |y_tilde - mean|))`,
+
+  where `y_tilde ~ N(mean(x), beta * pi/2 * cov(x))` and `f(x) ~ N(mean(x), cov(x)).`
+
+  Example:
+    >>> acqf = q_upper_confidence_bound(surrogate, base_samples, 2.0)
+    >>> qucb = acqf(xs)
+
+  Args:
+    model: A surrogate model.
+    base_samples: A set of samples from standard normal distribution.
+    beta: The mean and covariance trade-off parameter.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  mean = model(fantasies).mean
+
+  return jit(
+    vmap(
+      compose(
+        jnp.mean,
+        partial(jnp.amax, axis=-1),
         call(base_samples),
         vmap,
         model,

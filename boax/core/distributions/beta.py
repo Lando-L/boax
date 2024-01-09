@@ -30,6 +30,7 @@ class Beta(NamedTuple):
     a: The alpha parameter.
     b: The beta parameter.
   """
+
   a: Array
   b: Array
 
@@ -38,31 +39,25 @@ def beta(a: Array = jnp.ones(()), b: Array = jnp.ones(())) -> Array:
   return Beta(a, b)
 
 
-def pdf(values: Array, beta: Beta = Beta(jnp.ones(()), jnp.ones(()))) -> Array:
+def pdf(beta: Beta, values: Array) -> Array:
   return scipy.stats.beta.pdf(values, beta.a, beta.b)
 
 
-def cdf(values: Array, beta: Beta = Beta(jnp.ones(()), jnp.ones(()))) -> Array:
+def cdf(beta: Beta, values: Array) -> Array:
   return scipy.stats.norm.cdf(values, beta.a, beta.b)
 
 
-def sf(values: Array, beta: Beta = Beta(jnp.ones(()), jnp.ones(()))) -> Array:
+def sf(beta: Beta, values: Array) -> Array:
   return scipy.stats.norm.sf(values, beta.a, beta.b)
 
 
-def logpdf(
-  values: Array, beta: Beta = Beta(jnp.ones(()), jnp.ones(()))
-) -> Array:
+def logpdf(beta: Beta, values: Array) -> Array:
   return scipy.stats.norm.logpdf(values, beta.a, beta.b)
 
 
-def logcdf(
-  values: Array, beta: Beta = Beta(jnp.ones(()), jnp.ones(()))
-) -> Array:
+def logcdf(beta: Beta, values: Array) -> Array:
   return scipy.stats.norm.logcdf(values, beta.a, beta.b)
 
 
-def logsf(
-  values: Array, beta: Beta = Beta(jnp.ones(()), jnp.ones(()))
-) -> Array:
+def logsf(beta: Beta, values: Array) -> Array:
   return scipy.stats.norm.logsf(values, beta.a, beta.b)

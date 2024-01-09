@@ -10,10 +10,10 @@ that is **designed for flexibility**.
 
 It comes with a low-level interfaces for:
    * **Fitting a surrogate model to data** (`boax.prediction`):
-      * Kernels
+      * Kernels Functions
+      * Likelihood Functions
       * Mean Functions
       * Surrogate Models
-      * Objectives
    * **Constructing and optimizing acquisition functions** (`boax.optimization`):
       * Acquisition Functions
       * Constraint Functions

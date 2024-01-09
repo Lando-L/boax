@@ -12,7 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The likelihoods sub-package."""
+"""Alias for likelihoods."""
 
-from .alias import exact_marginal_log_likelihood as exact_marginal_log_likelihood
-from .base import Objective as Objective
+from jax import numpy as jnp
+
+from boax.core import distributions
+from boax.core.distributions.multivariate_normal import MultivariateNormal
+from boax.utils.typing import Array
+
+
+def gaussian(mvn: MultivariateNormal, noise: Array) -> MultivariateNormal:
+  return distributions.multivariate_normal.multivariate_normal(
+    mvn.mean, mvn.cov + noise * jnp.identity(mvn.cov.shape[-1])
+  )

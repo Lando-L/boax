@@ -31,6 +31,7 @@ class MultivariateNormal(NamedTuple):
     mean: The mean vector parameter.
     cov: The covariance Matrix parameter.
   """
+
   mean: Array
   cov: Array
 
@@ -41,23 +42,19 @@ def multivariate_normal(
   return MultivariateNormal(mean, cov)
 
 
-def multivariate_to_normal(mvn: MultivariateNormal) -> Normal:
+def as_normal(mvn: MultivariateNormal) -> Normal:
   return Normal(mvn.mean, jnp.sqrt(jnp.diag(mvn.cov)))
 
 
-def pdf(
-  values: Array,
-  mvn: MultivariateNormal = MultivariateNormal(
-    jnp.zeros((1,)), jnp.identity(1)
-  ),
-) -> Array:
+def sample(mvn: MultivariateNormal, base_samples: Array) -> Array:
+  return mvn.mean + jnp.dot(
+    scipy.linalg.cholesky(mvn.cov, lower=True), base_samples
+  )
+
+
+def pdf(mvn: MultivariateNormal, values: Array) -> Array:
   return scipy.stats.multivariate_normal.pdf(values, mvn.mean, mvn.cov)
 
 
-def logpdf(
-  values: Array,
-  mvn: MultivariateNormal = MultivariateNormal(
-    jnp.zeros((1,)), jnp.identity(1)
-  ),
-) -> Array:
+def logpdf(mvn: MultivariateNormal, values: Array) -> Array:
   return scipy.stats.multivariate_normal.logpdf(values, mvn.mean, mvn.cov)

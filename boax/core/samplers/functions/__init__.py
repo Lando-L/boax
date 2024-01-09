@@ -15,3 +15,4 @@
 """The sampler functions sub-package."""
 
 from . import quasi_random as quasi_random
+from . import utils as utils

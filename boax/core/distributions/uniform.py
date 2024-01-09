@@ -30,12 +30,17 @@ class Uniform(NamedTuple):
     a: The minium value parameter.
     b: The maximum value parameter.
   """
+
   a: Array
   b: Array
 
 
 def uniform(a: Array = jnp.zeros(()), b: Array = jnp.ones(())) -> Uniform:
   return Uniform(a, b)
+
+
+def sample(uniform: Uniform, base_samples: Array) -> Array:
+  return uniform.a + (uniform.b - uniform.a) * base_samples
 
 
 def pdf(values: Array) -> Array:

@@ -12,9 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The prediction module."""
+"""Base interface for likelihoods."""
 
-from . import kernels as kernels
-from . import likelihoods as likelihoods
-from . import means as means
-from . import models as models
+from typing import Generic, Protocol, TypeVar
+
+A = TypeVar('A')
+B = TypeVar('B')
+
+
+class Likelihood(Protocol, Generic[A, B]):
+  """
+  A callable type for likelihoods.
+  """
+
+  def __call__(self, values: A) -> B:
+    """
+    Computes the posterior prediction at the index points.
+
+    Args:
+      index_points: The `n x d` index points.
+
+    Returns:
+      The model evaluated at the given index points.
+    """

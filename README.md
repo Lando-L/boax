@@ -13,10 +13,10 @@ Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**. It comes with a low-level interfaces for:
 
 * **Fitting a surrogate model to data** (`boax.prediction`):
-  * Kernels
+  * Kernel Functions
+  * Likelihood Functions
   * Mean Functions
-  * Surrogate Models
-  * Objectives
+  * Models
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
   * Acquisition Functions
   * Constraint Functions
@@ -58,7 +58,8 @@ from jax import value_and_grad
 
 import optax
 
-from boax.prediction import kernels, means, models, objectives
+from boax.core import distributions
+from boax.prediction import kernels, likelihoods, means, models
 from boax.optimization import acquisitions, maximizers
 
 bounds = jnp.array([[-3.0, 3.0]])
@@ -75,15 +76,19 @@ y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
 
 ```python
 def prior(amplitude, length_scale, noise):
-  return models.gaussian_process(
-    means.zero(),
-    kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
-    nn.softplus(noise),
+  return models.predictive(
+    models.gaussian_process(
+      means.zero(),
+      kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
+    ),
+    likelihoods.gaussian(
+      nn.softplus(noise),
+    ),
   )
 
 def target_log_prob(params):
-  y_hat = prior(**params)(x_train)
-  return -objectives.exact_marginal_log_likelihood()(y_hat, y_train)
+  mvn = prior(**params)(x_train)
+  return -distributions.multivariate_normal.logpdf(mvn, y_train)
 
 params = {
   'amplitude': jnp.zeros(()),
@@ -110,12 +115,16 @@ def train_step(state, iteration):
 3. Construct and optimize an UCB acquisition function.
 ```python
 def posterior(amplitude, length_scale, noise):
-  return models.gaussian_process_regression(
-    x_train,
-    y_train,
-    means.zero(),
-    kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
-    nn.softplus(noise),
+  return models.predictive(
+    models.gaussian_process_regression(
+      x_train,
+      y_train,
+      means.zero(),
+      kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
+    ),
+    likelihoods.gaussian(
+      nn.softplus(noise),
+    ),
   )
 
 surrogate = posterior(**next_params)

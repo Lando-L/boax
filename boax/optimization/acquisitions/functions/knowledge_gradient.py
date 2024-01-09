@@ -12,31 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for likelihoods."""
+"""Knowledge Gradient acquisition functions."""
 
-from typing import Generic, Protocol, TypeVar
 
 from boax.utils.typing import Array
 
-T = TypeVar('T')
 
-
-class Objective(Protocol, Generic[T]):
-  """
-  A callable type for objective functions.
-
-  An objective functions takes predictions of type `T` and
-  `n`-dim targets as inputs and returns the loss value.
-  """
-
-  def __call__(self, predictions: T, targets: Array) -> Array:
-    """
-    Computes the loss value.
-
-    Args:
-      predictions: The predictions.
-      targets: The `n`-dim targets.
-
-    Returns:
-      The loss values.
-    """
+def qkg(values: Array, fantasies: Array) -> Array:
+  return values

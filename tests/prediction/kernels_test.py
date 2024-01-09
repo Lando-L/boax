@@ -130,8 +130,8 @@ class KernelsTest(parameterized.TestCase):
     amplitude = 5.0
     length_scale = 0.2
 
-    x = random.uniform(key1, shape=(10,))
-    y = random.uniform(key2, shape=(10,))
+    x = random.uniform(key1, shape=(10, 1))
+    y = random.uniform(key2, shape=(10, 1))
 
     inner = kernels.rbf(length_scale)
 
@@ -140,11 +140,27 @@ class KernelsTest(parameterized.TestCase):
 
     np.testing.assert_allclose(result, expected, atol=1e-4)
 
+  def test_linear_truncated(self):
+    key1, key2 = random.split(random.key(0))
+    length_scale = 1.0
+    power = 1.0
+
+    x, x_fid = random.uniform(key1, shape=(2, 10, 1))
+    y, y_fid = random.uniform(key2, shape=(2, 10, 1))
+
+    inner = kernels.matern_five_halves(length_scale)
+
+    result = kernels.linear_truncated(x_fid, y_fid, inner, inner, power)(x, y)
+    factor = (1 - x_fid) * (1 - y_fid.T) * (1 + x_fid * y_fid.T)
+    expected = inner(x, y) + inner(x, y) * factor
+
+    np.testing.assert_allclose(result, expected, atol=1e-4)
+
   def test_additive(self):
     key1, key2 = random.split(random.key(0))
 
-    x = random.uniform(key1, shape=(10,))
-    y = random.uniform(key2, shape=(10,))
+    x = random.uniform(key1, shape=(10, 1))
+    y = random.uniform(key2, shape=(10, 1))
 
     result = kernels.additive(*map(kernels.rbf, [0.2, 0.3, 0.4]))(x, y)
     expected = (
@@ -156,8 +172,8 @@ class KernelsTest(parameterized.TestCase):
   def test_product(self):
     key1, key2 = random.split(random.key(0))
 
-    x = random.uniform(key1, shape=(10,))
-    y = random.uniform(key2, shape=(10,))
+    x = random.uniform(key1, shape=(10, 1))
+    y = random.uniform(key2, shape=(10, 1))
 
     result = kernels.product(*map(kernels.rbf, [0.2, 0.3, 0.4]))(x, y)
     expected = (

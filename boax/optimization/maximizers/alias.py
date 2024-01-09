@@ -64,6 +64,6 @@ def bfgs(
       q=q,
       num_restarts=num_restarts,
       num_raw_samples=num_raw_samples,
-      eta=eta
+      eta=eta,
     ),
   )

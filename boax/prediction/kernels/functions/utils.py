@@ -12,9 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The prediction module."""
+"""Utils for kernels."""
 
-from . import kernels as kernels
-from . import likelihoods as likelihoods
-from . import means as means
-from . import models as models
+from typing import Callable
+
+from jax import jit, vmap
+
+from boax.prediction.kernels.base import Kernel
+from boax.utils.typing import Numeric
+
+
+def from_kernel_function(
+  kernel_fn: Callable[[Numeric, Numeric], Numeric],
+) -> Kernel:
+  """
+  Transforms a kernel function into a _kernel_.
+
+  Args:
+    kernel_fn: The kernel function to be transformed.
+
+  Returns:
+    The corresponding `Kernel`.
+  """
+
+  return jit(vmap(vmap(kernel_fn, in_axes=(None, 0)), in_axes=(0, None)))

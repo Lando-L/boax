@@ -12,9 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The prediction module."""
+"""Alias for likelihoods."""
 
-from . import kernels as kernels
-from . import likelihoods as likelihoods
-from . import means as means
-from . import models as models
+from jax import nn
+
+from boax.core import distributions
+from boax.core.distributions.beta import Beta
+from boax.utils.typing import Array
+
+
+def beta(samples: Array, scale: Array) -> Beta:
+  mixture = nn.sigmoid(samples)
+  alpha = mixture * scale + 1
+  beta = scale - alpha + 2
+
+  return distributions.beta.beta(alpha, beta)

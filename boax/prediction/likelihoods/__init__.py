@@ -12,18 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Alias for objectives."""
+"""The kernels sub-package."""
 
-from jax import jit
-
-from boax.core import distributions
-from boax.core.distributions.multivariate_normal import MultivariateNormal
-from boax.prediction.objectives.base import Objective
-from boax.utils.typing import Array
-
-
-def exact_marginal_log_likelihood() -> Objective[MultivariateNormal]:
-  def objective(predictions: MultivariateNormal, targets: Array):
-    return distributions.multivariate_normal.logpdf(targets, predictions)
-
-  return jit(objective)
+from .alias import gaussian as gaussian
+from .base import Likelihood as Likelihood

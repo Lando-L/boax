@@ -21,7 +21,6 @@ from jax import numpy as jnp
 
 from boax.core import distributions
 from boax.core.distributions.multivariate_normal import MultivariateNormal
-from boax.optimization.constraints import functions
 from boax.optimization.constraints.base import Constraint
 from boax.prediction.models.base import Model
 from boax.utils.functools import compose
@@ -49,13 +48,13 @@ def less_or_equal(
   return jit(
     compose(
       jnp.squeeze,
-      partial(functions.unequality.le, x=bound),
+      partial(distributions.normal.cdf, x=bound),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -81,13 +80,13 @@ def log_less_or_equal(
   return jit(
     compose(
       jnp.squeeze,
-      partial(functions.unequality.lle, x=bound),
+      partial(distributions.normal.logcdf, x=bound),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -113,13 +112,13 @@ def greater_or_equal(
   return jit(
     compose(
       jnp.squeeze,
-      partial(functions.unequality.ge, x=bound),
+      partial(distributions.normal.sf, x=bound),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )
 
@@ -145,12 +144,12 @@ def log_greater_or_equal(
   return jit(
     compose(
       jnp.squeeze,
-      partial(functions.unequality.lge, x=bound),
+      partial(distributions.normal.logsf, x=bound),
       vmap(
         compose(
-          distributions.multivariate_normal.multivariate_to_normal,
+          distributions.multivariate_normal.as_normal,
           model,
         )
-      )
+      ),
     )
   )

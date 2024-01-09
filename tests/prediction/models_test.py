@@ -2,19 +2,19 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from boax.prediction import kernels, means, models
+from boax.core import distributions
+from boax.prediction import kernels, likelihoods, means, models
 
 
 class ProcessesTest(parameterized.TestCase):
   def test_gaussian_process(self):
-    index_points = random.uniform(
-      random.key(0), shape=(10, 1), minval=-1, maxval=1
-    )
+    key = random.key(0)
+
+    index_points = random.uniform(key, shape=(10, 1), minval=-1, maxval=1)
 
     model = models.gaussian_process(
       means.zero(),
       kernels.rbf(jnp.array(0.2)),
-      jnp.array(0.2),
     )
 
     mean, cov = model(index_points)
@@ -38,13 +38,46 @@ class ProcessesTest(parameterized.TestCase):
       observations,
       means.zero(),
       kernels.rbf(jnp.array(0.2)),
-      jnp.array(0.2),
     )
 
     mean, cov = model(index_points)
 
     self.assertEqual(mean.shape, (10,))
     self.assertEqual(cov.shape, (10, 10))
+
+  def test_predictive(self):
+    key = random.key(0)
+
+    index_points = random.uniform(key, shape=(10, 1), minval=-1, maxval=1)
+
+    model = models.gaussian_process(
+      means.zero(),
+      kernels.rbf(jnp.array(0.2)),
+    )
+
+    predictive = models.predictive(model, likelihoods.gaussian(1e-4))
+
+    mean, cov = predictive(index_points)
+
+    self.assertEqual(mean.shape, (10,))
+    self.assertEqual(cov.shape, (10, 10))
+
+  def sampled(self):
+    key1, key2 = random.split(random.key(0))
+
+    index_points = random.uniform(key1, shape=(10, 1), minval=-1, maxval=1)
+    base_samples = random.normal(key2, shape=(10,))
+
+    model = models.gaussian_process(
+      means.zero(),
+      kernels.rbf(jnp.array(0.2)),
+    )
+
+    sampled = models.sampled(model, distributions.multivariate_normal.sample)
+
+    samples = sampled(index_points)(base_samples)
+
+    self.assertEqual(samples.shape, (10,))
 
 
 if __name__ == '__main__':

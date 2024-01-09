@@ -14,7 +14,20 @@
 
 """Utils for sampling functions."""
 
+import math
+
 import numpy as np
+from jax import numpy as jnp
+from jax import scipy
+
+from boax.utils.typing import Array
+
+sqrt2 = math.sqrt(2)
+
+
+def ratio_of_uniforms(base_samples: Array):
+  v = 0.5 + (1 - jnp.finfo(base_samples.dtype).eps) * (base_samples - 0.5)
+  return scipy.special.erfinv(2 * v - 1) * sqrt2
 
 
 def primes_less_than(n) -> np.ndarray:

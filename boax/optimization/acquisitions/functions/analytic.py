@@ -19,8 +19,8 @@ import math
 from jax import numpy as jnp
 from jax import scipy
 
-from boax.core import distributions
 from boax.core.distributions.normal import Normal
+from boax.optimization.acquisitions.functions.utils import scaled_improvement
 from boax.utils.typing import Array, Numeric
 
 log2 = math.log(2)
@@ -29,21 +29,9 @@ c1 = math.log(2 * math.pi) / 2
 c2 = math.log(math.pi / 2) / 2
 
 
-def poi(normal: Normal, best: Numeric) -> Array:
-  u = (normal.loc - best) / normal.scale
-  return distributions.normal.cdf(u)
-
-
-def lpoi(normal: Normal, best: Numeric) -> Array:
-  u = (normal.loc - best) / normal.scale
-  return distributions.normal.logcdf(u)
-
-
 def ei(normal: Normal, best: Numeric) -> Array:
-  u = (normal.loc - best) / normal.scale
-  return (
-    distributions.normal.pdf(u) + u * distributions.normal.cdf(u)
-  ) * normal.scale
+  u = scaled_improvement(normal, best)
+  return (scipy.stats.norm.pdf(u) + u * scipy.stats.norm.cdf(u)) * normal.scale
 
 
 def lei(normal: Normal, best: Numeric) -> Array:
@@ -66,9 +54,7 @@ def lei(normal: Normal, best: Numeric) -> Array:
     )
 
   def log_ei_upper(x):
-    return jnp.log(
-      distributions.normal.pdf(x) + x * distributions.normal.cdf(x)
-    )
+    return jnp.log(scipy.stats.norm.pdf(x) + x * scipy.stats.norm.cdf(x))
 
   def log_ei_lower(x):
     return (
@@ -81,9 +67,5 @@ def lei(normal: Normal, best: Numeric) -> Array:
 
     return jnp.where(x > -1, log_ei_upper(upper), log_ei_lower(lower))
 
-  u = (normal.loc - best) / normal.scale
+  u = scaled_improvement(normal, best)
   return logh(u) + jnp.log(normal.scale)
-
-
-def ucb(normal: Normal, beta: Numeric) -> Array:
-  return normal.loc + jnp.sqrt(beta) * normal.scale

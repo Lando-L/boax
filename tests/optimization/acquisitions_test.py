@@ -75,14 +75,22 @@ class AcquisitionsTest(parameterized.TestCase):
     self.assertEqual(posterior_scale.shape, (n,))
 
     np.testing.assert_allclose(posterior_mean, jnp.repeat(mean, n), atol=1e-4)
-    np.testing.assert_allclose(posterior_scale, jnp.repeat(jnp.sqrt(jnp.diag(cov)), n), atol=1e-4)
+    np.testing.assert_allclose(
+      posterior_scale, jnp.repeat(jnp.sqrt(jnp.diag(cov)), n), atol=1e-4
+    )
 
   def test_q_expected_improvement(self):
     key = random.key(0)
     n, q, d = 10, 5, 1
 
     model = const(identity)
-    base_samples = random.uniform(key, (n, q,))
+    base_samples = random.uniform(
+      key,
+      (
+        n,
+        q,
+      ),
+    )
     best = 0.0
     candidates = jnp.empty((n, q, d))
 
@@ -97,7 +105,13 @@ class AcquisitionsTest(parameterized.TestCase):
     n, q, d = 10, 5, 1
 
     model = const(identity)
-    base_samples = random.uniform(key, (n, q,))
+    base_samples = random.uniform(
+      key,
+      (
+        n,
+        q,
+      ),
+    )
     tau = 1.0
     best = 0.0
     candidates = jnp.empty((n, q, d))
@@ -113,7 +127,13 @@ class AcquisitionsTest(parameterized.TestCase):
     n, q, d = 10, 5, 1
 
     model = const(identity)
-    base_samples = random.uniform(key, (n, q,))
+    base_samples = random.uniform(
+      key,
+      (
+        n,
+        q,
+      ),
+    )
     beta = 2.0
     candidates = jnp.empty((n, q, d))
 

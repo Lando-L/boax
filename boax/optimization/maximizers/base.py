@@ -16,7 +16,6 @@
 
 from typing import Protocol
 
-from boax.optimization.acquisitions.base import Acquisition
 from boax.utils.typing import Array, PRNGKey
 
 

@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The acquisition functions sub-package."""
+"""Util functions."""
 
-from . import unequality as unequality
+from boax.core.distributions.normal import Normal
+from boax.utils.typing import Numeric
+
+
+def scaled_improvement(normal: Normal, best: Numeric):
+  return (normal.loc - best) / normal.scale
