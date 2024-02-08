@@ -14,7 +14,7 @@
 
 """Multi fidelity functions."""
 
-from typing import Callable
+from typing import Callable, Tuple
 
 from jax import numpy as jnp
 from jax import scipy
@@ -28,8 +28,9 @@ from boax.utils.typing import Array, Numeric
 
 def posterior(
   index_points: Array,
+  index_points_fidelities: Array,
   observation_index_points: Array,
-  observation_fidelities: Array,
+  observation_index_points_fidelities: Array,
   observations: Array,
   mean_fn: Mean,
   kernel_fn: Callable[[Array, Array], Kernel],
@@ -38,13 +39,13 @@ def posterior(
   mz = mean_fn(index_points)
   mx = mean_fn(observation_index_points)
 
-  Kxx = kernel_fn(observation_fidelities, observation_fidelities)(
+  Kxx = kernel_fn(observation_index_points_fidelities, observation_index_points_fidelities)(
     observation_index_points, observation_index_points
   )
-  Kxz = kernel_fn(observation_fidelities, jnp.ones_like(index_points))(
+  Kxz = kernel_fn(observation_index_points_fidelities, index_points_fidelities)(
     observation_index_points, index_points
   )
-  Kzz = kernel_fn(jnp.ones_like(index_points), jnp.ones_like(index_points))(
+  Kzz = kernel_fn(index_points_fidelities, index_points_fidelities)(
     index_points, index_points
   )
 
@@ -59,3 +60,7 @@ def posterior(
   cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(Kzz.shape[-1])
 
   return distributions.multivariate_normal.multivariate_normal(mean, cov)
+
+
+def split(values: Array) -> Tuple[Array, Array]:
+  return jnp.split(values, [values.shape[-1] - 1], axis=-1)

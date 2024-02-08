@@ -20,13 +20,16 @@ from jax import numpy as jnp
 from jax import scipy
 
 from boax.core.distributions.normal import Normal
-from boax.optimization.acquisitions.functions.utils import scaled_improvement
 from boax.utils.typing import Array, Numeric
 
 log2 = math.log(2)
 inv_sqrt2 = 1 / math.sqrt(2)
 c1 = math.log(2 * math.pi) / 2
 c2 = math.log(math.pi / 2) / 2
+
+
+def scaled_improvement(normal: Normal, best: Numeric):
+  return (normal.loc - best) / normal.scale
 
 
 def ei(normal: Normal, best: Numeric) -> Array:

@@ -64,7 +64,7 @@ def linear_truncated(
   Example:
     >>> unbiased = matern_five_halves(jnp.array([0.2, 3.0]))
     >>> biased = matern_five_halves(jnp.array([1.5]))
-    >>> kernel = linear_truncated(x_fid, y_fid, unbiased, biased, 0.0)
+    >>> kernel = linear_truncated(x_fid, y_fid, unbiased, biased, 1.0)
     >>> Kxx = kernel(xs, xs)
 
   Args:

@@ -16,26 +16,25 @@
 
 from functools import partial
 
-from jax import jit, vmap
+from jax import jit
 from jax import numpy as jnp
 
 from boax.core import distributions
-from boax.core.distributions.multivariate_normal import MultivariateNormal
+from boax.core.distributions.normal import Normal
 from boax.optimization.constraints.base import Constraint
-from boax.prediction.models.base import Model
 from boax.utils.functools import compose
 from boax.utils.typing import Numeric
 
 
 def less_or_equal(
-  model: Model[MultivariateNormal], bound: Numeric
-) -> Constraint:
+  bound: Numeric,
+) -> Constraint[Normal]:
   """
   The Less or Equal unequality constraint.
 
   Example:
-    >>> constraint = less_or_equal(costs, 0.8)
-    >>> le = constraint(xs)
+    >>> constraint = less_or_equal(0.8)
+    >>> le = constraint(model(xs))
 
   Args:
     model: A gaussian process regression feasibility model.
@@ -47,27 +46,21 @@ def less_or_equal(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       partial(distributions.normal.cdf, x=bound),
-      vmap(
-        compose(
-          distributions.multivariate_normal.as_normal,
-          model,
-        )
-      ),
     )
   )
 
 
 def log_less_or_equal(
-  model: Model[MultivariateNormal], bound: Numeric
-) -> Constraint:
+  bound: Numeric,
+) -> Constraint[Normal]:
   """
   The Log Less or Equal unequality constraint.
 
   Example:
-    >>> constraint = log_less_or_equal(costs, 0.8)
-    >>> lle = constraint(xs)
+    >>> constraint = log_less_or_equal(0.8)
+    >>> lle = constraint(model(xs))
 
   Args:
     model: A gaussian process regression feasibility model.
@@ -79,27 +72,21 @@ def log_less_or_equal(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       partial(distributions.normal.logcdf, x=bound),
-      vmap(
-        compose(
-          distributions.multivariate_normal.as_normal,
-          model,
-        )
-      ),
     )
   )
 
 
 def greater_or_equal(
-  model: Model[MultivariateNormal], bound: Numeric
-) -> Constraint:
+  bound: Numeric,
+) -> Constraint[Normal]:
   """
   The Greater or Equal unequality constraint.
 
   Example:
-    >>> constraint = greater_or_equal(accuracy, 0.7)
-    >>> ge = constraint(xs)
+    >>> constraint = greater_or_equal(0.7)
+    >>> ge = constraint(model(xs))
 
   Args:
     model: A gaussian process regression feasibility model.
@@ -111,27 +98,21 @@ def greater_or_equal(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       partial(distributions.normal.sf, x=bound),
-      vmap(
-        compose(
-          distributions.multivariate_normal.as_normal,
-          model,
-        )
-      ),
     )
   )
 
 
 def log_greater_or_equal(
-  model: Model[MultivariateNormal], bound: Numeric
-) -> Constraint:
+  bound: Numeric,
+) -> Constraint[Normal]:
   """
   The Log Greater or Equal unequality constraint.
 
   Example:
-    >>> constraint = log_greater_or_equal(accuracy, 0.7)
-    >>> ge = constraint(xs)
+    >>> constraint = log_greater_or_equal(0.7)
+    >>> ge = constraint(model(xs))
 
   Args:
     model: A gaussian process regression feasibility model.
@@ -143,13 +124,7 @@ def log_greater_or_equal(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       partial(distributions.normal.logsf, x=bound),
-      vmap(
-        compose(
-          distributions.multivariate_normal.as_normal,
-          model,
-        )
-      ),
     )
   )

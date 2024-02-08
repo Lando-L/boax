@@ -15,9 +15,11 @@
 """The functools sub-package."""
 
 from functools import reduce
-from typing import Callable, TypeVar
+from typing import Any, Callable, TypeVar
 
 T = TypeVar('T')
+A = TypeVar('A')
+B = TypeVar('B')
 
 
 def identity(i: T) -> T:
@@ -34,7 +36,7 @@ def identity(i: T) -> T:
   return i
 
 
-def const(c: T) -> Callable:
+def const(c: T) -> Callable[[Any], T]:
   """
   Constant Function
 
@@ -51,10 +53,18 @@ def const(c: T) -> Callable:
   return __fn
 
 
-def call(*args, **kwargs) -> Callable:
-  """ """
+def call(*args, **kwargs) -> Callable[[Callable[[Any], T]], T]:
+  """
+  Calls a callable with the given inputs.
 
-  def __fn(fn: Callable):
+  Args:
+    *args: The arguments.
+    **kwargs: The keyword arguments.
+
+  Returns:
+    A function that calls given function with the inputs.
+  """
+  def __fn(fn: Callable[[Any], T]) -> T:
     return fn(*args, **kwargs)
 
   return __fn
@@ -80,7 +90,9 @@ def compose(*fns: Callable) -> Callable:
   return reduce(__reduce_fn, fns)
 
 
-def combine(operator: Callable, initial: T, *fns: Callable) -> Callable:
+def combine(
+  operator: Callable[[T, T], T], initial: T, *fns: Callable[[Any], T]
+) -> Callable[[Any], T]:
   """
   Combines a sequence of functions by an operator.
 
@@ -101,35 +113,24 @@ def combine(operator: Callable, initial: T, *fns: Callable) -> Callable:
   return __fn
 
 
-def tupled(f: Callable) -> Callable:
-  """
-  Transforms function to take a tuple as its argument.
-
-  Args:
-    fns: Functions to transform.
-
-  Returns:
-    The transformed function.
-  """
-
-  def __fn(x):
-    return f(*x)
+def apply(
+  fn: Callable, *fns: Callable
+) -> Callable:
+  def __fn(*args, **kwargs):
+    return fn(map(call(*args, **kwargs), fns))
 
   return __fn
 
 
-def untupled(f: Callable) -> Callable:
-  """
-  Transforms function to take a regular list arguments.
+def wrap(fn: Callable) -> Callable:
+  def __fn(*args):
+    return fn(args)
 
-  Args:
-    fns: Functions to transform.
+  return __fn
 
-  Returns:
-    The transformed function.
-  """
 
-  def __fn(*xs):
-    return f(tuple(xs))
-
+def unwrap(fn: Callable) -> Callable:
+  def __fn(args):
+    return fn(*args)
+  
   return __fn

@@ -15,6 +15,4 @@
 """The acquisition functions sub-package."""
 
 from . import analytic as analytic
-from . import knowledge_gradient as knowledge_gradient
 from . import monte_carlo as monte_carlo
-from . import utils as utils

@@ -29,7 +29,7 @@ class MultivariateNormal(NamedTuple):
 
   Attributes:
     mean: The mean vector parameter.
-    cov: The covariance Matrix parameter.
+    cov: The covariance matrix parameter.
   """
 
   mean: Array
@@ -39,6 +39,17 @@ class MultivariateNormal(NamedTuple):
 def multivariate_normal(
   mean: Array = jnp.zeros((1,)), cov: Array = jnp.identity(1)
 ) -> MultivariateNormal:
+  """
+  Smart constructor for the multivariate normal distribution.
+
+  Args:
+    mean: The mean vector parameter.
+    cov: The covariance matrix parameter.
+
+  Returns:
+    The `MultivariateNormal` distribution object.
+  """
+
   return MultivariateNormal(mean, cov)
 
 

@@ -26,7 +26,7 @@ from boax.utils.typing import Array
 
 
 def bfgs(
-  candidates: Array, acquisition: Acquisition, bounds: Array
+  acquisition: Acquisition, candidates: Array, bounds: Array
 ) -> Tuple[Array, Array]:
   results = optimize.minimize(
     fun=compose(

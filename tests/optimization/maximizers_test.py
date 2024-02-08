@@ -11,16 +11,15 @@ class MaximizersTest(parameterized.TestCase):
   def test_bfgs(self):
     key = random.key(0)
     bounds = jnp.array([[-1.0, 1.0]])
-    num_restarts = 5
-    num_raw_samples = 20
-    q, d = 3, 1
+    n, q, d = 10, 3, 1
 
     acqf = itemgetter((..., 0, 0))
-    maximizer = maximizers.bfgs(acqf, bounds, q, num_restarts, num_raw_samples)
-    candidates, values = maximizer(key)
+    maximizer = maximizers.bfgs(bounds, q, 25, 10)
+    candidates = maximizer.init(acqf, key)
+    next_candidates, values = maximizer.update(acqf, candidates)
 
-    self.assertEqual(candidates.shape, (num_restarts, q, d))
-    self.assertEqual(values.shape, (num_restarts,))
+    self.assertEqual(next_candidates.shape, (n, q, d))
+    self.assertEqual(values.shape, (n,))
 
 
 if __name__ == '__main__':

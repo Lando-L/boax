@@ -14,24 +14,28 @@
 
 """Transformation functions for kernels."""
 
+from typing import TypeVar
+
 from jax import lax
 
 from boax.optimization.acquisitions.base import Acquisition
 from boax.optimization.constraints.base import Constraint
 from boax.utils.functools import combine
 
+T = TypeVar('T')
+
 
 def constrained(
-  acqusition: Acquisition, *constraints: Constraint
-) -> Acquisition:
+  acqusition: Acquisition[T], *constraints: Constraint[T]
+) -> Acquisition[T]:
   """
   Constrains a given acquisition function.
 
   Example:
-    >>> ei = expected_improvement(surrogate, best=0.2)
-    >>> c1 = less_or_equal(cost, 0.8)
-    >>> c2 = less_or_equal(complexity, 8.0)
-    >>> c3 = greater_or_equal(complexity, 2.0)
+    >>> ei = expected_improvement(0.2)
+    >>> c1 = less_or_equal(0.8)
+    >>> c2 = less_or_equal(8.0)
+    >>> c3 = greater_or_equal(2.0)
     >>> acqf = constrained(ei, c1, c2, c3)
 
   Args:
@@ -46,16 +50,16 @@ def constrained(
 
 
 def log_constrained(
-  acqusition: Acquisition, *constraints: Constraint
+  acqusition: Acquisition[T], *constraints: Constraint[T]
 ) -> Acquisition:
   """
   Constrains a given log acquisition function.
 
   Example:
-    >>> ei = log_expected_improvement(surrogate, best=0.2)
-    >>> c1 = log_less_or_equal(cost, 0.8)
-    >>> c2 = log_less_or_equal(complexity, 8.0)
-    >>> c3 = log_greater_or_equal(complexity, 2.0)
+    >>> ei = log_expected_improvement(0.2)
+    >>> c1 = log_less_or_equal(0.8)
+    >>> c2 = log_less_or_equal(8.0)
+    >>> c3 = log_greater_or_equal(2.0)
     >>> acqf = log_constrained(ei, c1, c2, c3)
 
   Args:

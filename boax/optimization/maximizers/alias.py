@@ -16,19 +16,16 @@
 
 from functools import partial
 
-from boax.optimization.acquisitions.base import Acquisition
 from boax.optimization.maximizers import functions
 from boax.optimization.maximizers.base import Maximizer
-from boax.utils.functools import compose
 from boax.utils.typing import Array, Numeric
 
 
 def bfgs(
-  acquisition: Acquisition,
   bounds: Array,
   q: int,
-  num_restarts: int,
   num_raw_samples: int,
+  num_restarts: int,
   eta: Numeric = 1.0,
 ) -> Maximizer:
   """
@@ -36,34 +33,32 @@ def bfgs(
 
   Example:
     >>> acqf = upper_confidence_bound(surrogate, 2.0)
-    >>> maximizer = bfgs(acqf, bounds, q=1, num_restarts=25, num_raw_samples=500)
-    >>> next_candidates, values = maximizer(key)
+    >>> maximizer = bfgs(bounds, q, num_raw_samples, num_restarts)
+    >>> candidates = maximizer.init(acqf, key)
+    >>> next_candidates, values = maximizer.update(acqf, candidates)
 
   Args:
-    acquisition: The acquisition function.
     bounds: The bounds of the search space.
-    q: The q batch size.
-    num_restarts: The number of maximization restarts.
-    num_initial_samples: The number of initial samples used by the maximizer.
-    eta: The temperature parameter.
+    q: The bounds of the search space.
+    num_raw_samples: The bounds of the search space.
+    num_restarts: The bounds of the search space.
+    eta: The bounds of the search space.
 
   Returns:
     The corresponding `Maximizer`.
   """
 
-  return compose(
+  return Maximizer(
     partial(
-      functions.scipy.bfgs,
-      acquisition=acquisition,
-      bounds=bounds,
-    ),
-    partial(
-      functions.initialization.q_batch_initialization,
-      acquisition=acquisition,
+      functions.initialization.q_batch,
       bounds=bounds,
       q=q,
-      num_restarts=num_restarts,
       num_raw_samples=num_raw_samples,
+      num_restarts=num_restarts,
       eta=eta,
     ),
+    partial(
+      functions.scipy.bfgs,
+      bounds=bounds,
+    )
   )

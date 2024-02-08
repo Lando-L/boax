@@ -14,26 +14,59 @@
 
 """Base interface for acquisition function maximizers."""
 
-from typing import Protocol
+from typing import NamedTuple, Protocol, Tuple
 
+from boax.optimization.acquisitions.base import Acquisition
 from boax.utils.typing import Array, PRNGKey
 
 
-class Maximizer(Protocol):
+class MaximizerInitFn(Protocol):
   """
-  A callable type for the acquisition function maximization.
-
-  A maximizer takes a PRNG key as its input and returns
-  the function's maxima and their corresponding values.
+  A callable type for the `init` step of a `Maximizer`.
   """
 
-  def __call__(self, key: PRNGKey) -> Array:
+  def __call__(self, acquisition: Acquisition, key: PRNGKey) -> Array:
     """
-    Finds the function's maxima.
+    The `init` function.
 
     Args:
-      key: The pseudo-random number generator key.
+      acquisition: The acquisition function used for initialization.
+      key: A PRNG key.
+
+    Returns:
+      The initial set of initial candidates.
+    """
+
+
+class MaximizerUpdateFn(Protocol):
+  """
+  A callable type for the `update` step of a `Maximizer`.
+  """
+
+  def __call__(self, acquisition: Acquisition, candidates: Array) -> Tuple[Array, Array]:
+    """
+    The `update` function.
+
+    Args:
+      acqusition: The acqusition function used for the maximization.
+      candidates: The initial guess.
 
     Returns:
       A tuple of the maxima and their acquisition values.
     """
+
+
+class Maximizer(NamedTuple):
+  """
+  A pair of pure functions implementing acquisition function maximization.
+
+  Attributes:
+    init: A pure function which, when called with an acquisition function
+      and a pseudo-random key, returns an initial set of candidates.
+    update: A pure function which takes an acquisition function and a set
+      of initial set of candidates as inputs. The update function then
+      computes the maximized set of candidates as well as their values.
+  """
+
+  init: MaximizerInitFn
+  update: MaximizerUpdateFn

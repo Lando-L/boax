@@ -30,7 +30,7 @@ class Likelihood(Protocol, Generic[A, B]):
     Computes the posterior prediction at the index points.
 
     Args:
-      index_points: The `n x d` index points.
+      index_points: The `b x n x d` index points.
 
     Returns:
       The model evaluated at the given index points.
