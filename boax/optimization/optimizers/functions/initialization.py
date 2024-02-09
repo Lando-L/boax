@@ -12,7 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The maximizers sub-package."""
+"""Initializes candidates."""
 
-from .alias import bfgs as bfgs
-from .base import Maximizer as Maximizer
+from typing import Callable
+
+from jax import nn, random
+from jax import numpy as jnp
+
+from boax.utils.typing import Array, Numeric, PRNGKey
+
+
+def q_batch(
+  key: PRNGKey,
+  acquisition_fn: Callable[[Array], Array],
+  x0: Array,
+  num_samples: int,
+  eta: Numeric = 1.0,
+) -> Array:
+  return random.choice(
+    key,
+    x0,
+    (num_samples,),
+    p=jnp.exp(eta * nn.standardize(acquisition_fn(x0), axis=0)),
+  )

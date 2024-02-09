@@ -17,7 +17,6 @@
 import math
 from functools import partial
 from operator import attrgetter
-from typing import Tuple
 
 from jax import jit, lax, scipy
 from jax import numpy as jnp
@@ -26,7 +25,7 @@ from boax.core import distributions
 from boax.core.distributions.normal import Normal
 from boax.optimization.acquisitions import functions
 from boax.optimization.acquisitions.base import Acquisition
-from boax.utils.functools import apply, compose, unwrap
+from boax.utils.functools import compose
 from boax.utils.typing import Array, Numeric
 
 
@@ -181,7 +180,7 @@ def upper_confidence_bound(
   return jit(
     compose(
       partial(jnp.squeeze, axis=-1),
-      partial(distributions.normal.sample, base_samples=jnp.sqrt(beta))
+      partial(distributions.normal.sample, base_samples=jnp.sqrt(beta)),
     )
   )
 
@@ -335,29 +334,25 @@ def q_upper_confidence_bound(
 def q_knowledge_gradient(
   best: Numeric,
 ) -> Acquisition[Normal]:
+  """
+  MC-based batch Knowledge Gradient acquisition function.
+
+  Example:
+    >>> acqf = q_knowledge_gradient(0.2)
+    >>> qucb = acqf(model(xs))
+
+  Args:
+    best: The best function value observed so far.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
   return jit(
     compose(
       partial(jnp.mean, axis=-1),
       partial(jnp.squeeze, axis=-1),
       partial(lax.sub, y=best),
       attrgetter('loc'),
-    )
-  )
-
-
-def q_multi_fidelity_knowledge_gradient(
-  best: Numeric,
-) -> Acquisition[Tuple[Normal, Array]]:
-  return jit(
-    compose(
-      partial(jnp.mean, axis=0),
-      apply(
-        unwrap(jnp.divide),
-        compose(
-          partial(lax.sub, y=best),
-          posterior_mean()
-        ),
-        posterior_mean()
-      ),
     )
   )

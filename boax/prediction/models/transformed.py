@@ -30,7 +30,8 @@ B = TypeVar('B')
 
 
 def predictive(
-  model: Model[A], likelihood_fn: Likelihood[A, B],
+  model: Model[A],
+  likelihood_fn: Likelihood[A, B],
 ) -> Model[B]:
   return compose(
     likelihood_fn,
@@ -39,7 +40,9 @@ def predictive(
 
 
 def sampled(
-  model: Model[T], sample_fn: Callable[[T, Array], Array], base_samples: Array,
+  model: Model[T],
+  sample_fn: Callable[[T, Array], Array],
+  base_samples: Array,
 ) -> Model[Array]:
   return compose(
     call(base_samples),
@@ -49,22 +52,8 @@ def sampled(
   )
 
 
-def fantasized(
-  model: Model[Array], fantasy_fn: Callable[[Array, Array], Model[T]], fantasy_index_points: Array,
-) -> Model[T]:
-  return fantasy_fn(
-    fantasy_index_points,
-    model(fantasy_index_points)
-  )
-
-
-def joined(
-  *models: Model[T]
-) -> Model[T]:
-  return apply(
-    tuple,
-    *models
-  )
+def joined(*models: Model[T]) -> Model[T]:
+  return apply(tuple, *models)
 
 
 def input_transformed(
@@ -78,8 +67,7 @@ def input_transformed(
 
 
 def outcome_transformed(
-  model: Model[A],
-  transform_fn: Callable[[A], B]
+  model: Model[A], transform_fn: Callable[[A], B]
 ) -> Model[B]:
   return compose(
     transform_fn,

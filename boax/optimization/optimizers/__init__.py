@@ -12,14 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The models sub-package."""
+"""The optimizers sub-package."""
 
-from .alias import gaussian_process as gaussian_process
-from .alias import gaussian_process_regression as gaussian_process_regression
-from .alias import multi_fidelity_regression as multi_fidelity_regression
-from .base import Model as Model
-from .transformed import input_transformed as input_transformed
-from .transformed import joined as joined
-from .transformed import outcome_transformed as outcome_transformed
-from .transformed import predictive as predictive
-from .transformed import sampled as sampled
+from .alias import bfgs as bfgs
+from .base import Optimizer as Optimizer
+from .construction import construct as construct
+from .construction import construct_constrained as construct_constrained
+from .construction import construct_log_constrained as construct_log_constrained

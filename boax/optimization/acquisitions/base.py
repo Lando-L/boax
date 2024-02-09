@@ -18,7 +18,6 @@ from typing import Generic, Protocol, TypeVar
 
 from boax.utils.typing import Array
 
-
 T = TypeVar('T')
 
 

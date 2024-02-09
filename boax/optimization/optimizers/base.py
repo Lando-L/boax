@@ -12,25 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for acquisition function maximizers."""
+"""Base interface for acquisition function optimization."""
 
-from typing import NamedTuple, Protocol, Tuple
+from typing import NamedTuple, Protocol, Tuple, TypeVar
 
-from boax.optimization.acquisitions.base import Acquisition
 from boax.utils.typing import Array, PRNGKey
 
+T = TypeVar('T')
 
-class MaximizerInitFn(Protocol):
+
+class OptimizerInitFn(Protocol):
   """
-  A callable type for the `init` step of a `Maximizer`.
+  A callable type for the `init` step of a `Optimizer`.
   """
 
-  def __call__(self, acquisition: Acquisition, key: PRNGKey) -> Array:
+  def __call__(self, key: PRNGKey) -> Array:
     """
     The `init` function.
 
     Args:
-      acquisition: The acquisition function used for initialization.
       key: A PRNG key.
 
     Returns:
@@ -38,17 +38,16 @@ class MaximizerInitFn(Protocol):
     """
 
 
-class MaximizerUpdateFn(Protocol):
+class OptimizerUpdateFn(Protocol):
   """
-  A callable type for the `update` step of a `Maximizer`.
+  A callable type for the `update` step of a `Optimizer`.
   """
 
-  def __call__(self, acquisition: Acquisition, candidates: Array) -> Tuple[Array, Array]:
+  def __call__(self, candidates: Array) -> Tuple[Array, Array]:
     """
     The `update` function.
 
     Args:
-      acqusition: The acqusition function used for the maximization.
       candidates: The initial guess.
 
     Returns:
@@ -56,9 +55,9 @@ class MaximizerUpdateFn(Protocol):
     """
 
 
-class Maximizer(NamedTuple):
+class Optimizer(NamedTuple):
   """
-  A pair of pure functions implementing acquisition function maximization.
+  A pair of pure functions implementing acquisition function optimization.
 
   Attributes:
     init: A pure function which, when called with an acquisition function
@@ -68,5 +67,5 @@ class Maximizer(NamedTuple):
       computes the maximized set of candidates as well as their values.
   """
 
-  init: MaximizerInitFn
-  update: MaximizerUpdateFn
+  init: OptimizerInitFn
+  update: OptimizerUpdateFn

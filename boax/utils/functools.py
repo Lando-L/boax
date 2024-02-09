@@ -15,7 +15,7 @@
 """The functools sub-package."""
 
 from functools import reduce
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Tuple, TypeVar
 
 T = TypeVar('T')
 A = TypeVar('A')
@@ -64,6 +64,7 @@ def call(*args, **kwargs) -> Callable[[Callable[[Any], T]], T]:
   Returns:
     A function that calls given function with the inputs.
   """
+
   def __fn(fn: Callable[[Any], T]) -> T:
     return fn(*args, **kwargs)
 
@@ -113,13 +114,29 @@ def combine(
   return __fn
 
 
-def apply(
-  fn: Callable, *fns: Callable
-) -> Callable:
+def apply(operator: Callable, *fns: Callable) -> Callable:
+  """
+  Applies a sequence of functions by an operator.
+
+  Args:
+    operator: The operator used to apply the functions.
+    fns: The functions to apply.
+
+  Returns:
+    A function applying the operator on the outputs of the given functions.
+  """
+
   def __fn(*args, **kwargs):
-    return fn(map(call(*args, **kwargs), fns))
+    return operator(map(call(*args, **kwargs), fns))
 
   return __fn
+
+
+def sequence(operator: Callable[[T, T], T], initial: T, *tuples) -> Callable:
+  def __reduce_fn(state: T, x: Tuple[Callable[[Any], T], Any]):
+    return operator(state, x[0](x[1]))
+
+  return reduce(__reduce_fn, tuples, initial)
 
 
 def wrap(fn: Callable) -> Callable:
@@ -132,5 +149,5 @@ def wrap(fn: Callable) -> Callable:
 def unwrap(fn: Callable) -> Callable:
   def __fn(args):
     return fn(*args)
-  
+
   return __fn

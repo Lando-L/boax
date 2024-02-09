@@ -1,7 +1,7 @@
 import numpy as np
 from absl.testing import absltest, parameterized
-from jax import random
 from jax import numpy as jnp
+from jax import random
 
 from boax.core import distributions
 from boax.optimization import acquisitions
@@ -108,7 +108,7 @@ class AcquisitionsTest(parameterized.TestCase):
     best = 0.0
     loc, scale = random.uniform(key, (2, n, s, 1))
     preds = distributions.normal.normal(loc, scale)
-    
+
     qkg = acquisitions.q_knowledge_gradient(best)(preds)
 
     self.assertEqual(qkg.shape, (n,))

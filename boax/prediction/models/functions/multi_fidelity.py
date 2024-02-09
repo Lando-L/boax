@@ -39,9 +39,9 @@ def posterior(
   mz = mean_fn(index_points)
   mx = mean_fn(observation_index_points)
 
-  Kxx = kernel_fn(observation_index_points_fidelities, observation_index_points_fidelities)(
-    observation_index_points, observation_index_points
-  )
+  Kxx = kernel_fn(
+    observation_index_points_fidelities, observation_index_points_fidelities
+  )(observation_index_points, observation_index_points)
   Kxz = kernel_fn(observation_index_points_fidelities, index_points_fidelities)(
     observation_index_points, index_points
   )
