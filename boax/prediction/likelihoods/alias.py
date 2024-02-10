@@ -22,12 +22,26 @@ from boax.core.distributions.beta import Beta
 from boax.core.distributions.multivariate_normal import MultivariateNormal
 from boax.prediction.likelihoods import functions
 from boax.prediction.likelihoods.base import Likelihood
-from boax.utils.typing import Array
+from boax.utils.typing import Array, Numeric
 
 
 def gaussian(
-  noise: Array,
+  noise: Numeric,
 ) -> Likelihood[MultivariateNormal, MultivariateNormal]:
+  """
+  The gaussian likelihood function.
+
+  Example:
+    >>> likelihood = gaussian(1e-4)
+    >>> predictive = likelihood(mvn)
+
+  Args:
+    noise: The noise parameter.
+
+  Returns:
+    The gaussian `Likelihood` function.
+  """
+
   return jit(
     partial(
       functions.marginal.gaussian,
@@ -36,7 +50,21 @@ def gaussian(
   )
 
 
-def beta(scale: Array) -> Likelihood[Array, Beta]:
+def beta(scale: Numeric) -> Likelihood[Array, Beta]:
+  """
+  The beta likelihood function.
+
+  Example:
+    >>> likelihood = beta(1e-4)
+    >>> predictive = likelihood(xs)
+
+  Args:
+    scale: The scale parameter.
+
+  Returns:
+    The beta `Likelihood` function.
+  """
+
   return jit(
     partial(
       functions.conditional.beta,

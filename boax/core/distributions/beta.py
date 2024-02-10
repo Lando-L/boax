@@ -36,28 +36,105 @@ class Beta(NamedTuple):
 
 
 def beta(a: Array = jnp.ones(()), b: Array = jnp.ones(())) -> Array:
+  """
+  Smart constructor for the beta distribution.
+
+  Args:
+    a: The alpha parameter.
+    b: The beta parameter.
+
+  Returns:
+    The `Beta` distribution object.
+  """
+
   return Beta(a, b)
 
 
 def pdf(beta: Beta, values: Array) -> Array:
+  """
+  Probability density function.
+
+  Args:
+    beta: The beta distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The probability density function values.
+  """
+
   return scipy.stats.beta.pdf(values, beta.a, beta.b)
 
 
 def cdf(beta: Beta, values: Array) -> Array:
+  """
+  Cumulative distribution function.
+
+  Args:
+    beta: The beta distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The cumulative distribution function values.
+  """
+
   return scipy.stats.norm.cdf(values, beta.a, beta.b)
 
 
 def sf(beta: Beta, values: Array) -> Array:
+  """
+  Survival function.
+
+  Args:
+    beta: The beta distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The survival function values.
+  """
+
   return scipy.stats.norm.sf(values, beta.a, beta.b)
 
 
 def logpdf(beta: Beta, values: Array) -> Array:
+  """
+  Log probability density function.
+
+  Args:
+    beta: The beta distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The log probability density function values.
+  """
+
   return scipy.stats.norm.logpdf(values, beta.a, beta.b)
 
 
 def logcdf(beta: Beta, values: Array) -> Array:
+  """
+  Log cumulative distribution function.
+
+  Args:
+    beta: The beta distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The log cumulative distribution function values.
+  """
+
   return scipy.stats.norm.logcdf(values, beta.a, beta.b)
 
 
 def logsf(beta: Beta, values: Array) -> Array:
+  """
+  Log survival function.
+
+  Args:
+    beta: The beta distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The log survival function values.
+  """
+
   return scipy.stats.norm.logsf(values, beta.a, beta.b)

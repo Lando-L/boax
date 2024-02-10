@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for constrain functions."""
+"""Base interface for constraint functions."""
 
 from typing import Generic, Protocol, TypeVar
 

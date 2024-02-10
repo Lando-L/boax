@@ -29,7 +29,7 @@ def bfgs(
   num_samples: int,
 ) -> Optimizer:
   """
-  The BFGS acquisition optimizer.
+  The BFGS acquisition function optimizer.
 
   Example:
     >>> optimizer = bfgs(acqf, bounds, x0, num_samples)

@@ -31,6 +31,17 @@ T = TypeVar('T')
 def construct(
   model: Model[T], acquisition: Acquisition[T]
 ) -> Callable[[Array], Array]:
+  """
+  Constructs an acquisition function.
+
+  Args:
+    model: The base model.
+    acquisition: The acquisition.
+
+  Returns:
+    The constructed acquisition function.
+  """
+
   return compose(
     acquisition,
     vmap(model),
@@ -40,6 +51,18 @@ def construct(
 def construct_constrained(
   model: Model[T], acquisition: Acquisition[T], *constraints: Constraint[T]
 ) -> Callable[[Array], Array]:
+  """
+  Constructs a constrained acquisition function.
+
+  Args:
+    model: The base model.
+    acquisition: The acquisition.
+    constraints: The constraints.
+
+  Returns:
+    The constructed acquisition function.
+  """
+
   return compose(
     unwrap(partial(partial, sequence)(lax.mul, 1.0)),
     partial(partial, zip)((acquisition, *constraints)),
@@ -50,6 +73,18 @@ def construct_constrained(
 def construct_log_constrained(
   model: Model[T], acquisition: Acquisition[T], *constraints: Constraint[T]
 ) -> Callable[[Array], Array]:
+  """
+  Constructs a log constrained acquisition function.
+
+  Args:
+    model: The base model.
+    acquisition: The log acquisition.
+    constraints: The log constraints.
+
+  Returns:
+    The constructed log acquisition function.
+  """
+
   return compose(
     unwrap(partial(partial, sequence)(lax.add, 0.0)),
     partial(partial, zip)((acquisition, *constraints)),

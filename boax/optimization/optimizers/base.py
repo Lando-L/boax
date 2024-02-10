@@ -64,7 +64,7 @@ class Optimizer(NamedTuple):
       and a pseudo-random key, returns an initial set of candidates.
     update: A pure function which takes an acquisition function and a set
       of initial set of candidates as inputs. The update function then
-      computes the maximized set of candidates as well as their values.
+      computes the optimized set of candidates as well as their values.
   """
 
   init: OptimizerInitFn

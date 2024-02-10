@@ -99,6 +99,7 @@ def combine(
 
   Args:
     operator: The operator used to combine the functions.
+    initial: The initial value.
     fns: The functions to combine.
 
   Returns:
@@ -132,7 +133,19 @@ def apply(operator: Callable, *fns: Callable) -> Callable:
   return __fn
 
 
-def sequence(operator: Callable[[T, T], T], initial: T, *tuples) -> Callable:
+def sequence(operator: Callable[[T, T], T], initial: T, *tuples) -> T:
+  """
+  Combines the output of a sequence of functions to a sequence of inputs.
+
+  Args:
+    operator: The operator used to combine the function outputs.
+    initial: The initial value.
+    tuples: The functions and inputs.
+
+  Returns:
+    The combined output of the given functions and inputs.
+  """
+
   def __reduce_fn(state: T, x: Tuple[Callable[[Any], T], Any]):
     return operator(state, x[0](x[1]))
 
@@ -140,6 +153,16 @@ def sequence(operator: Callable[[T, T], T], initial: T, *tuples) -> Callable:
 
 
 def wrap(fn: Callable) -> Callable:
+  """
+  Transforms a fuction to take a sequence of input parameters.
+
+  Args:
+    fn: The functions to be wrapped.
+
+  Returns:
+    A function taking a sequence of input paramters.
+  """
+
   def __fn(*args):
     return fn(args)
 
@@ -147,6 +170,16 @@ def wrap(fn: Callable) -> Callable:
 
 
 def unwrap(fn: Callable) -> Callable:
+  """
+  Transforms a fuction to take a tuple of input parameters.
+
+  Args:
+    fn: The functions to be unwrapped.
+
+  Returns:
+    A function taking a tuple of input paramters.
+  """
+
   def __fn(args):
     return fn(*args)
 
