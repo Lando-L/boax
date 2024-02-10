@@ -12,15 +12,18 @@
 Boax is a composable library of core components for Bayesian Optimization
 that is **designed for flexibility**. It comes with a low-level interfaces for:
 
+* **Core capabilities** (`boax.core`):
+  * Common Distributions
+  * Monte-Carlo Samplers
 * **Fitting a surrogate model to data** (`boax.prediction`):
-  * Kernel Functions
+  * Kernels Functions
   * Likelihood Functions
   * Mean Functions
-  * Models
+  * Surrogate Models
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
   * Acquisition Functions
   * Constraint Functions
-  * Maximizers
+  * Optimizer Functions
 
 ## Installation
 
@@ -58,80 +61,99 @@ from jax import value_and_grad
 
 import optax
 
-from boax.core import distributions
+from boax.core import distributions, samplers
 from boax.prediction import kernels, likelihoods, means, models
-from boax.optimization import acquisitions, maximizers
+from boax.optimization import acquisitions, optimizers
 
-bounds = jnp.array([[-3.0, 3.0]])
+bounds = jnp.array([[0.0, 1.0]])
 
 def objective(x):
-  return jnp.sin(4 * x[..., 0]) + jnp.cos(2 * x[..., 0])
+  return 1 - jnp.linalg.norm(x - 0.5)
 
-sample_key, noise_key, maximizer_key = random.split(random.key(0), 3)
-x_train = random.uniform(sample_key, minval=bounds[:, 0], maxval=bounds[:, 1], shape=(10, 1))
-y_train = objective(x_train) + 0.3 * random.normal(noise_key, shape=(10,))
+data_key, sampler_key, maximizer_key = random.split(random.key(0), 3)
+x_train = random.uniform(random.fold_in(data_key, 0), minval=bounds[:, 0], maxval=bounds[:, 1], shape=(10, 1))
+y_train = nn.standardize(objective(x_train) + 0.1 * random.normal(random.fold_in(data_key, 1), shape=(10,)))
 ```
 
 2. Fit a Gaussian Process surrogate model to the training dataset.
 
 ```python
-def prior(amplitude, length_scale, noise):
-  return models.predictive(
-    models.gaussian_process(
-      means.zero(),
-      kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
-    ),
-    likelihoods.gaussian(
-      nn.softplus(noise),
-    ),
-  )
-
-def target_log_prob(params):
-  mvn = prior(**params)(x_train)
-  return -distributions.multivariate_normal.logpdf(mvn, y_train)
-
 params = {
   'amplitude': jnp.zeros(()),
   'length_scale': jnp.zeros(()),
   'noise': jnp.array(-5.),
 }
 
-optimizer = optax.adam(0.01)
+adam = optax.adam(0.01)
 
-def train_step(state, iteration):
-  loss, grads = value_and_grad(target_log_prob)(state[0])
-  updates, opt_state = optimizer.update(grads, state[1])
-  params = optax.apply_updates(state[0], updates)
+def fit(x_train, y_train):
+  def model(amplitude, length_scale, noise):
+    return models.predictive(
+      models.gaussian_process(
+        means.zero(),
+        kernels.scaled(
+          kernels.rbf(nn.softplus(length_scale)),
+          nn.softplus(amplitude)
+        ),
+      ),
+      likelihoods.gaussian(nn.softplus(noise))
+    )
+  
+  def target_log_prob(params):
+    mvn = model(**params)(x_train)
+    return -jnp.sum(distributions.multivariate_normal.logpdf(mvn, y_train))
 
-  return (params, opt_state), loss
+  def train_step(state, iteration):
+    loss, grads = value_and_grad(target_log_prob)(state[0])
+    updates, opt_state = adam.update(grads, state[1])
+    params = optax.apply_updates(state[0], updates)
+    
+    return (params, opt_state), loss
+  
+  return lax.scan(
+    jit(train_step),
+    (params, adam.init(params)),
+    jnp.arange(500)
+  )
 
-(next_params, next_opt_state), history = lax.scan(
-  jit(train_step),
-  (params, optimizer.init(params)),
-  jnp.arange(500)
+(next_params, next_opt_state), history = fit(x_train, y_train)
+
+surrogate = models.predictive(
+  models.gaussian_process_regression(
+    means.zero(),
+    kernels.scaled(
+      kernels.rbf(nn.softplus(next_params['length_scale'])),
+      nn.softplus(next_params['amplitude'])
+    ),
+  )(
+    x_train,
+    y_train,
+  ),
+  likelihoods.gaussian(nn.softplus(next_params['noise']))
 )
 ```
 
 3. Construct and optimize an UCB acquisition function.
 ```python
-def posterior(amplitude, length_scale, noise):
-  return models.predictive(
-    models.gaussian_process_regression(
-      x_train,
-      y_train,
-      means.zero(),
-      kernels.scaled(kernels.rbf(nn.softplus(length_scale)), nn.softplus(amplitude)),
-    ),
-    likelihoods.gaussian(
-      nn.softplus(noise),
-    ),
-  )
+x0 = jnp.reshape(
+  samplers.halton_uniform(distributions.uniform.uniform(bounds[:, 0], bounds[:, 1]))(
+    sampler_key,
+    100,
+  ),
+  (100, 1, -1)
+)
 
-surrogate = posterior(**next_params)
-acqf = acquisitions.upper_confidence_bound(surrogate, beta=2.0)
-maximizer = maximizers.bfgs(acqf, bounds, q=1, num_restarts=25, num_raw_samples=500)
+acqf = optimizers.construct(
+  models.outcome_transformed(
+    surrogate,
+    distributions.multivariate_normal.as_normal
+  ),
+  acquisitions.upper_confidence_bound(2.0),
+)
 
-candidates, values = maximizer(maximizer_key)
+bfgs = optimizers.bfgs(acqf, bounds, x0, 10)
+candidates = bfgs.init(maximizer_key)
+next_candidates, values = bfgs.update(candidates)
 ```
 
 ## Citing Boax
