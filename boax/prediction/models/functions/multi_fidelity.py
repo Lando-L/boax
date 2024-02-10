@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Gaussian Process functions."""
+"""Multi fidelity functions."""
+
+from typing import Callable, Tuple
 
 from jax import numpy as jnp
 from jax import scipy
@@ -24,33 +26,28 @@ from boax.prediction.means.base import Mean
 from boax.utils.typing import Array, Numeric
 
 
-def prior(
-  index_points: Array,
-  mean_fn: Mean,
-  kernel_fn: Kernel,
-  jitter: Numeric,
-) -> MultivariateNormal:
-  Kxx = kernel_fn(index_points, index_points)
-  mean = mean_fn(index_points)
-  cov = Kxx + jitter * jnp.identity(Kxx.shape[-1])
-
-  return distributions.multivariate_normal.multivariate_normal(mean, cov)
-
-
 def posterior(
   index_points: Array,
+  index_points_fidelities: Array,
   observation_index_points: Array,
+  observation_index_points_fidelities: Array,
   observations: Array,
   mean_fn: Mean,
-  kernel_fn: Kernel,
+  kernel_fn: Callable[[Array, Array], Kernel],
   jitter: Numeric,
 ) -> MultivariateNormal:
   mz = mean_fn(index_points)
   mx = mean_fn(observation_index_points)
 
-  Kxx = kernel_fn(observation_index_points, observation_index_points)
-  Kxz = kernel_fn(observation_index_points, index_points)
-  Kzz = kernel_fn(index_points, index_points)
+  Kxx = kernel_fn(
+    observation_index_points_fidelities, observation_index_points_fidelities
+  )(observation_index_points, observation_index_points)
+  Kxz = kernel_fn(observation_index_points_fidelities, index_points_fidelities)(
+    observation_index_points, index_points
+  )
+  Kzz = kernel_fn(index_points_fidelities, index_points_fidelities)(
+    index_points, index_points
+  )
 
   K = Kxx + jitter * jnp.identity(Kxx.shape[-1])
   chol = scipy.linalg.cholesky(K, lower=True)
@@ -65,32 +62,5 @@ def posterior(
   return distributions.multivariate_normal.multivariate_normal(mean, cov)
 
 
-# def variational(
-#   index_points: Array,
-#   inducing_points: Array,
-#   variational_mean: Array,
-#   variational_root_cov: Array,
-#   mean: Mean,
-#   kernel: Kernel,
-#   jitter: Numeric,
-# ) -> Tuple[Array, Array]:
-#   mx = mean(inducing_points)
-#   mz = mean(index_points)
-
-#   Kxx = kernel(inducing_points, inducing_points)
-#   Kxz = kernel(inducing_points, index_points)
-#   Kzz = kernel(index_points, index_points)
-
-#   Lz = jnp.linalg.cholesky(Kxx + jitter * jnp.identity(inducing_points.shape[0]), lower=True)
-#   Lz_inv_Kxz = scipy.linalg.solve_triangular(Lz, Kxz, lower=True)
-#   Kxx_inv_Kxz = scipy.linalg.solve_triangular(Lz.T, Lz_inv_Kxz)
-#   Kxx_inv_Kxz_sqrt = jnp.matmul(Kxx_inv_Kxz.T, variational_root_cov)
-
-#   loc = mz + jnp.matmul(Kxx_inv_Kxz.T, variational_mean - mx)
-#   cov = (
-#     Kzz
-#     - jnp.matmul(Lz_inv_Kxz.T, Lz_inv_Kxz)
-#     + jnp.matmul(Kxx_inv_Kxz_sqrt, Kxx_inv_Kxz_sqrt.T)
-#   ) + jitter * jnp.identity(inducing_points.shape[0])
-
-#   return loc, cov
+def split(values: Array) -> Tuple[Array, Array]:
+  return jnp.split(values, [values.shape[-1] - 1], axis=-1)

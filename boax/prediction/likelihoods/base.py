@@ -12,29 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for acquisition function maximizers."""
+"""Base interface for likelihoods."""
 
-from typing import Protocol
+from typing import Generic, Protocol, TypeVar
 
-from boax.optimization.acquisitions.base import Acquisition
-from boax.utils.typing import Array, PRNGKey
+A = TypeVar('A')
+B = TypeVar('B')
 
 
-class Maximizer(Protocol):
+class Likelihood(Protocol, Generic[A, B]):
   """
-  A callable type for the acquisition function maximization.
-
-  A maximizer takes a PRNG key as its input and returns
-  the function's maxima and their corresponding values.
+  A callable type for likelihoods.
   """
 
-  def __call__(self, key: PRNGKey) -> Array:
+  def __call__(self, values: A) -> B:
     """
-    Finds the function's maxima.
+    Computes the posterior prediction at the index points.
 
     Args:
-      key: The pseudo-random number generator key.
+      index_points: The `b x n x d` index points.
 
     Returns:
-      A tuple of the maxima and their acquisition values.
+      The model evaluated at the given index points.
     """

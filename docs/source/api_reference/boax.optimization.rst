@@ -46,16 +46,7 @@ Monte Carlo Acquisition Functions
   q_probability_of_improvement
   q_expected_improvement
   q_probability_of_improvement
-
-
-Transformed Acquisition Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autosummary::
-  :toctree: generated
-
-  constrained
-  log_constrained
+  q_knowledge_gradient
 
 
 boax.optimization.constraints
@@ -86,22 +77,33 @@ Unequality Constraint Functions
   log_greater_or_equal
 
 
-boax.optimization.maximizers
+boax.optimization.optimizers
 ----------------------------
 
-.. currentmodule:: boax.optimization.maximizers
+.. currentmodule:: boax.optimization.optimizers
 
 
-Maximizer Types
+Optimizer Types
 ~~~~~~~~~~~~~~~
 
-.. autoclass:: Maximizer
+.. autoclass:: Optimizer
 
 
-Maximizers
-~~~~~~~~~~
+Optimizer Functions
+~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
   :toctree: generated
 
   bfgs
+
+
+Optimizer Utils
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+  :toctree: generated
+
+  construct
+  construct_constrained
+  construct_log_constrained

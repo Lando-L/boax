@@ -19,6 +19,7 @@ from functools import partial
 from jax import lax
 from jax import numpy as jnp
 
+from boax.core import distributions
 from boax.core.distributions.normal import Normal
 from boax.core.distributions.uniform import Uniform
 from boax.core.samplers import functions
@@ -53,7 +54,7 @@ def halton_uniform(
     )
 
   return compose(
-    partial(functions.quasi_random.uniform, uniform=uniform),
+    partial(partial, distributions.uniform.sample)(uniform),
     partial(functions.quasi_random.halton_sequence, ndims=out_shape[0]),
   )
 
@@ -85,6 +86,7 @@ def halton_normal(
     )
 
   return compose(
-    partial(functions.quasi_random.normal, normal=normal),
+    partial(partial, distributions.normal.sample)(normal),
+    functions.utils.ratio_of_uniforms,
     partial(functions.quasi_random.halton_sequence, ndims=out_shape[0]),
   )

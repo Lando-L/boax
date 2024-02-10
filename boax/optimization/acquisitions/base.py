@@ -14,25 +14,27 @@
 
 """Base interface for acquisition functions."""
 
-from typing import Protocol
+from typing import Generic, Protocol, TypeVar
 
 from boax.utils.typing import Array
 
+T = TypeVar('T')
 
-class Acquisition(Protocol):
+
+class Acquisition(Protocol, Generic[T]):
   """
   A callable type for acquisition functions.
 
-  An acquisition function takes a `n x q x d`-dim candidate set as input
-  and returns a numeric acquisition value.
+  An acquisition function takes a posterior prediction of type `T`
+  as input and returns a numeric acquisition value.
   """
 
-  def __call__(self, candidates: Array) -> Array:
+  def __call__(self, T) -> Array:
     """
-    Evaluates the acquisition function on a set of `candidates`.
+    Evaluates the acquisition function on a posterior prediction.
 
     Args:
-      candidates: The `n x q x d`-dim candidate set.
+      posterior: The posterrior prediction.
 
     Returns:
       The `n`-dim acquisition values.

@@ -14,11 +14,9 @@
 
 """Base interfaces for kernels."""
 
-from typing import Callable, Protocol
+from typing import Protocol
 
-from jax import jit, vmap
-
-from boax.utils.typing import Array, Numeric
+from boax.utils.typing import Array
 
 
 class Kernel(Protocol):
@@ -40,19 +38,3 @@ class Kernel(Protocol):
     Returns:
       A matrix indicating the kernel function values.
     """
-
-
-def from_kernel_function(
-  kernel_fn: Callable[[Numeric, Numeric], Numeric],
-) -> Kernel:
-  """
-  Transforms a kernel function into a _kernel_.
-
-  Args:
-    kernel_fn: The kernel function to be transformed.
-
-  Returns:
-    The corresponding `Kernel`.
-  """
-
-  return jit(vmap(vmap(kernel_fn, in_axes=(None, 0)), in_axes=(0, None)))

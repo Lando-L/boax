@@ -14,29 +14,137 @@
 
 """Transformation functions for models."""
 
-from typing import Callable, Tuple
+from functools import partial
+from typing import Callable, TypeVar
 
-from jax import scipy
-from jax import numpy as jnp
+from jax import vmap
 
-from boax.core.distributions.multivariate_normal import MultivariateNormal
+from boax.prediction.likelihoods.base import Likelihood
 from boax.prediction.models.base import Model
-from boax.utils.functools import compose
+from boax.utils.functools import apply, call, compose
 from boax.utils.typing import Array
+
+T = TypeVar('T')
+A = TypeVar('A')
+B = TypeVar('B')
+
+
+def predictive(
+  model: Model[A],
+  likelihood_fn: Likelihood[A, B],
+) -> Model[B]:
+  """
+  Constructs a predictive model.
+
+  Example:
+    >>> transformed = predictive(model, likelihood)
+    >>> result = transformed(xs)
+
+  Args:
+    model: The base model.
+    likelihood_fn: The likelihood function.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return compose(
+    likelihood_fn,
+    model,
+  )
 
 
 def sampled(
-  model: Model[Tuple[Array, Array]],
-) -> Model[Callable[[Array], Array]]:
-  def sample(mvn: MultivariateNormal):
-    def fn(base_samples):
-      return mvn.mean + jnp.dot(
-        scipy.linalg.cholesky(mvn.cov, lower=True), base_samples
-      )
+  model: Model[T],
+  sample_fn: Callable[[T, Array], Array],
+  base_samples: Array,
+) -> Model[Array]:
+  """
+  Constructs a MC-based model.
 
-    return fn
+  Example:
+    >>> transformed = sampled(model, sample_fn, base_samples)
+    >>> result = transformed(xs)
+
+  Args:
+    model: The base model.
+    sample_fn: The sampling function.
+    base_samples: The base samples of the sampling process.
+
+  Returns:
+    The transformed `Model` function.
+  """
 
   return compose(
-    sample,
+    call(base_samples),
+    vmap,
+    partial(partial, sample_fn),
+    model,
+  )
+
+
+def joined(*models: Model[T]) -> Model[T]:
+  """
+  Constructs a joined model.
+
+  Example:
+    >>> transformed = joined(objective_model, cost_model)
+    >>> objective_result, cost_result = transformed(xs)
+
+  Args:
+    models: The models to be joined.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return apply(tuple, *models)
+
+
+def input_transformed(
+  model: Model[T],
+  transform_fn: Callable[[Array], Array],
+) -> Model[T]:
+  """
+  Constructs an input transformed model.
+
+  Example:
+    >>> transformed = input_transformed(model, transform_fn)
+    >>> result = transformed(xs)
+
+  Args:
+    model: The base model.
+    transform_fn: The transformation function applied to the model inputs.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return compose(
+    model,
+    transform_fn,
+  )
+
+
+def outcome_transformed(
+  model: Model[A], transform_fn: Callable[[A], B]
+) -> Model[B]:
+  """
+  Constructs an output transformed model.
+
+  Example:
+    >>> transformed = outcome_transformed(model, transform_fn)
+    >>> result = transformed(xs)
+
+  Args:
+    model: The base model.
+    transform_fn: The transformation function applied to the model outputs.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return compose(
+    transform_fn,
     model,
   )

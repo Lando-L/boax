@@ -46,7 +46,7 @@ Multivariate Normal Distribution
   :toctree: generated
 
   multivariate_normal
-  multivariate_to_normal
+  as_normal
   pdf
   logpdf
 

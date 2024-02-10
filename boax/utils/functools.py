@@ -15,9 +15,11 @@
 """The functools sub-package."""
 
 from functools import reduce
-from typing import Callable, TypeVar
+from typing import Any, Callable, Tuple, TypeVar
 
 T = TypeVar('T')
+A = TypeVar('A')
+B = TypeVar('B')
 
 
 def identity(i: T) -> T:
@@ -34,7 +36,7 @@ def identity(i: T) -> T:
   return i
 
 
-def const(c: T) -> Callable:
+def const(c: T) -> Callable[[Any], T]:
   """
   Constant Function
 
@@ -51,10 +53,19 @@ def const(c: T) -> Callable:
   return __fn
 
 
-def call(*args, **kwargs) -> Callable:
-  """ """
+def call(*args, **kwargs) -> Callable[[Callable[[Any], T]], T]:
+  """
+  Calls a callable with the given inputs.
 
-  def __fn(fn: Callable):
+  Args:
+    *args: The arguments.
+    **kwargs: The keyword arguments.
+
+  Returns:
+    A function that calls given function with the inputs.
+  """
+
+  def __fn(fn: Callable[[Any], T]) -> T:
     return fn(*args, **kwargs)
 
   return __fn
@@ -80,12 +91,15 @@ def compose(*fns: Callable) -> Callable:
   return reduce(__reduce_fn, fns)
 
 
-def combine(operator: Callable, initial: T, *fns: Callable) -> Callable:
+def combine(
+  operator: Callable[[T, T], T], initial: T, *fns: Callable[[Any], T]
+) -> Callable[[Any], T]:
   """
   Combines a sequence of functions by an operator.
 
   Args:
     operator: The operator used to combine the functions.
+    initial: The initial value.
     fns: The functions to combine.
 
   Returns:
@@ -101,35 +115,72 @@ def combine(operator: Callable, initial: T, *fns: Callable) -> Callable:
   return __fn
 
 
-def tupled(f: Callable) -> Callable:
+def apply(operator: Callable, *fns: Callable) -> Callable:
   """
-  Transforms function to take a tuple as its argument.
+  Applies a sequence of functions by an operator.
 
   Args:
-    fns: Functions to transform.
+    operator: The operator used to apply the functions.
+    fns: The functions to apply.
 
   Returns:
-    The transformed function.
+    A function applying the operator on the outputs of the given functions.
   """
 
-  def __fn(x):
-    return f(*x)
+  def __fn(*args, **kwargs):
+    return operator(map(call(*args, **kwargs), fns))
 
   return __fn
 
 
-def untupled(f: Callable) -> Callable:
+def sequence(operator: Callable[[T, T], T], initial: T, *tuples) -> T:
   """
-  Transforms function to take a regular list arguments.
+  Combines the output of a sequence of functions to a sequence of inputs.
 
   Args:
-    fns: Functions to transform.
+    operator: The operator used to combine the function outputs.
+    initial: The initial value.
+    tuples: The functions and inputs.
 
   Returns:
-    The transformed function.
+    The combined output of the given functions and inputs.
   """
 
-  def __fn(*xs):
-    return f(tuple(xs))
+  def __reduce_fn(state: T, x: Tuple[Callable[[Any], T], Any]):
+    return operator(state, x[0](x[1]))
+
+  return reduce(__reduce_fn, tuples, initial)
+
+
+def wrap(fn: Callable) -> Callable:
+  """
+  Transforms a fuction to take a sequence of input parameters.
+
+  Args:
+    fn: The functions to be wrapped.
+
+  Returns:
+    A function taking a sequence of input paramters.
+  """
+
+  def __fn(*args):
+    return fn(args)
+
+  return __fn
+
+
+def unwrap(fn: Callable) -> Callable:
+  """
+  Transforms a fuction to take a tuple of input parameters.
+
+  Args:
+    fn: The functions to be unwrapped.
+
+  Returns:
+    A function taking a tuple of input paramters.
+  """
+
+  def __fn(args):
+    return fn(*args)
 
   return __fn

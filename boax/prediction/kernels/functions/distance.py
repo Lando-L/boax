@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Utils for kernels."""
+"""Distances for kernels."""
 
 from jax import lax
 from jax import numpy as jnp

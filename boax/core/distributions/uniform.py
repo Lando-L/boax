@@ -30,17 +30,66 @@ class Uniform(NamedTuple):
     a: The minium value parameter.
     b: The maximum value parameter.
   """
+
   a: Array
   b: Array
 
 
 def uniform(a: Array = jnp.zeros(()), b: Array = jnp.ones(())) -> Uniform:
+  """
+  Smart constructor for the uniform distribution.
+
+  Args:
+    a: The minium value parameter.
+    b: The maximum value parameter.
+
+  Returns:
+    The `Uniform` distribution object.
+  """
+
   return Uniform(a, b)
 
 
+def sample(uniform: Uniform, base_samples: Array) -> Array:
+  """
+  Samples a uniform distribution based on base samples.
+
+  Args:
+    uniform: The uniform distribution.
+    base_samples: The uniform distributed base samples.
+
+  Returns:
+    The samples from the uniform distribution.
+  """
+
+  return uniform.a + (uniform.b - uniform.a) * base_samples
+
+
 def pdf(values: Array) -> Array:
+  """
+  Probability density function.
+
+  Args:
+    uniform: The uniform distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The probability density function values.
+  """
+
   return scipy.stats.uniform.pdf(values)
 
 
 def logpdf(values: Array) -> Array:
+  """
+  Log probability density function.
+
+  Args:
+    uniform: The uniform distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The log probability density function values.
+  """
+
   return scipy.stats.uniform.logpdf(values)

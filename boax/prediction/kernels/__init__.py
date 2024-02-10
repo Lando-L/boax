@@ -20,7 +20,7 @@ from .alias import matern_three_halves as matern_three_halves
 from .alias import periodic as periodic
 from .alias import rbf as rbf
 from .base import Kernel as Kernel
-from .base import from_kernel_function as from_kernel_function
 from .transformed import additive as additive
+from .transformed import linear_truncated as linear_truncated
 from .transformed import product as product
 from .transformed import scaled as scaled

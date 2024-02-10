@@ -17,10 +17,11 @@
 from functools import partial
 
 from jax import lax
+from jax import numpy as jnp
 
 from boax.prediction.kernels.base import Kernel
 from boax.utils.functools import combine, compose
-from boax.utils.typing import Numeric
+from boax.utils.typing import Array, Numeric
 
 
 def scaled(kernel: Kernel, amplitude: Numeric) -> Kernel:
@@ -43,6 +44,49 @@ def scaled(kernel: Kernel, amplitude: Numeric) -> Kernel:
   """
 
   return compose(partial(lax.mul, y=amplitude), kernel)
+
+
+def linear_truncated(
+  x_fidelities: Array,
+  y_fidelities: Array,
+  unbiased: Kernel,
+  biased: Kernel,
+  power: Numeric,
+) -> Kernel:
+  """
+  Constructs a linear truncated kernel for one fidelity parameter.
+
+  Computes `k(x, y) = k_0(x, y) + c(x_fid, y_fid) k_1(x, y) `,
+
+  where `k_i(x, y)` are Matern kernels calculated between `x` and `y`, and
+  `c(x_fid, y_fid) = (1 - x_fid)(1 - y_fid))(1 + x_fid y_fid)^p`.
+
+  Example:
+    >>> unbiased = matern_five_halves(jnp.array([0.2, 3.0]))
+    >>> biased = matern_five_halves(jnp.array([1.5]))
+    >>> kernel = linear_truncated(x_fid, y_fid, unbiased, biased, 1.0)
+    >>> Kxx = kernel(xs, xs)
+
+  Args:
+    x_fidelities: The fidelity parameters of `x`.
+    y_fidelities: The fidelity parameters of `y`.
+    unbiased: The unbiased kernel `k_0`.
+    biased: The biased kernel `k_1`.
+    power: The order of the polynomial kernel `p`.
+
+  Returns:
+    A linear truncated `Kernel`.
+  """
+
+  bias_factor = (
+    (1 - x_fidelities)
+    * (1 - y_fidelities.T)
+    * jnp.power(1 + x_fidelities * y_fidelities.T, power)
+  )
+
+  return combine(
+    lax.add, 0.0, unbiased, compose(partial(lax.mul, y=bias_factor), biased)
+  )
 
 
 def additive(*kernels: Kernel) -> Kernel:

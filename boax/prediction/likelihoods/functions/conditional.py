@@ -12,31 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for likelihoods."""
+"""Alias for likelihoods."""
 
-from typing import Generic, Protocol, TypeVar
+from jax import nn
 
+from boax.core import distributions
+from boax.core.distributions.beta import Beta
 from boax.utils.typing import Array
 
-T = TypeVar('T')
 
+def beta(samples: Array, scale: Array) -> Beta:
+  mixture = nn.sigmoid(samples)
+  alpha = mixture * scale + 1
+  beta = scale - alpha + 2
 
-class Objective(Protocol, Generic[T]):
-  """
-  A callable type for objective functions.
-
-  An objective functions takes predictions of type `T` and
-  `n`-dim targets as inputs and returns the loss value.
-  """
-
-  def __call__(self, predictions: T, targets: Array) -> Array:
-    """
-    Computes the loss value.
-
-    Args:
-      predictions: The predictions.
-      targets: The `n`-dim targets.
-
-    Returns:
-      The loss values.
-    """
+  return distributions.beta.beta(alpha, beta)

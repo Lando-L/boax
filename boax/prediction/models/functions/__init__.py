@@ -15,3 +15,4 @@
 """The processes functions sub-package."""
 
 from . import gaussian as gaussian
+from . import multi_fidelity as multi_fidelity

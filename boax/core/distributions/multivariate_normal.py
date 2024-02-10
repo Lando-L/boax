@@ -29,8 +29,9 @@ class MultivariateNormal(NamedTuple):
 
   Attributes:
     mean: The mean vector parameter.
-    cov: The covariance Matrix parameter.
+    cov: The covariance matrix parameter.
   """
+
   mean: Array
   cov: Array
 
@@ -38,26 +39,77 @@ class MultivariateNormal(NamedTuple):
 def multivariate_normal(
   mean: Array = jnp.zeros((1,)), cov: Array = jnp.identity(1)
 ) -> MultivariateNormal:
+  """
+  Smart constructor for the multivariate normal distribution.
+
+  Args:
+    mean: The mean vector parameter.
+    cov: The covariance matrix parameter.
+
+  Returns:
+    The `MultivariateNormal` distribution object.
+  """
+
   return MultivariateNormal(mean, cov)
 
 
-def multivariate_to_normal(mvn: MultivariateNormal) -> Normal:
+def as_normal(mvn: MultivariateNormal) -> Normal:
+  """
+  Transforms a multivariate normal distribution
+  into a batched normal distribution.
+
+  Args:
+    mvn: The multivariate normal distribution.
+
+  Returns:
+    The batched `Normal` distribution object.
+  """
+
   return Normal(mvn.mean, jnp.sqrt(jnp.diag(mvn.cov)))
 
 
-def pdf(
-  values: Array,
-  mvn: MultivariateNormal = MultivariateNormal(
-    jnp.zeros((1,)), jnp.identity(1)
-  ),
-) -> Array:
+def sample(mvn: MultivariateNormal, base_samples: Array) -> Array:
+  """
+  Samples a multivariate normal distribution based on base samples.
+
+  Args:
+    mvn: The multivariate normal distribution.
+    base_samples: The normal distributed base samples.
+
+  Returns:
+    The samples from the multivariate normal distribution.
+  """
+
+  return mvn.mean + jnp.dot(
+    scipy.linalg.cholesky(mvn.cov, lower=True), base_samples
+  )
+
+
+def pdf(mvn: MultivariateNormal, values: Array) -> Array:
+  """
+  Probability density function.
+
+  Args:
+    mvn: The multivariate normal distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The probability density function values.
+  """
+
   return scipy.stats.multivariate_normal.pdf(values, mvn.mean, mvn.cov)
 
 
-def logpdf(
-  values: Array,
-  mvn: MultivariateNormal = MultivariateNormal(
-    jnp.zeros((1,)), jnp.identity(1)
-  ),
-) -> Array:
+def logpdf(mvn: MultivariateNormal, values: Array) -> Array:
+  """
+  Log probability density function.
+
+  Args:
+    mvn: The multivariate normal distribution.
+    values: The values to evaluate.
+
+  Returns:
+    The log probability density function values.
+  """
+
   return scipy.stats.multivariate_normal.logpdf(values, mvn.mean, mvn.cov)

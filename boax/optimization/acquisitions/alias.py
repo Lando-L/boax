@@ -17,36 +17,33 @@
 import math
 from functools import partial
 from operator import attrgetter
-from typing import Callable
 
-from jax import jit, lax, vmap
+from jax import jit, lax, scipy
 from jax import numpy as jnp
 
 from boax.core import distributions
-from boax.core.distributions.multivariate_normal import MultivariateNormal
+from boax.core.distributions.normal import Normal
 from boax.optimization.acquisitions import functions
 from boax.optimization.acquisitions.base import Acquisition
-from boax.prediction.models.base import Model
-from boax.utils.functools import call, compose
+from boax.utils.functools import compose
 from boax.utils.typing import Array, Numeric
 
 
 def probability_of_improvement(
-  model: Model[MultivariateNormal], best: Numeric
-) -> Acquisition:
+  best: Numeric,
+) -> Acquisition[Normal]:
   """
   The Probability of Improvement acquisition function.
 
   Probability of improvement over the best function value observed so far.
 
-  `PI(x) = P(y >= best_f), y ~ f(x)`
+  `PI(x) = P(y >= best), y ~ f(x)`
 
   Example:
-    >>> acqf = probability_of_improvement(surrogate, 0.2)
-    >>> poi = acqf(xs)
+    >>> acqf = probability_of_improvement(0.2)
+    >>> poi = acqf(model(xs))
 
   Args:
-    model: A gaussian process regression surrogate model.
     best: The best function value observed so far.
 
   Returns:
@@ -54,35 +51,29 @@ def probability_of_improvement(
   """
 
   return jit(
-      compose(
-        jnp.squeeze,
-        partial(functions.analytic.poi, best=best),
-        vmap(
-          compose(
-            distributions.multivariate_normal.multivariate_to_normal,
-            model,
-          )
-        )
-      )
+    compose(
+      partial(jnp.squeeze, axis=-1),
+      scipy.stats.norm.cdf,
+      partial(functions.analytic.scaled_improvement, best=best),
     )
+  )
 
 
 def log_probability_of_improvement(
-  model: Model[MultivariateNormal], best: Numeric
-) -> Acquisition:
+  best: Numeric,
+) -> Acquisition[Normal]:
   """
   The Log Probability of Improvement acquisition function.
 
   Logarithm of the probability of improvement over the best function value observed so far.
 
-  `logPI(x) = log(P(y >= best_f)), y ~ f(x)`
+  `logPI(x) = log(P(y >= best)), y ~ f(x)`
 
   Example:
-    >>> acqf = log_probability_of_improvement(surrogate, 0.2)
-    >>> log_poi = acqf(xs)
+    >>> acqf = log_probability_of_improvement(0.2)
+    >>> log_poi = acqf(model(xs))
 
   Args:
-    model: A gaussian process regression surrogate model.
     best: The best function value observed so far.
 
   Returns:
@@ -91,36 +82,30 @@ def log_probability_of_improvement(
 
   return jit(
     compose(
-      jnp.squeeze,
-      partial(functions.analytic.lpoi, best=best),
-      vmap(
-        compose(
-          distributions.multivariate_normal.multivariate_to_normal,
-          model,
-        )
-      )
+      partial(jnp.squeeze, axis=-1),
+      scipy.stats.norm.logcdf,
+      partial(functions.analytic.scaled_improvement, best=best),
     )
   )
 
 
 def expected_improvement(
-  model: Model[MultivariateNormal], best: Numeric
-) -> Acquisition:
+  best: Numeric,
+) -> Acquisition[Normal]:
   """
   The Expected Improvement acquisition function.
 
   Expected improvement over the best function value observed so far.
 
-  `EI(x) = E(max(f(x) - best_f, 0))`,
+  `EI(x) = E(max(f(x) - best, 0))`,
 
   where the expectation is taken over the value of stochastic function `f` at `x`.
 
   Example:
-    >>> acqf = expected_improvement(surrogate, 0.2)
-    >>> ei = acqf(xs)
+    >>> acqf = expected_improvement(0.2)
+    >>> ei = acqf(model(xs))
 
   Args:
-    model: A gaussian process regression surrogate model.
     best: The best function value observed so far.
 
   Returns:
@@ -129,27 +114,21 @@ def expected_improvement(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       partial(functions.analytic.ei, best=best),
-      vmap(
-        compose(
-          distributions.multivariate_normal.multivariate_to_normal,
-          model,
-        )
-      )
     )
   )
 
 
 def log_expected_improvement(
-  model: Model[MultivariateNormal], best: Numeric
-) -> Acquisition:
+  best: Numeric,
+) -> Acquisition[Normal]:
   """
   The Log Expected Improvement acquisition function.
 
   Logarithm of the expected improvement over the best function value observed so far.
 
-  `LogEI(x) = log(E(max(f(x) - best_f, 0)))`,
+  `LogEI(x) = log(E(max(f(x) - best, 0)))`,
 
   where the expectation is taken over the value of stochastic function `f` at `x`.
 
@@ -158,11 +137,10 @@ def log_expected_improvement(
     arXiv preprint arXiv:2310.20708 (2023).
 
   Example:
-    >>> acqf = log_expected_improvement(surrogate, 0.2)
-    >>> log_ei = acqf(xs)
+    >>> acqf = log_expected_improvement(0.2)
+    >>> log_ei = acqf(model(xs))
 
   Args:
-    model: A gaussian process regression surrogate model.
     best: The best function value observed so far.
 
   Returns:
@@ -171,21 +149,15 @@ def log_expected_improvement(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       partial(functions.analytic.lei, best=best),
-      vmap(
-        compose(
-          distributions.multivariate_normal.multivariate_to_normal,
-          model,
-        )
-      )
     )
   )
 
 
 def upper_confidence_bound(
-  model: Model[MultivariateNormal], beta: Numeric
-) -> Acquisition:
+  beta: Numeric,
+) -> Acquisition[Normal]:
   """
   The Upper Confidence Bound (UCB) acquisition function.
 
@@ -195,11 +167,10 @@ def upper_confidence_bound(
   `UCB(x) = loc(x) + sqrt(beta) * scale(x)`
 
   Example:
-    >>> acqf = upper_confidence_bound(surrogate, 2.0)
-    >>> ucb = acqf(xs)
+    >>> acqf = upper_confidence_bound(2.0)
+    >>> ucb = acqf(model(xs))
 
   Args:
-    model: A gaussian process regression surrogate model.
     beta: The mean and covariance trade-off parameter.
 
   Returns:
@@ -208,27 +179,19 @@ def upper_confidence_bound(
 
   return jit(
     compose(
-      jnp.squeeze,
-      partial(functions.analytic.ucb, beta=beta),
-      vmap(
-        compose(
-          distributions.multivariate_normal.multivariate_to_normal,
-          model,
-        )
-      )
+      partial(jnp.squeeze, axis=-1),
+      partial(distributions.normal.sample, base_samples=jnp.sqrt(beta)),
     )
   )
 
 
-def posterior_mean(
-  model: Model[MultivariateNormal],
-) -> Acquisition:
+def posterior_mean() -> Acquisition:
   """
   The Posterior mean acquisition function.
 
   Example:
-    >>> acqf = posterior_mean(surrogate)
-    >>> mean = acqf(xs)
+    >>> acqf = posterior_mean()
+    >>> mean = acqf(model(xs))
 
   Args:
     model: A gaussian process regression surrogate model.
@@ -239,27 +202,19 @@ def posterior_mean(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       attrgetter('loc'),
-      vmap(
-        compose(
-          distributions.multivariate_normal.multivariate_to_normal,
-          model,
-        )
-      )
     )
   )
 
 
-def posterior_scale(
-  model: Model[MultivariateNormal],
-) -> Acquisition:
+def posterior_scale() -> Acquisition:
   """
   The Posterior scale acquisition function.
 
   Example:
-    >>> acqf = posterior_scale(surrogate)
-    >>> scale = acqf(xs)
+    >>> acqf = posterior_scale()
+    >>> scale = acqf(model(xs))
 
   Args:
     model: A gaussian process regression surrogate model.
@@ -270,65 +225,16 @@ def posterior_scale(
 
   return jit(
     compose(
-      jnp.squeeze,
+      partial(jnp.squeeze, axis=-1),
       attrgetter('scale'),
-      vmap(
-        compose(
-          distributions.multivariate_normal.multivariate_to_normal,
-          model,
-        )
-      )
-    )
-  )
-
-
-def q_expected_improvement(
-  model: Model[Callable[[Array], Array]],
-  base_samples: Array,
-  best: Numeric,
-) -> Acquisition:
-  """
-  MC-based batch Expected Improvement acquisition function.
-
-  This computes qEI by (1) sampling the joint posterior over q points
-  (2) evaluating the improvement over the current best for each sample
-  (3) maximizing over q (4) averaging over the samples.
-
-  `qEI(x) = E(max(max y - best_f, 0)), y ~ f(x), x = (x_1,...,x_q)`
-
-  Example:
-    >>> acqf = q_expected_improvement(surrogate, base_samples, 0.2)
-    >>> qei = acqf(xs)
-
-  Args:
-    model: A surrogate model.
-    base_samples: A set of samples from standard normal distribution.
-    best: The best function value observed so far.
-
-  Returns:
-    The corresponding `Acquisition`.
-  """
-
-  return jit(
-    vmap(
-      compose(
-        jnp.mean,
-        partial(jnp.amax, axis=-1),
-        partial(functions.monte_carlo.qei, best=best),
-        call(base_samples),
-        vmap,
-        model,
-      )
     )
   )
 
 
 def q_probability_of_improvement(
-  model: Model[Callable[[Array], Array]],
-  base_samples: Array,
-  tau: Numeric,
   best: Numeric,
-) -> Acquisition:
+  tau: Numeric = 1.0,
+) -> Acquisition[Array]:
   """
   MC-based batch Probability of Improvement acquisition function.
 
@@ -338,15 +244,13 @@ def q_probability_of_improvement(
   to support auto-differentiation, the indicator is replaced with a sigmoid
   function with temperature parameter tau.
 
-  `qPI(x) = P(max y >= best_f), y ~ f(x), x = (x_1,...,x_q)`
+  `qPI(x) = P(max y >= best), y ~ f(x), x = (x_1,...,x_q)`
 
   Example:
-    >>> acqf = q_probability_of_improvement(surrogate, base_samples, 1.0, 0.2)
-    >>> qpoi = acqf(xs)
+    >>> acqf = q_probability_of_improvement(1.0, 0.2)
+    >>> qpoi = acqf(model(xs))
 
   Args:
-    model: A surrogate model.
-    base_samples: A set of samples from standard normal distribution.
     tau: The temperature parameter.
     best: The best function value observed so far.
 
@@ -355,24 +259,49 @@ def q_probability_of_improvement(
   """
 
   return jit(
-    vmap(
-      compose(
-        jnp.mean,
-        partial(jnp.amax, axis=-1),
-        partial(functions.monte_carlo.qpoi, best=best, tau=tau),
-        call(base_samples),
-        vmap,
-        model,
-      )
+    compose(
+      partial(jnp.mean, axis=-1),
+      partial(jnp.amax, axis=-1),
+      partial(functions.monte_carlo.qpoi, best=best, tau=tau),
+    )
+  )
+
+
+def q_expected_improvement(
+  best: Numeric,
+) -> Acquisition[Array]:
+  """
+  MC-based batch Expected Improvement acquisition function.
+
+  This computes qEI by (1) sampling the joint posterior over q points
+  (2) evaluating the improvement over the current best for each sample
+  (3) maximizing over q (4) averaging over the samples.
+
+  `qEI(x) = E(max(max y - best, 0)), y ~ f(x), x = (x_1,...,x_q)`
+
+  Example:
+    >>> acqf = q_expected_improvement(0.2)
+    >>> qei = acqf(model(xs))
+
+  Args:
+    best: The best function value observed so far.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  return jit(
+    compose(
+      partial(jnp.mean, axis=-1),
+      partial(jnp.amax, axis=-1),
+      partial(functions.monte_carlo.qei, best=best),
     )
   )
 
 
 def q_upper_confidence_bound(
-  model: Model[Callable[[Array], Array]],
-  base_samples: Array,
   beta: Numeric,
-) -> Acquisition:
+) -> Acquisition[Array]:
   """
   MC-based batch Upper Confidence Bound acquisition function.
 
@@ -381,12 +310,10 @@ def q_upper_confidence_bound(
   where `y_tilde ~ N(mean(x), beta * pi/2 * cov(x))` and `f(x) ~ N(mean(x), cov(x)).`
 
   Example:
-    >>> acqf = q_upper_confidence_bound(surrogate, base_samples, 2.0)
-    >>> qucb = acqf(xs)
+    >>> acqf = q_upper_confidence_bound(2.0)
+    >>> qucb = acqf(model(xs))
 
   Args:
-    model: A surrogate model.
-    base_samples: A set of samples from standard normal distribution.
     beta: The mean and covariance trade-off parameter.
 
   Returns:
@@ -396,14 +323,36 @@ def q_upper_confidence_bound(
   beta_prime = lax.sqrt(beta * math.pi / 2)
 
   return jit(
-    vmap(
-      compose(
-        jnp.mean,
-        partial(jnp.amax, axis=-1),
-        partial(functions.monte_carlo.qucb, beta=beta_prime),
-        call(base_samples),
-        vmap,
-        model,
-      )
+    compose(
+      partial(jnp.mean, axis=-1),
+      partial(jnp.amax, axis=-1),
+      partial(functions.monte_carlo.qucb, beta=beta_prime),
+    )
+  )
+
+
+def q_knowledge_gradient(
+  best: Numeric,
+) -> Acquisition[Normal]:
+  """
+  MC-based batch Knowledge Gradient acquisition function.
+
+  Example:
+    >>> acqf = q_knowledge_gradient(0.2)
+    >>> qucb = acqf(model(xs))
+
+  Args:
+    best: The best function value observed so far.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  return jit(
+    compose(
+      partial(jnp.mean, axis=-1),
+      partial(jnp.squeeze, axis=-1),
+      partial(lax.sub, y=best),
+      attrgetter('loc'),
     )
   )

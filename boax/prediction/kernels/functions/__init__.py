@@ -17,3 +17,4 @@
 from . import matern as matern
 from . import periodic as periodic
 from . import rbf as rbf
+from . import utils as utils

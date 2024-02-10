@@ -12,31 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The maximizer initialization functions."""
+"""The scipy maximization functions."""
 
 from functools import partial
-from typing import Tuple
+from typing import Callable, Tuple
 
 from jax import numpy as jnp
 from jax.scipy import optimize
 
-from boax.optimization.acquisitions.base import Acquisition
 from boax.utils.functools import compose
 from boax.utils.typing import Array
 
 
-def bfgs(
-  candidates: Array, acquisition: Acquisition, bounds: Array
+def maximize(
+  candidates: Array,
+  acquisition_fn: Callable[[Array], Array],
+  bounds: Array,
+  method: str,
 ) -> Tuple[Array, Array]:
   results = optimize.minimize(
     fun=compose(
       jnp.negative,
       jnp.sum,
-      acquisition,
+      acquisition_fn,
       partial(jnp.reshape, newshape=candidates.shape),
     ),
     x0=candidates.flatten(),
-    method='bfgs',
+    method=method,
   )
 
   clipped = jnp.clip(
@@ -45,4 +47,4 @@ def bfgs(
     a_max=bounds[:, 1],
   )
 
-  return clipped, acquisition(clipped)
+  return clipped, acquisition_fn(clipped)

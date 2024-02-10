@@ -12,28 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for constrain functions."""
+"""Base interface for constraint functions."""
 
-from typing import Protocol
+from typing import Generic, Protocol, TypeVar
 
 from boax.utils.typing import Array
 
+T = TypeVar('T')
 
-class Constraint(Protocol):
+
+class Constraint(Protocol, Generic[T]):
   """
   A callable type for constraint functions.
 
-  A constraint function takes a `n x q x d`-dim candidate set as input
-  and returns an `n`-dim array of feasibility scores.
+  An acquisition function takes a posterior prediction of type `T`
+  as input and returns a numeric feasiblity score.
   """
 
-  def __call__(self, candidates: Array) -> Array:
+  def __call__(self, T) -> Array:
     """
-    Evaluates the constraint function on a set of `candidates`.
+    Evaluates the constrained function on a posterior prediction.
 
     Args:
-      candidates: The `n x q x d`-dim candidate set.
+      posterior: The posterrior prediction.
 
     Returns:
-      The `n`-dim feasibility scores at the given design points.
+      The `n`-dim feasibility scores.
     """
