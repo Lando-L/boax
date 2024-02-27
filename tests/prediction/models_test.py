@@ -3,7 +3,7 @@ from jax import numpy as jnp
 from jax import random
 
 from boax.core import distributions
-from boax.prediction import kernels, likelihoods, means, models
+from boax.prediction import kernels, means, models
 
 
 class ProcessesTest(parameterized.TestCase):
@@ -71,17 +71,35 @@ class ProcessesTest(parameterized.TestCase):
     self.assertEqual(mean.shape, (10,))
     self.assertEqual(cov.shape, (10, 10))
 
-  def test_predictive(self):
+  def test_outcome_transformed(self):
     key = random.key(0)
 
     index_points = random.uniform(key, shape=(10, 1), minval=-1, maxval=1)
 
-    model = models.predictive(
+    model = models.outcome_transformed(
       models.gaussian_process(
         means.zero(),
         kernels.rbf(jnp.array(0.2)),
       ),
-      likelihoods.gaussian(1e-4),
+      distributions.multivariate_normal.as_normal,
+    )
+
+    loc, scale = model(index_points)
+
+    self.assertEqual(loc.shape, (10,))
+    self.assertEqual(scale.shape, (10,))
+
+  def test_input_transformed(self):
+    key = random.key(0)
+
+    index_points = random.uniform(key, shape=(10, 1), minval=-1, maxval=1)
+
+    model = models.input_transformed(
+      models.gaussian_process(
+        means.zero(),
+        kernels.rbf(jnp.array(0.2)),
+      ),
+      lambda x: x**2,
     )
 
     mean, cov = model(index_points)
@@ -144,42 +162,6 @@ class ProcessesTest(parameterized.TestCase):
         10,
       ),
     )
-
-  def test_input_transformed(self):
-    key = random.key(0)
-
-    index_points = random.uniform(key, shape=(10, 1), minval=-1, maxval=1)
-
-    model = models.input_transformed(
-      models.gaussian_process(
-        means.zero(),
-        kernels.rbf(jnp.array(0.2)),
-      ),
-      lambda x: x * 2 + 1,
-    )
-
-    mean, cov = model(index_points)
-
-    self.assertEqual(mean.shape, (10,))
-    self.assertEqual(cov.shape, (10, 10))
-
-  def test_outcome_transformed(self):
-    key = random.key(0)
-
-    index_points = random.uniform(key, shape=(10, 1), minval=-1, maxval=1)
-
-    model = models.outcome_transformed(
-      models.gaussian_process(
-        means.zero(),
-        kernels.rbf(jnp.array(0.2)),
-      ),
-      distributions.multivariate_normal.as_normal,
-    )
-
-    loc, scale = model(index_points)
-
-    self.assertEqual(loc.shape, (10,))
-    self.assertEqual(scale.shape, (10,))
 
 
 if __name__ == '__main__':

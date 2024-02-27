@@ -56,7 +56,7 @@ def linear_truncated(
   """
   Constructs a linear truncated kernel for one fidelity parameter.
 
-  Computes `k(x, y) = k_0(x, y) + c(x_fid, y_fid) k_1(x, y) `,
+  Computes `k(x, y) = k_0(x, y) + c(x_fid, y_fid) k_1(x, y)`,
 
   where `k_i(x, y)` are Matern kernels calculated between `x` and `y`, and
   `c(x_fid, y_fid) = (1 - x_fid)(1 - y_fid))(1 + x_fid y_fid)^p`.

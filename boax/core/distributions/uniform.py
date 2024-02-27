@@ -65,7 +65,7 @@ def sample(uniform: Uniform, base_samples: Array) -> Array:
   return uniform.a + (uniform.b - uniform.a) * base_samples
 
 
-def pdf(values: Array) -> Array:
+def pdf(uniform: Uniform, values: Array) -> Array:
   """
   Probability density function.
 
@@ -77,10 +77,10 @@ def pdf(values: Array) -> Array:
     The probability density function values.
   """
 
-  return scipy.stats.uniform.pdf(values)
+  return scipy.stats.uniform.pdf(values, uniform.a, uniform.b - uniform.a)
 
 
-def logpdf(values: Array) -> Array:
+def logpdf(uniform: Uniform, values: Array) -> Array:
   """
   Log probability density function.
 
@@ -92,4 +92,4 @@ def logpdf(values: Array) -> Array:
     The log probability density function values.
   """
 
-  return scipy.stats.uniform.logpdf(values)
+  return scipy.stats.uniform.logpdf(values, uniform.a, uniform.b - uniform.a)

@@ -15,6 +15,8 @@
 """The samplers sub-package."""
 
 from . import beta as beta
+from . import gamma as gamma
 from . import multivariate_normal as multivariate_normal
 from . import normal as normal
+from . import poisson as poisson
 from . import uniform as uniform

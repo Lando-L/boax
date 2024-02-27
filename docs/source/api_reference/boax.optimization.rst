@@ -6,6 +6,20 @@
 Implements functionalities to construct and optimize acquisition functions.
 
 
+boax.optimization
+-----------------
+
+Construction Functions
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+  :toctree: generated
+
+  construct
+  construct_constrained
+  construct_log_constrained
+
+
 boax.optimization.acquisitions
 ------------------------------
 
@@ -96,14 +110,3 @@ Optimizer Functions
   :toctree: generated
 
   bfgs
-
-
-Optimizer Utils
-~~~~~~~~~~~~~~~
-
-.. autosummary::
-  :toctree: generated
-
-  construct
-  construct_constrained
-  construct_log_constrained

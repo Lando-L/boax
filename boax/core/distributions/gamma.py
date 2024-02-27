@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The beta distribution."""
+"""The gamma distribution."""
 
 from typing import NamedTuple
 
@@ -22,119 +22,119 @@ from jax import scipy
 from boax.utils.typing import Array
 
 
-class Beta(NamedTuple):
+class Gamma(NamedTuple):
   """
-  A tuple describing the two shape parameters of the beta distribution.
+  A tuple describing the shape and rate parameters of the gamma distribution.
 
   Attributes:
-    a: The alpha parameter.
-    b: The beta parameter.
+    a: The shape parameter.
+    b: The rate parameter.
   """
 
   a: Array
   b: Array
 
 
-def beta(a: Array = jnp.ones(()), b: Array = jnp.ones(())) -> Beta:
+def gamma(a: Array, b: Array = jnp.ones(())) -> Gamma:
   """
   Smart constructor for the beta distribution.
 
   Args:
-    a: The alpha parameter.
-    b: The beta parameter.
+    a: The shape parameter.
+    b: The rate parameter.
 
   Returns:
-    The `Beta` distribution object.
+    The `Gamma` distribution object.
   """
 
-  return Beta(a, b)
+  return Gamma(a, b)
 
 
-def pdf(beta: Beta, values: Array) -> Array:
+def pdf(gamma: Gamma, values: Array) -> Array:
   """
   Probability density function.
 
   Args:
-    beta: The beta distribution.
+    gamma: The gamma distribution.
     values: The values to evaluate.
 
   Returns:
     The probability density function values.
   """
 
-  return scipy.stats.beta.pdf(values, beta.a, beta.b)
+  return scipy.stats.gamma.pdf(values, gamma.a, 0, 1 / gamma.b)
 
 
-def cdf(beta: Beta, values: Array) -> Array:
+def cdf(gamma: Gamma, values: Array) -> Array:
   """
   Cumulative distribution function.
 
   Args:
-    beta: The beta distribution.
+    gamma: The gamma distribution.
     values: The values to evaluate.
 
   Returns:
     The cumulative distribution function values.
   """
 
-  return scipy.stats.beta.cdf(values, beta.a, beta.b)
+  return scipy.stats.gamma.cdf(values, gamma.a, 0, 1 / gamma.b)
 
 
-def sf(beta: Beta, values: Array) -> Array:
+def sf(gamma: Gamma, values: Array) -> Array:
   """
   Survival function.
 
   Args:
-    beta: The beta distribution.
+    gamma: The gamma distribution.
     values: The values to evaluate.
 
   Returns:
     The survival function values.
   """
 
-  return scipy.stats.beta.sf(values, beta.a, beta.b)
+  return scipy.stats.gamma.sf(values, gamma.a, 0, 1 / gamma.b)
 
 
-def logpdf(beta: Beta, values: Array) -> Array:
+def logpdf(gamma: Gamma, values: Array) -> Array:
   """
   Log probability density function.
 
   Args:
-    beta: The beta distribution.
+    gamma: The gamma distribution.
     values: The values to evaluate.
 
   Returns:
     The log probability density function values.
   """
 
-  return scipy.stats.beta.logpdf(values, beta.a, beta.b)
+  return scipy.stats.gamma.logpdf(values, gamma.a, 0, 1 / gamma.b)
 
 
-def logcdf(beta: Beta, values: Array) -> Array:
+def logcdf(gamma: Gamma, values: Array) -> Array:
   """
   Log cumulative distribution function.
 
   Args:
-    beta: The beta distribution.
+    gamma: The gamma distribution.
     values: The values to evaluate.
 
   Returns:
     The log cumulative distribution function values.
   """
 
-  return scipy.stats.beta.logcdf(values, beta.a, beta.b)
+  return scipy.stats.gamma.logcdf(values, gamma.a, 0, 1 / gamma.b)
 
 
-def logsf(beta: Beta, values: Array) -> Array:
+def logsf(gamma: Gamma, values: Array) -> Array:
   """
   Log survival function.
 
   Args:
-    beta: The beta distribution.
+    gamma: The gamma distribution.
     values: The values to evaluate.
 
   Returns:
     The log survival function values.
   """
 
-  return scipy.stats.beta.logsf(values, beta.a, beta.b)
+  return scipy.stats.gamma.logsf(values, gamma.a, 0, 1 / gamma.b)
