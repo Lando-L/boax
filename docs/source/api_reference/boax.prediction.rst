@@ -6,8 +6,20 @@
 Implements functionalities to fit a surrogate model to data.
 
 
+boax.prediction
+---------------
+
+Construction Functions
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+  :toctree: generated
+
+  construct
+
+
 boax.prediction.kernels
-------------------------------
+-----------------------
 
 .. currentmodule:: boax.prediction.kernels
 
@@ -31,8 +43,8 @@ Radial Basis Kernels
   rbf
 
 
-Mater Kernels
-^^^^^^^^^^^^^
+Matérn Kernels
+^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
@@ -60,6 +72,7 @@ Transformed Kernels
   scaled
   additive
   product
+  linear_truncated
 
 
 boax.prediction.means
@@ -109,6 +122,7 @@ Gaussian Process Models
 
   gaussian_process
   gaussian_process_regression
+  multi_fidelity_regression
 
 
 Transformed Models
@@ -117,4 +131,7 @@ Transformed Models
 .. autosummary::
   :toctree: generated
 
+  input_transformed
+  outcome_transformed
+  joined
   sampled

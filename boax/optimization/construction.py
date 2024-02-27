@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Construct acquisition functions."""
+"""Construct optimizations."""
 
 from functools import partial
 from typing import Callable, TypeVar
@@ -29,7 +29,8 @@ T = TypeVar('T')
 
 
 def construct(
-  model: Model[T], acquisition: Acquisition[T]
+  model: Model[T],
+  acquisition: Acquisition[T],
 ) -> Callable[[Array], Array]:
   """
   Constructs an acquisition function.
@@ -37,6 +38,7 @@ def construct(
   Args:
     model: The base model.
     acquisition: The acquisition.
+    projection_fn: The projection function.
 
   Returns:
     The constructed acquisition function.
@@ -50,12 +52,11 @@ def construct(
 
 def construct_constrained(
   model: Model[T], acquisition: Acquisition[T], *constraints: Constraint[T]
-) -> Callable[[Array], Array]:
+) -> Acquisition[T]:
   """
   Constructs a constrained acquisition function.
 
   Args:
-    model: The base model.
     acquisition: The acquisition.
     constraints: The constraints.
 
@@ -71,13 +72,12 @@ def construct_constrained(
 
 
 def construct_log_constrained(
-  model: Model[T], acquisition: Acquisition[T], *constraints: Constraint[T]
+  model: Model[T], acquisition: Acquisition[T], *log_constraints: Constraint[T]
 ) -> Callable[[Array], Array]:
   """
   Constructs a log constrained acquisition function.
 
   Args:
-    model: The base model.
     acquisition: The log acquisition.
     constraints: The log constraints.
 
@@ -87,6 +87,6 @@ def construct_log_constrained(
 
   return compose(
     unwrap(partial(partial, sequence)(lax.add, 0.0)),
-    partial(partial, zip)((acquisition, *constraints)),
+    partial(partial, zip)((acquisition, *log_constraints)),
     vmap(model),
   )

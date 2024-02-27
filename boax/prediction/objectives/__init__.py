@@ -12,13 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The models sub-package."""
+"""The objectives sub-package."""
 
-from .alias import gaussian_process as gaussian_process
-from .alias import gaussian_process_regression as gaussian_process_regression
-from .alias import multi_fidelity_regression as multi_fidelity_regression
-from .base import Model as Model
-from .transformed import input_transformed as input_transformed
-from .transformed import joined as joined
-from .transformed import outcome_transformed as outcome_transformed
-from .transformed import sampled as sampled
+from .alias import negative_log_likelihood as negative_log_likelihood
+from .base import Objective as Objective
+from .transformed import penalized as penalized

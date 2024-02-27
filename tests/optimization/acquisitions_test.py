@@ -113,32 +113,6 @@ class AcquisitionsTest(parameterized.TestCase):
 
     self.assertEqual(qkg.shape, (n,))
 
-  # def test_constrained(self):
-  #   key = random.key(0)
-  #   n, q = 10, 1
-
-  #   best = 0.0
-  #   p, c1, c2 = random.uniform(key, (3, 2, n, q))
-  #   preds = distributions.normal.normal(p[0], p[1])
-  #   complexity = distributions.normal.normal(c1[0], c1[1])
-  #   cost = distributions.normal.normal(c2[0], c2[1])
-
-  #   cei = acquisitions.constrained(
-  #     acquisitions.expected_improvement(best),
-  #     constraints.less_or_equal(0.8),
-  #     constraints.less_or_equal(5.0)
-  #   )((preds, complexity, cost))
-
-  #   clei = acquisitions.log_constrained(
-  #     acquisitions.log_expected_improvement(best),
-  #     constraints.log_less_or_equal(0.8),
-  #     constraints.log_less_or_equal(5.0)
-  #   )((preds, complexity, cost))
-
-  #   self.assertEqual(cei.shape, (n,))
-  #   self.assertEqual(clei.shape, (n,))
-  #   np.testing.assert_allclose(jnp.log(cei), clei, atol=1e-4)
-
 
 if __name__ == '__main__':
   absltest.main()

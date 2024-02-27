@@ -35,6 +35,25 @@ Beta Distribution
   logsf
 
 
+Gamma Distribution
+^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: boax.core.distributions.gamma
+
+.. autoclass:: Gamma
+
+.. autosummary::
+  :toctree: generated
+
+  gamma
+  pdf
+  cdf
+  sf
+  logpdf
+  logcdf
+  logsf
+
+
 Multivariate Normal Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -68,6 +87,22 @@ Normal Distribution
   logpdf
   logcdf
   logsf
+
+
+Poisson Distribution
+^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: boax.core.distributions.poisson
+
+.. autoclass:: Poisson
+
+.. autosummary::
+  :toctree: generated
+
+  poisson
+  pmf
+  cdf
+  logpmf
 
 
 Uniform Distribution

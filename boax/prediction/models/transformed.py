@@ -19,7 +19,6 @@ from typing import Callable, TypeVar
 
 from jax import vmap
 
-from boax.prediction.likelihoods.base import Likelihood
 from boax.prediction.models.base import Model
 from boax.utils.functools import apply, call, compose
 from boax.utils.typing import Array
@@ -29,28 +28,53 @@ A = TypeVar('A')
 B = TypeVar('B')
 
 
-def predictive(
+def outcome_transformed(
   model: Model[A],
-  likelihood_fn: Likelihood[A, B],
+  *transformation_fns: Callable[[A], B],
 ) -> Model[B]:
   """
-  Constructs a predictive model.
+  Constructs a outcome transformed model.
 
   Example:
-    >>> transformed = predictive(model, likelihood)
+    >>> transformed = outcome_transformed(model, fn1, fn2, fn3)
     >>> result = transformed(xs)
 
   Args:
     model: The base model.
-    likelihood_fn: The likelihood function.
+    transformation_fns: The transformation functions.
 
   Returns:
     The transformed `Model` function.
   """
 
   return compose(
-    likelihood_fn,
+    *reversed(transformation_fns),
     model,
+  )
+
+
+def input_transformed(
+  model: Model[A],
+  *transformation_fns: Callable[[A], B],
+) -> Model[B]:
+  """
+  Constructs a input transformed model.
+
+  Example:
+    >>> transformed = input_transformed(model, fn1, fn2, fn3)
+    >>> result = transformed(xs)
+
+  Args:
+    model: The base model.
+    transformation_fns: The transformation functions.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return compose(
+    model,
+    *reversed(transformation_fns),
   )
 
 
@@ -99,52 +123,3 @@ def joined(*models: Model[T]) -> Model[T]:
   """
 
   return apply(tuple, *models)
-
-
-def input_transformed(
-  model: Model[T],
-  transform_fn: Callable[[Array], Array],
-) -> Model[T]:
-  """
-  Constructs an input transformed model.
-
-  Example:
-    >>> transformed = input_transformed(model, transform_fn)
-    >>> result = transformed(xs)
-
-  Args:
-    model: The base model.
-    transform_fn: The transformation function applied to the model inputs.
-
-  Returns:
-    The transformed `Model` function.
-  """
-
-  return compose(
-    model,
-    transform_fn,
-  )
-
-
-def outcome_transformed(
-  model: Model[A], transform_fn: Callable[[A], B]
-) -> Model[B]:
-  """
-  Constructs an output transformed model.
-
-  Example:
-    >>> transformed = outcome_transformed(model, transform_fn)
-    >>> result = transformed(xs)
-
-  Args:
-    model: The base model.
-    transform_fn: The transformation function applied to the model outputs.
-
-  Returns:
-    The transformed `Model` function.
-  """
-
-  return compose(
-    transform_fn,
-    model,
-  )
