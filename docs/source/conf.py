@@ -28,6 +28,7 @@ templates_path = ['_templates']
 source_suffix = ['.rst', '.ipynb', '.md']
 exclude_patterns = []
 
+nb_execution_mode = "off"
 
 
 # -- Options for HTML output -------------------------------------------------
