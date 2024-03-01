@@ -28,11 +28,19 @@ templates_path = ['_templates']
 source_suffix = ['.rst', '.ipynb', '.md']
 exclude_patterns = []
 
-nb_execution_mode = "off"
-
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
+html_theme_options = {
+  'repository_url': 'https://github.com/Lando-L/boax',
+  'use_repository_button': True,
+  'use_issues_button': False,
+  'path_to_docs': ('docs'), 
+  'show_navbar_depth': 1,
+}
+
+# -- Options for Jupyter Notebooks -------------------------------------------
+
+nb_execution_mode = 'off'
