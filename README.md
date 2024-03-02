@@ -9,7 +9,7 @@
 
 ## Overview
 
-Boax is a composable library of core components for Bayesian Optimization that is **designed for flexibility**. It comes with a low-level interfaces for:
+Boax is a composable library of core components for Bayesian Optimization that is **designed for flexibility**. It comes with low-level interfaces for:
 
 * **Core capabilities** (`boax.core`):
   * Common Distributions
@@ -46,39 +46,46 @@ Here is a basic example of using the Boax API for Bayesian Optimization. For mor
 1. Creation of a prediction model.
 
 ```python
-model = models.outcome_transformed(
-  models.gaussian_process_regression(
-    means.zero(),
-    kernels.rbf(length_scale),
-  )(
-    x_train,
-    y_train,
-  ),
-  likelihoods.gaussian(noise),
-)
+def model(params):
+  return models.outcome_transformed(
+    models.gaussian_process_regression(
+      means.zero(),
+      kernels.rbf(params['length_scale']),
+    )(
+      x_train,
+      y_train,
+    ),
+    likelihoods.gaussian(params['noise']),
+  )
 ```
 
 2. Construction of an acquisition function.
 
 ```python
-acqf = optimization.construct(
-  models.outcome_transformed(
-    model,
-    distributions.multivariate_normal.as_normal,
-  ),
-  acquisitions.upper_confidence_bound(
-    beta
-  ),
-)
+def construct(model):
+  return optimization.construct(
+    models.outcome_transformed(
+      model,
+      distributions.multivariate_normal.as_normal,
+    ),
+    acquisitions.upper_confidence_bound(
+      beta=2.0
+    ),
+  )
 ```
 
-3. Generating the next query candidate.
+3. Selection of the next candidate to query.
 
 ```python
-bfgs = optimizers.bfgs(acqf, bounds, x0, 10)
-candidates = bfgs.init(key)
-next_candidates, values = bfgs.update(candidates)
-query = next_candidates[jnp.argmax(values)]
+def select(key, acqf):
+    bfgs = optimizers.bfgs(acqf, bounds, x0, 10)
+    candidates = bfgs.init(key)
+    next_candidates, values = bfgs.update(candidates)
+
+    next_x = next_candidates[jnp.argmax(values)]
+    next_y = objective(next_x)
+
+    return next_x, next_y
 ```
 
 ## Citing Boax
