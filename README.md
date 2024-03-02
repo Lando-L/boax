@@ -1,5 +1,8 @@
 # Boax: A Bayesian Optimization library for JAX.
 
+![tests](https://github.com/Lando-L/boax/actions/workflows/tests.yml/badge.svg?branch=main)
+![pypi](https://img.shields.io/pypi/v/boax)
+
 [**Overview**](#overview)
 | [**Installation**](#installation)
 | [**Getting Started**](#getting-started)
