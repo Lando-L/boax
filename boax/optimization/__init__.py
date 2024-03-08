@@ -15,8 +15,4 @@
 """The optimization module."""
 
 from . import acquisitions as acquisitions
-from . import constraints as constraints
 from . import optimizers as optimizers
-from .construction import construct as construct
-from .construction import construct_constrained as construct_constrained
-from .construction import construct_log_constrained as construct_log_constrained

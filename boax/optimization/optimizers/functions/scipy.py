@@ -26,7 +26,7 @@ from boax.utils.typing import Array
 
 def maximize(
   candidates: Array,
-  acquisition_fn: Callable[[Array], Array],
+  fn: Callable[[Array], Array],
   bounds: Array,
   method: str,
 ) -> Tuple[Array, Array]:
@@ -34,7 +34,7 @@ def maximize(
     fun=compose(
       jnp.negative,
       jnp.sum,
-      acquisition_fn,
+      fn,
       partial(jnp.reshape, newshape=candidates.shape),
     ),
     x0=candidates.flatten(),
@@ -47,4 +47,4 @@ def maximize(
     a_max=bounds[:, 1],
   )
 
-  return clipped, acquisition_fn(clipped)
+  return clipped, fn(clipped)

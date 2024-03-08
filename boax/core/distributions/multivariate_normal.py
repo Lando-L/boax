@@ -19,7 +19,6 @@ from typing import NamedTuple
 from jax import numpy as jnp
 from jax import scipy
 
-from boax.core.distributions.normal import Normal
 from boax.utils.typing import Array
 
 
@@ -53,21 +52,6 @@ def multivariate_normal(
   return MultivariateNormal(mean, cov)
 
 
-def as_normal(mvn: MultivariateNormal) -> Normal:
-  """
-  Transforms a multivariate normal distribution
-  into a batched normal distribution.
-
-  Args:
-    mvn: The multivariate normal distribution.
-
-  Returns:
-    The batched `Normal` distribution object.
-  """
-
-  return Normal(mvn.mean, jnp.sqrt(jnp.diag(mvn.cov)))
-
-
 def sample(mvn: MultivariateNormal, base_samples: Array) -> Array:
   """
   Samples a multivariate normal distribution based on base samples.
@@ -83,6 +67,24 @@ def sample(mvn: MultivariateNormal, base_samples: Array) -> Array:
   return mvn.mean + jnp.dot(
     scipy.linalg.cholesky(mvn.cov, lower=True), base_samples
   )
+
+
+def scale(
+  mvn: MultivariateNormal, loc: Array, scale: Array
+) -> MultivariateNormal:
+  """
+  Scales a normal distribution.
+
+  Args:
+    normal: The normal distribution.
+    loc: The location parameter.
+    scale: The scale parameter
+
+  Returns:
+    The scaled normal distribution.
+  """
+
+  return MultivariateNormal(mvn.mean * scale + loc, mvn.cov)
 
 
 def pdf(mvn: MultivariateNormal, values: Array) -> Array:

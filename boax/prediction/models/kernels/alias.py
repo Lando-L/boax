@@ -16,8 +16,8 @@
 
 from functools import partial
 
-from boax.prediction.kernels import functions
-from boax.prediction.kernels.base import Kernel
+from boax.prediction.models.kernels import functions
+from boax.prediction.models.kernels.base import Kernel
 from boax.utils.typing import Array, Numeric
 
 

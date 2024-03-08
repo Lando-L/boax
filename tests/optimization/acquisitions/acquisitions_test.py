@@ -5,6 +5,7 @@ from jax import random
 
 from boax.core import distributions
 from boax.optimization import acquisitions
+from boax.optimization.acquisitions import constraints
 
 
 class AcquisitionsTest(parameterized.TestCase):
@@ -112,6 +113,30 @@ class AcquisitionsTest(parameterized.TestCase):
     qkg = acquisitions.q_knowledge_gradient(best)(preds)
 
     self.assertEqual(qkg.shape, (n,))
+
+  def test_constrained(self):
+    key = random.key(0)
+    n, q = 10, 1
+
+    best = 0.0
+    preds_params, cost_params = random.uniform(key, (2, 2, n, q))
+    preds = distributions.normal.normal(*preds_params)
+    costs = distributions.normal.normal(*cost_params)
+    model = [preds, costs]
+
+    cei = acquisitions.constrained(
+      acquisitions.expected_improvement(best),
+      constraints.less_or_equal(1.0),
+    )(model)
+
+    clei = acquisitions.log_constrained(
+      acquisitions.log_expected_improvement(best),
+      constraints.log_less_or_equal(1.0),
+    )(model)
+
+    self.assertEqual(cei.shape, (n,))
+    self.assertEqual(clei.shape, (n,))
+    np.testing.assert_allclose(jnp.log(cei), clei, atol=1e-4)
 
 
 if __name__ == '__main__':

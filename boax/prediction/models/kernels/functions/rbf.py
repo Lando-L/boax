@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The kernels sub-package."""
+"""Radial Basis Function (RBF) kernels."""
 
-from .alias import gaussian as gaussian
-from .base import Likelihood as Likelihood
+from jax import numpy as jnp
+
+from boax.prediction.models.kernels.functions import distance
+from boax.utils.typing import Numeric
+
+
+def rbf(x: Numeric, y: Numeric, length_scale: Numeric) -> Numeric:
+  return jnp.exp(-0.5 * distance.squared(x / length_scale, y / length_scale))

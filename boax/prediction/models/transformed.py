@@ -15,7 +15,7 @@
 """Transformation functions for models."""
 
 from functools import partial
-from typing import Callable, TypeVar
+from typing import Callable, Sequence, TypeVar
 
 from jax import vmap
 
@@ -23,9 +23,27 @@ from boax.prediction.models.base import Model
 from boax.utils.functools import apply, call, compose
 from boax.utils.typing import Array
 
-T = TypeVar('T')
 A = TypeVar('A')
 B = TypeVar('B')
+T = TypeVar('T')
+
+
+def joined(*models: Model[T]) -> Model[Sequence[T]]:
+  """
+  Constructs a joined model.
+
+  Example:
+    >>> transformed = joined(objective_model, cost_model)
+    >>> objective_result, cost_result = transformed(xs)
+
+  Args:
+    models: The models to be joined.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return apply(tuple, *models)
 
 
 def outcome_transformed(
@@ -33,7 +51,7 @@ def outcome_transformed(
   *transformation_fns: Callable[[A], B],
 ) -> Model[B]:
   """
-  Constructs a outcome transformed model.
+  Constructs an outcome transformed model.
 
   Example:
     >>> transformed = outcome_transformed(model, fn1, fn2, fn3)
@@ -58,7 +76,7 @@ def input_transformed(
   *transformation_fns: Callable[[A], B],
 ) -> Model[B]:
   """
-  Constructs a input transformed model.
+  Constructs an input transformed model.
 
   Example:
     >>> transformed = input_transformed(model, fn1, fn2, fn3)
@@ -75,6 +93,35 @@ def input_transformed(
   return compose(
     model,
     *reversed(transformation_fns),
+  )
+
+
+def scaled(
+  model: Model[T],
+  scale_fn: Callable[[T, Array, Array], T],
+  loc: Array,
+  scale: Array,
+) -> Model[T]:
+  """
+  Constructs a scaled model.
+
+  Example:
+    >>> transformed = scaled(model, scale_fn, loc, scale)
+    >>> result = transformed(xs)
+
+  Args:
+    model: The base model.
+    scale_fn: The sampling function.
+    loc: The location parameter.
+    scale: The scale parameter.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return compose(
+    partial(scale_fn, loc=loc, scale=scale),
+    model,
   )
 
 
@@ -105,21 +152,3 @@ def sampled(
     partial(partial, sample_fn),
     model,
   )
-
-
-def joined(*models: Model[T]) -> Model[T]:
-  """
-  Constructs a joined model.
-
-  Example:
-    >>> transformed = joined(objective_model, cost_model)
-    >>> objective_result, cost_result = transformed(xs)
-
-  Args:
-    models: The models to be joined.
-
-  Returns:
-    The transformed `Model` function.
-  """
-
-  return apply(tuple, *models)

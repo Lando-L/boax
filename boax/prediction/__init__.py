@@ -14,9 +14,5 @@
 
 """The prediction module."""
 
-from . import kernels as kernels
-from . import likelihoods as likelihoods
-from . import means as means
 from . import models as models
 from . import objectives as objectives
-from .construction import construct as construct

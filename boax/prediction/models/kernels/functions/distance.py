@@ -20,7 +20,7 @@ from jax import numpy as jnp
 from boax.utils.typing import Array
 
 
-def squared_distance(x: Array, y: Array) -> Array:
+def squared(x: Array, y: Array) -> Array:
   """
   Computes the squared distance between vectors `x` and `y`.
 
@@ -39,7 +39,7 @@ def squared_distance(x: Array, y: Array) -> Array:
   return lax.max(x_norm + y_norm - 2 * inner, 0.0)
 
 
-def euclidean_distance(x: Array, y: Array) -> Array:
+def euclidean(x: Array, y: Array) -> Array:
   """
   Computes the euclidean distance between vectors `x` and `y`.
 

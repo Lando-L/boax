@@ -58,8 +58,8 @@ def call(*args, **kwargs) -> Callable[[Callable[[Any], T]], T]:
   Calls a callable with the given inputs.
 
   Args:
-    *args: The arguments.
-    **kwargs: The keyword arguments.
+    args: The arguments.
+    kwargs: The keyword arguments.
 
   Returns:
     A function that calls given function with the inputs.

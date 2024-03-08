@@ -21,33 +21,47 @@ from jax import scipy
 
 from boax.core import distributions
 from boax.core.distributions.multivariate_normal import MultivariateNormal
-from boax.prediction.kernels.base import Kernel
-from boax.prediction.means.base import Mean
+from boax.prediction.models.kernels.base import Kernel
+from boax.prediction.models.means.base import Mean
 from boax.utils.typing import Array, Numeric
+
+
+def split(values: Array) -> Tuple[Array, Array]:
+  return jnp.split(values, [values.shape[-1] - 1], axis=-1)
+
+
+def prior(
+  index_points: Array,
+  mean_fn: Mean,
+  kernel_fn: Callable[[Array, Array], Kernel],
+  jitter: Numeric,
+) -> MultivariateNormal:
+  values, fidelities = split(index_points)
+
+  Kxx = kernel_fn(fidelities, fidelities)(values, values)
+  mean = mean_fn(values)
+  cov = Kxx + jitter * jnp.identity(Kxx.shape[-1])
+
+  return distributions.multivariate_normal.multivariate_normal(mean, cov)
 
 
 def posterior(
   index_points: Array,
-  index_points_fidelities: Array,
   observation_index_points: Array,
-  observation_index_points_fidelities: Array,
   observations: Array,
   mean_fn: Mean,
   kernel_fn: Callable[[Array, Array], Kernel],
   jitter: Numeric,
 ) -> MultivariateNormal:
-  mz = mean_fn(index_points)
-  mx = mean_fn(observation_index_points)
+  ivalues, ifidelities = split(index_points)
+  ovalues, ofidelities = split(observation_index_points)
 
-  Kxx = kernel_fn(
-    observation_index_points_fidelities, observation_index_points_fidelities
-  )(observation_index_points, observation_index_points)
-  Kxz = kernel_fn(observation_index_points_fidelities, index_points_fidelities)(
-    observation_index_points, index_points
-  )
-  Kzz = kernel_fn(index_points_fidelities, index_points_fidelities)(
-    index_points, index_points
-  )
+  mz = mean_fn(ivalues)
+  mx = mean_fn(ovalues)
+
+  Kxx = kernel_fn(ofidelities, ofidelities)(ovalues, ovalues)
+  Kxz = kernel_fn(ofidelities, ifidelities)(ovalues, ivalues)
+  Kzz = kernel_fn(ifidelities, ifidelities)(ivalues, ivalues)
 
   K = Kxx + jitter * jnp.identity(Kxx.shape[-1])
   chol = scipy.linalg.cholesky(K, lower=True)
@@ -60,7 +74,3 @@ def posterior(
   cov = Kzz - jnp.dot(v.T, v) + jitter * jnp.identity(Kzz.shape[-1])
 
   return distributions.multivariate_normal.multivariate_normal(mean, cov)
-
-
-def split(values: Array) -> Tuple[Array, Array]:
-  return jnp.split(values, [values.shape[-1] - 1], axis=-1)

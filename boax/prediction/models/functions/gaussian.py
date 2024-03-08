@@ -19,8 +19,8 @@ from jax import scipy
 
 from boax.core import distributions
 from boax.core.distributions.multivariate_normal import MultivariateNormal
-from boax.prediction.kernels.base import Kernel
-from boax.prediction.means.base import Mean
+from boax.prediction.models.kernels.base import Kernel
+from boax.prediction.models.means.base import Mean
 from boax.utils.typing import Array, Numeric
 
 

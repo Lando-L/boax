@@ -21,7 +21,7 @@ from jax import numpy as jnp
 
 from boax.core import distributions
 from boax.core.distributions.normal import Normal
-from boax.optimization.constraints.base import Constraint
+from boax.optimization.acquisitions.constraints.base import Constraint
 from boax.utils.functools import compose
 from boax.utils.typing import Numeric
 

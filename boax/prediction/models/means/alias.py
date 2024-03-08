@@ -17,7 +17,7 @@
 from jax import jit, vmap
 from jax import numpy as jnp
 
-from boax.prediction.means.base import Mean
+from boax.prediction.models.means.base import Mean
 from boax.utils.functools import const
 from boax.utils.typing import Array, Numeric
 

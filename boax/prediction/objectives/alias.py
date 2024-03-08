@@ -31,14 +31,14 @@ def negative_log_likelihood(
   The negative log likelihood objective function.
 
   Example:
-    >>> nll = gaussian(1e-4)
-    >>> objective = likelihood(mvn)
+    >>> objective = negative_log_likelihood(logpdf_fn)
+    >>> nll = objective(prediction, targets)
 
   Args:
-    noise: The noise parameter.
+    logpdf_fn: The log probability mass function.
 
   Returns:
-    The gaussian `Likelihood` function.
+    The negative log likelihood `Objective` function.
   """
 
   def objective(prediction, targets):

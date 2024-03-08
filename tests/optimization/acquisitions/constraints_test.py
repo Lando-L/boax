@@ -4,7 +4,7 @@ from jax import numpy as jnp
 from jax import random
 
 from boax.core import distributions
-from boax.optimization import constraints
+from boax.optimization.acquisitions import constraints
 
 
 class ConstraintsTest(parameterized.TestCase):

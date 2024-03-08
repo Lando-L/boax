@@ -18,7 +18,7 @@ import math
 
 from jax import numpy as jnp
 
-from boax.prediction.kernels.functions.distance import euclidean_distance
+from boax.prediction.models.kernels.functions import distance
 from boax.utils.typing import Numeric
 
 sqrt_3 = math.sqrt(3)
@@ -26,16 +26,16 @@ sqrt_5 = math.sqrt(5)
 
 
 def one_half(x: Numeric, y: Numeric, length_scale: Numeric) -> Numeric:
-  return jnp.exp(-euclidean_distance(x / length_scale, y / length_scale))
+  return jnp.exp(-distance.euclidean(x / length_scale, y / length_scale))
 
 
 def three_halves(x: Numeric, y: Numeric, length_scale: Numeric) -> Numeric:
-  K = sqrt_3 * euclidean_distance(x / length_scale, y / length_scale)
+  K = sqrt_3 * distance.euclidean(x / length_scale, y / length_scale)
   K = (1.0 + K) * jnp.exp(-K)
   return K
 
 
 def five_halves(x: Numeric, y: Numeric, length_scale: Numeric) -> Numeric:
-  K = sqrt_5 * euclidean_distance(x / length_scale, y / length_scale)
+  K = sqrt_5 * distance.euclidean(x / length_scale, y / length_scale)
   K = (1.0 + K + K**2 / 3.0) * jnp.exp(-K)
   return K

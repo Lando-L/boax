@@ -24,6 +24,9 @@ T = TypeVar('T')
 class Objective(Protocol, Generic[T]):
   """
   A callable type for objectives.
+
+  An objective function takes a posterior prediction of type `T`
+  and an array of targets as input and returns an objective value.
   """
 
   def __call__(self, prediction: T, targets: Array) -> Array:

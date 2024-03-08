@@ -68,6 +68,22 @@ def sample(normal: Normal, base_samples: Array) -> Array:
   return normal.loc + base_samples * normal.scale
 
 
+def scale(normal: Normal, loc: Array, scale: Array) -> Normal:
+  """
+  Scales a normal distribution.
+
+  Args:
+    normal: The normal distribution.
+    loc: The location parameter.
+    scale: The scale parameter
+
+  Returns:
+    The scaled normal distribution.
+  """
+
+  return Normal(normal.loc * scale + loc, normal.scale)
+
+
 def pdf(normal: Normal, x: Array) -> Array:
   """
   Probability density function.

@@ -24,7 +24,7 @@ from boax.utils.typing import Array, Numeric, PRNGKey
 
 def q_batch(
   key: PRNGKey,
-  acquisition_fn: Callable[[Array], Array],
+  fn: Callable[[Array], Array],
   x0: Array,
   num_samples: int,
   eta: Numeric = 1.0,
@@ -33,5 +33,5 @@ def q_batch(
     key,
     x0,
     (num_samples,),
-    p=jnp.exp(eta * nn.standardize(acquisition_fn(x0), axis=0)),
+    p=jnp.exp(eta * nn.standardize(fn(x0), axis=0)),
   )

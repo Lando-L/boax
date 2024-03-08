@@ -23,7 +23,7 @@ from boax.utils.typing import Array
 
 
 def bfgs(
-  acquisition_fn: Callable[[Array], Array],
+  fn: Callable[[Array], Array],
   bounds: Array,
   x0: Array,
   num_samples: int,
@@ -32,12 +32,12 @@ def bfgs(
   The BFGS acquisition function optimizer.
 
   Example:
-    >>> optimizer = bfgs(acqf, bounds, x0, num_samples)
+    >>> optimizer = bfgs(fn, bounds, x0, num_samples)
     >>> candidates = optimizer.init(key)
     >>> next_candidates, values = optimizer(candidates)
 
   Args:
-    acquisition_fn: The acquisition function.
+    fn: The function to be optimized.
     bounds: The bounds of the search space.
     x0: The index points to consider.
     num_samples: The number of sampled candidates.
@@ -49,13 +49,13 @@ def bfgs(
   return Optimizer(
     partial(
       functions.initialization.q_batch,
-      acquisition_fn=acquisition_fn,
+      fn=fn,
       x0=x0,
       num_samples=num_samples,
     ),
     partial(
       functions.scipy.maximize,
-      acquisition_fn=acquisition_fn,
+      fn=fn,
       bounds=bounds,
       method='bfgs',
     ),

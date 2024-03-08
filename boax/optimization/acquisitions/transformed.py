@@ -12,47 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Construct optimizations."""
+"""Transformation functions for acquisitions."""
+
 
 from functools import partial
-from typing import Callable, TypeVar
+from typing import Sequence, TypeVar
 
-from jax import lax, vmap
+from jax import lax
 
 from boax.optimization.acquisitions.base import Acquisition
-from boax.optimization.constraints.base import Constraint
-from boax.prediction.models.base import Model
+from boax.optimization.acquisitions.constraints.base import Constraint
 from boax.utils.functools import compose, sequence, unwrap
-from boax.utils.typing import Array
 
 T = TypeVar('T')
 
 
-def construct(
-  model: Model[T],
-  acquisition: Acquisition[T],
-) -> Callable[[Array], Array]:
-  """
-  Constructs an acquisition function.
-
-  Args:
-    model: The base model.
-    acquisition: The acquisition.
-    projection_fn: The projection function.
-
-  Returns:
-    The constructed acquisition function.
-  """
-
-  return compose(
-    acquisition,
-    vmap(model),
-  )
-
-
-def construct_constrained(
-  model: Model[T], acquisition: Acquisition[T], *constraints: Constraint[T]
-) -> Acquisition[T]:
+def constrained(
+  acquisition: Acquisition[T], *constraints: Constraint[T]
+) -> Acquisition[Sequence[T]]:
   """
   Constructs a constrained acquisition function.
 
@@ -67,13 +44,12 @@ def construct_constrained(
   return compose(
     unwrap(partial(partial, sequence)(lax.mul, 1.0)),
     partial(partial, zip)((acquisition, *constraints)),
-    vmap(model),
   )
 
 
-def construct_log_constrained(
-  model: Model[T], acquisition: Acquisition[T], *log_constraints: Constraint[T]
-) -> Callable[[Array], Array]:
+def log_constrained(
+  acquisition: Acquisition[T], *log_constraints: Constraint[T]
+) -> Acquisition[Sequence[T]]:
   """
   Constructs a log constrained acquisition function.
 
@@ -88,5 +64,4 @@ def construct_log_constrained(
   return compose(
     unwrap(partial(partial, sequence)(lax.add, 0.0)),
     partial(partial, zip)((acquisition, *log_constraints)),
-    vmap(model),
   )

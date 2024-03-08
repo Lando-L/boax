@@ -15,23 +15,30 @@
 """Alias for surrogate models."""
 
 from functools import partial
-from typing import Callable
+from typing import Callable, TypeVar
 
 from jax import jit
 
 from boax.core.distributions.multivariate_normal import MultivariateNormal
-from boax.prediction.kernels.base import Kernel
-from boax.prediction.means.base import Mean
 from boax.prediction.models import functions
 from boax.prediction.models.base import Model
+from boax.prediction.models.kernels.base import Kernel
+from boax.prediction.models.likelihoods.base import Likelihood
+from boax.prediction.models.means.base import Mean
+from boax.utils.functools import compose
 from boax.utils.typing import Array, Numeric
+
+T = TypeVar('T')
 
 
 def gaussian_process(
   mean_fn: Mean,
   kernel_fn: Kernel,
+  likelihood_fn: Likelihood[MultivariateNormal, T],
+  observation_index_points: Array | None = None,
+  observations: Array | None = None,
   jitter: Numeric = 1e-6,
-) -> Model[MultivariateNormal]:
+) -> Model[T]:
   """
   The gaussian process model.
 
@@ -42,98 +49,93 @@ def gaussian_process(
   Args:
     mean_fn: The process' mean function.
     kernel_fn: The process' covariance function.
+    observation_index_points: The index points of the given observations.
+    observations: The observed values.
     jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
 
   Returns:
     The gaussian process `Model`.
   """
 
-  return jit(
-    partial(
-      functions.gaussian.prior,
-      mean_fn=mean_fn,
-      kernel_fn=kernel_fn,
-      jitter=jitter,
-    )
-  )
-
-
-def gaussian_process_regression(
-  mean_fn: Mean,
-  kernel_fn: Kernel,
-  jitter: Numeric = 1e-6,
-) -> Callable[[Array, Array], Model[MultivariateNormal]]:
-  """
-  The gaussian process regression model.
-
-  Example:
-    >>> model = gaussian_process_regression(mean_fn, kernel_fn, 1e-4)
-    >>> mean, cov = model(x_train, y_train)(xs)
-
-  Args:
-    mean_fn: The process' mean function.
-    kernel_fn: The process' covariance function.
-    jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
-
-  Returns:
-    The gaussian process regression `Model`.
-  """
-
-  def regression(observation_index_points, observations):
+  if observation_index_points is None or observations is None:
     return jit(
-      partial(
-        functions.gaussian.posterior,
-        observation_index_points=observation_index_points,
-        observations=observations,
-        mean_fn=mean_fn,
-        kernel_fn=kernel_fn,
-        jitter=jitter,
+      compose(
+        likelihood_fn,
+        partial(
+          functions.gaussian.prior,
+          mean_fn=mean_fn,
+          kernel_fn=kernel_fn,
+          jitter=jitter,
+        ),
       )
     )
 
-  return regression
+  else:
+    return jit(
+      compose(
+        likelihood_fn,
+        partial(
+          functions.gaussian.posterior,
+          observation_index_points=observation_index_points,
+          observations=observations,
+          mean_fn=mean_fn,
+          kernel_fn=kernel_fn,
+          jitter=jitter,
+        ),
+      )
+    )
 
 
-def multi_fidelity_regression(
+def multi_fidelity(
   mean_fn: Mean,
   kernel_fn: Callable[[Array, Array], Kernel],
+  likelihood_fn: Likelihood[MultivariateNormal, T],
+  observation_index_points: Array | None = None,
+  observations: Array | None = None,
   jitter: Numeric = 1e-6,
-) -> Model[MultivariateNormal]:
+) -> Model[T]:
   """
-  The multi fidelity gaussian process regression model.
+  The multi fidelity gaussian process model.
 
   Example:
-    >>> model = multi_fidelity_regression(mean_fn, kernel_fn, 1e-4)
+    >>> model = multi_fidelity(mean_fn, kernel_fn, 1e-4)
     >>> mean, cov = model(x_train, y_train)(xs)
 
   Args:
     mean_fn: The process' mean function.
     kernel_fn: The process' covariance function.
+    observation_index_points: The index points of the given observations.
+    observations: The observed values.
     jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
 
   Returns:
-    The multi fidelity gaussian process regression `Model`.
+    The multi fidelity gaussian process `Model`.
   """
 
-  def regression(observation_index_points, observations):
-    observation_values, observation_fidelities = functions.multi_fidelity.split(
-      observation_index_points
+  if observation_index_points is None or observations is None:
+    return jit(
+      compose(
+        likelihood_fn,
+        partial(
+          functions.multi_fidelity.prior,
+          mean_fn=mean_fn,
+          kernel_fn=kernel_fn,
+          jitter=jitter,
+        ),
+      )
     )
 
-    def model(index_points):
-      values, fidelities = functions.multi_fidelity.split(index_points)
-
-      return functions.multi_fidelity.posterior(
-        index_points=values,
-        index_points_fidelities=fidelities,
-        observation_index_points=observation_values,
-        observation_index_points_fidelities=observation_fidelities,
-        observations=observations,
-        mean_fn=mean_fn,
-        kernel_fn=kernel_fn,
-        jitter=jitter,
+  else:
+    return jit(
+      compose(
+        likelihood_fn,
+        partial(
+          functions.multi_fidelity.posterior,
+          observation_index_points=observation_index_points,
+          observations=observations,
+          mean_fn=mean_fn,
+          kernel_fn=kernel_fn,
+          jitter=jitter,
+        ),
       )
-
-    return jit(model)
-
-  return regression
+    )

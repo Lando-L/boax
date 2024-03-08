@@ -4,7 +4,7 @@ from jax import numpy as jnp
 from jax import random
 
 from boax.core.distributions import multivariate_normal
-from boax.prediction import likelihoods
+from boax.prediction.models import likelihoods
 
 
 class LikelihoodsTest(parameterized.TestCase):

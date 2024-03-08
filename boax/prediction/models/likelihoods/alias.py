@@ -20,8 +20,8 @@ from jax import jit
 
 from boax.core.distributions.beta import Beta
 from boax.core.distributions.multivariate_normal import MultivariateNormal
-from boax.prediction.likelihoods import functions
-from boax.prediction.likelihoods.base import Likelihood
+from boax.prediction.models.likelihoods import functions
+from boax.prediction.models.likelihoods.base import Likelihood
 from boax.utils.typing import Array, Numeric
 
 

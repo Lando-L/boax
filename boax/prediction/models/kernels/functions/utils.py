@@ -12,13 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Radial Basis Function (RBF) kernels."""
+"""Utils for kernels."""
 
-from jax import numpy as jnp
+from typing import Callable
 
-from boax.prediction.kernels.functions.distance import squared_distance
+from jax import jit, vmap
+
+from boax.prediction.models.kernels.base import Kernel
 from boax.utils.typing import Numeric
 
 
-def rbf(x: Numeric, y: Numeric, length_scale: Numeric) -> Numeric:
-  return jnp.exp(-0.5 * squared_distance(x / length_scale, y / length_scale))
+def from_kernel_function(
+  kernel_fn: Callable[[Numeric, Numeric], Numeric],
+) -> Kernel:
+  """
+  Transforms a kernel function into a _kernel_.
+
+  Args:
+    kernel_fn: The kernel function to be transformed.
+
+  Returns:
+    The corresponding `Kernel`.
+  """
+
+  return jit(vmap(vmap(kernel_fn, in_axes=(None, 0)), in_axes=(0, None)))
