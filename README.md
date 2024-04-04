@@ -44,51 +44,51 @@ pip install git+https://github.com/Lando-L/boax.git
 
 ## Basic Usage
 
-Here is a basic example of using the Boax API for Bayesian Optimization. For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
+Here is a basic example of using the Boax API for defining a Gaussian Process model, constructing an Acquisition function, and combining the two for optimzation. For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
 
-1. Creation of a prediction model.
+1. Defining a Gaussian Process model:
 
 ```python
-def model(params):
-  return models.outcome_transformed(
-    models.gaussian_process_regression(
-      means.zero(),
-      kernels.rbf(params['length_scale']),
-    )(
-      x_train,
-      y_train,
-    ),
-    likelihoods.gaussian(params['noise']),
-  )
+from boax.prediction import models
+
+model = models.gaussian_process(
+  models.means.zero(),
+  models.kernels.scaled(
+    models.kernels.rbf(1.0),
+    nn.softplus(0.5)
+  ),
+  models.likelihoods.gaussian(1e-4),
+  x_train,
+  y_train,
+)
 ```
 
-2. Construction of an acquisition function.
+2. Constructing an Acquisition function.
 
 ```python
-def construct(model):
-  return optimization.construct(
-    models.outcome_transformed(
-      model,
-      distributions.multivariate_normal.as_normal,
-    ),
-    acquisitions.upper_confidence_bound(
-      beta=2.0
-    ),
-  )
+from boax.optimization import acquisitions
+
+acquisition = acquisitions.upper_confidence_bound(
+  beta=2.0
+)
 ```
 
-3. Selection of the next candidate to query.
+3. Combining the two for optimization
 
 ```python
-def select(key, acqf):
-    bfgs = optimizers.bfgs(acqf, bounds, x0, 10)
-    candidates = bfgs.init(key)
-    next_candidates, values = bfgs.update(candidates)
+from jax import jit, random, vmap
+from jax import numpy as jnp
+from boax.optimization import optimizers
 
-    next_x = next_candidates[jnp.argmax(values)]
-    next_y = objective(next_x)
+def acqf(x):
+  return acquisition(vmap(model)(x))
 
-    return next_x, next_y
+key1, key2 = random.split(random.key(0))
+bounds = jnp.array([[-1.0, 1.0]])
+x0 = random.uniform(key1, shape=(100, 1, 1))
+bfgs = optimizers.bfgs(jit(acqf), bounds, x0, 10)
+candidates = bfgs.init(key2)
+next_candidates, values = bfgs.update(candidates)
 ```
 
 ## Citing Boax

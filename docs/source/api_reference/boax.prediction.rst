@@ -6,22 +6,76 @@
 Implements functionalities to fit a surrogate model to data.
 
 
-boax.prediction
----------------
+boax.prediction.models
+----------------------
 
-Construction Functions
-~~~~~~~~~~~~~~~~~~~~~~
+.. currentmodule:: boax.prediction.models
+
+
+Model Types
+~~~~~~~~~~~
+
+.. autoclass:: Model
+
+
+Models
+~~~~~~
+
+
+Gaussian Process Models
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
 
-  construct
+  gaussian_process
+  multi_fidelity
 
 
-boax.prediction.kernels
------------------------
+Transformed Models
+^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: boax.prediction.kernels
+.. autosummary::
+  :toctree: generated
+
+  input_transformed
+  outcome_transformed
+  joined
+  sampled
+  scaled
+
+
+boax.prediction.models.means
+----------------------------
+
+.. currentmodule:: boax.prediction.models.means
+
+
+Mean Types
+~~~~~~~~~~
+
+.. autoclass:: Mean
+
+
+Means
+~~~~~
+
+
+Common Means
+^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  zero
+  constant
+  linear
+
+
+boax.prediction.models.kernels
+------------------------------
+
+.. currentmodule:: boax.prediction.models.kernels
 
 
 Kernel Types
@@ -30,8 +84,8 @@ Kernel Types
 .. autoclass:: Kernel
 
 
-Kernel Functions
-~~~~~~~~~~~~~~~~
+Kernels
+~~~~~~~
 
 
 Radial Basis Kernels
@@ -75,63 +129,61 @@ Transformed Kernels
   linear_truncated
 
 
-boax.prediction.means
----------------------
+boax.prediction.models.likelihoods
+----------------------------------
 
-.. currentmodule:: boax.prediction.means
-
-
-Mean Types
-~~~~~~~~~~
-
-.. autoclass:: Mean
+.. currentmodule:: boax.prediction.models.likelihoods
 
 
-Mean Functions
-~~~~~~~~~~~~~~
+Likelihood Types
+~~~~~~~~~~~~~~~~
 
-.. autosummary::
-  :toctree: generated
-
-  zero
-  constant
-  linear
+.. autoclass:: Likelihood
 
 
-boax.prediction.models
-----------------------
-
-.. currentmodule:: boax.prediction.models
-
-
-Model Types
+Likelihoods
 ~~~~~~~~~~~
 
-.. autoclass:: Model
 
-
-Models
-~~~~~~
-
-
-Gaussian Process Models
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autosummary::
-  :toctree: generated
-
-  gaussian_process
-  gaussian_process_regression
-  multi_fidelity_regression
-
-
-Transformed Models
+Common Likelihoods
 ^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
 
-  input_transformed
-  outcome_transformed
-  joined
-  sampled
+  beta
+  gaussian
+
+
+boax.prediction.objectives
+--------------------------
+
+.. currentmodule:: boax.prediction.objectives
+
+
+Objective Types
+~~~~~~~~~~~~~~~
+
+.. autoclass:: Objective
+
+
+Objectives
+~~~~~~~~~~
+
+
+Common Objectives
+~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+  :toctree: generated
+
+  negative_log_likelihood
+
+
+Transformed Objectives
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  penalized

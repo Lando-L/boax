@@ -6,20 +6,6 @@
 Implements functionalities to construct and optimize acquisition functions.
 
 
-boax.optimization
------------------
-
-Construction Functions
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-  :toctree: generated
-
-  construct
-  construct_constrained
-  construct_log_constrained
-
-
 boax.optimization.acquisitions
 ------------------------------
 
@@ -32,12 +18,12 @@ Acquisition Types
 .. autoclass:: Acquisition
 
 
-Acquisition Functions
-~~~~~~~~~~~~~~~~~~~~~
+Acquisitions
+~~~~~~~~~~~~
 
 
-Analytic Acquisition Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Analytic Acquisitions
+^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
@@ -51,22 +37,32 @@ Analytic Acquisition Functions
   posterior_scale
 
 
-Monte Carlo Acquisition Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Monte Carlo Acquisitions
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
 
   q_probability_of_improvement
   q_expected_improvement
-  q_probability_of_improvement
+  q_upper_confidence_bound
   q_knowledge_gradient
 
 
-boax.optimization.constraints
-------------------------------
+Transformed Acquisitions
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: boax.optimization.constraints
+.. autosummary::
+  :toctree: generated
+
+  constrained
+  log_constrained
+
+
+boax.optimization.acquisitions.constraints
+------------------------------------------
+
+.. currentmodule:: boax.optimization.acquisitions.constraints
 
 
 Constraint Types
@@ -75,12 +71,12 @@ Constraint Types
 .. autoclass:: Constraint
 
 
-Constraint Functions
-~~~~~~~~~~~~~~~~~~~~
+Constraints
+~~~~~~~~~~~
 
 
-Unequality Constraint Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Unequality Constraints
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
@@ -103,8 +99,12 @@ Optimizer Types
 .. autoclass:: Optimizer
 
 
-Optimizer Functions
-~~~~~~~~~~~~~~~~~~~
+Optimizers
+~~~~~~~~~~
+
+
+Non-linear Optimizers
+^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated

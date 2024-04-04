@@ -16,6 +16,16 @@ Distributions
 ~~~~~~~~~~~~~
 
 
+Transformed Distributions
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  norm_to_mvn
+  mvn_to_norm
+
+
 Beta Distribution
 ^^^^^^^^^^^^^^^^^
 
@@ -65,7 +75,6 @@ Multivariate Normal Distribution
   :toctree: generated
 
   multivariate_normal
-  as_normal
   pdf
   logpdf
 
@@ -121,7 +130,7 @@ Uniform Distribution
 
 
 boax.core.samplers
---------------------------
+------------------
 
 .. currentmodule:: boax.core.samplers
 
