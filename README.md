@@ -55,7 +55,7 @@ model = models.gaussian_process(
   models.means.zero(),
   models.kernels.scaled(
     models.kernels.rbf(1.0),
-    nn.softplus(0.5)
+    0.5
   ),
   models.likelihoods.gaussian(1e-4),
   x_train,
