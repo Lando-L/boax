@@ -12,51 +12,76 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Alias for acquisition function maximizers."""
+"""Alias for optimizers."""
 
-from functools import partial
-from typing import Callable
+from jax import numpy as jnp
+from jax import random
 
-from boax.optimization.optimizers import functions
+from boax.core import distributions, samplers
 from boax.optimization.optimizers.base import Optimizer
-from boax.utils.typing import Array
+from boax.optimization.optimizers.initializers.base import Initializer
+from boax.optimization.optimizers.solvers.base import Solver
 
 
-def bfgs(
-  fn: Callable[[Array], Array],
-  bounds: Array,
-  x0: Array,
-  num_samples: int,
-) -> Optimizer:
+def batch(initializer: Initializer, solver: Solver) -> Optimizer:
   """
-  The BFGS acquisition function optimizer.
+  Batch optimizer.
 
   Example:
-    >>> optimizer = bfgs(fn, bounds, x0, num_samples)
-    >>> candidates = optimizer.init(key)
-    >>> next_candidates, values = optimizer(candidates)
+    >>> optimizer = batch(initializer, solver)
+    >>> next_candidates = optimizer(key, fun, bounds, q, num_samples, num_restarts)
 
   Args:
-    fn: The function to be optimized.
-    bounds: The bounds of the search space.
-    x0: The index points to consider.
-    num_samples: The number of sampled candidates.
+    initializer: The initializer function.
+    solver: The solver function.
 
   Returns:
-    The corresponding `Optimizer`.
+    The batch `Optimizer`.
   """
 
-  return Optimizer(
-    partial(
-      functions.initialization.q_batch,
-      fn=fn,
-      x0=x0,
-      num_samples=num_samples,
-    ),
-    partial(
-      functions.scipy.maximize,
-      fn=fn,
-      bounds=bounds,
-      method='bfgs',
-    ),
-  )
+  def optimizer(key, fun, bounds, q, num_samples, num_restarts):
+    key1, key2 = random.split(key)
+
+    x = jnp.reshape(
+      samplers.halton_uniform(
+        distributions.uniform.uniform(bounds[:, 0], bounds[:, 1])
+      )(key1, num_samples * q),
+      (num_samples, q, -1),
+    )
+    y = fun(x)
+
+    candidates = initializer(key2, x, y, num_restarts)
+    next_candidates, values = solver(fun, bounds, candidates)
+
+    return next_candidates[jnp.argmax(values)]
+
+  return optimizer
+
+
+def sequential(initializer: Initializer, solver: Solver) -> Optimizer:
+  """
+  Sequential optimizer.
+
+  Example:
+    >>> optimizer = sequential(initializer, solver)
+    >>> next_candidates = optimizer(key, fun, bounds, q, num_samples, num_restarts)
+
+  Args:
+    initializer: The initializer function.
+    solver: The solver function.
+
+  Returns:
+    The sequential `Optimizer`.
+  """
+
+  inner = batch(initializer, solver)
+
+  def optimizer(key, fun, bounds, q, num_samples, num_restarts):
+    return jnp.concatenate(
+      [
+        inner(random.fold_in(key, i), fun, bounds, 1, num_samples, num_restarts)
+        for i in range(q)
+      ]
+    )
+
+  return optimizer

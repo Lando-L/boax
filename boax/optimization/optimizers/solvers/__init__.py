@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The maximizer functions sub-package."""
+"""The initializers sub-package."""
 
-from . import initialization as initialization
-from . import scipy as scipy
+from .alias import scipy as scipy
+from .base import Solver as Solver

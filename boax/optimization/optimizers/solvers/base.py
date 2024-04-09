@@ -12,10 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimizers sub-package."""
+"""Base interface for solvers."""
 
-from . import initializers as initializers
-from . import solvers as solvers
-from .alias import batch as batch
-from .alias import sequential as sequential
-from .base import Optimizer as Optimizer
+from typing import Callable, Protocol, Tuple
+
+from boax.utils.typing import Array
+
+
+class Solver(Protocol):
+  """
+  A callable type for the solving step of an `Optimizer`.
+  """
+
+  def __call__(
+    self, fun: Callable, bounds: Array, candidates: Array
+  ) -> Tuple[Array, Array]:
+    """
+    The solving function.
+
+    Args:
+      fun: The function to be optimized.
+      bounds: The bounds of the search space.
+      candidates: The initial guess.
+
+    Returns:
+      A tuple of the maxima and their acquisition values.
+    """

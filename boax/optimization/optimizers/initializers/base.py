@@ -12,26 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Initializes candidates."""
+"""Base interface for initializers."""
 
-from typing import Callable
+from typing import Protocol
 
-from jax import nn, random
-from jax import numpy as jnp
-
-from boax.utils.typing import Array, Numeric, PRNGKey
+from boax.utils.typing import Array, PRNGKey
 
 
-def q_batch(
-  key: PRNGKey,
-  fn: Callable[[Array], Array],
-  x0: Array,
-  num_samples: int,
-  eta: Numeric = 1.0,
-) -> Array:
-  return random.choice(
-    key,
-    x0,
-    (num_samples,),
-    p=jnp.exp(eta * nn.standardize(fn(x0), axis=0)),
-  )
+class Initializer(Protocol):
+  """
+  A callable type for the initialization step of an `Optimizer`.
+  """
+
+  def __call__(
+    self, key: PRNGKey, x: Array, y: Array, num_restarts: int
+  ) -> Array:
+    """
+    The initialization function.
+
+    Args:
+      key: A PRNG key.
+      x: The initial index points.
+      y: The initial scores.
+      num_restarts: The number of restarts.
+
+    Returns:
+      The initial set of candidates.
+    """

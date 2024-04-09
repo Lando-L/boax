@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimizers sub-package."""
+"""The initializers sub-package."""
 
-from . import initializers as initializers
-from . import solvers as solvers
-from .alias import batch as batch
-from .alias import sequential as sequential
-from .base import Optimizer as Optimizer
+from .alias import q_batch as q_batch
+from .alias import q_batch_nonnegative as q_batch_nonnegative
+from .base import Initializer as Initializer

@@ -103,10 +103,70 @@ Optimizers
 ~~~~~~~~~~
 
 
-Non-linear Optimizers
+Batch Optimizers
+^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  batch
+
+
+Sequential Optimizers
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
   :toctree: generated
 
-  bfgs
+  sequential
+
+
+boax.optimization.optimizers.initializers
+-----------------------------------------
+
+.. currentmodule:: boax.optimization.optimizers.initializers
+
+
+Initializer Types
+~~~~~~~~~~~~~~~~~
+
+.. autoclass:: Initializer
+
+
+Initializers
+~~~~~~~~~~~~
+
+
+Batch Initializers
+^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  q_batch
+  q_batch_nonnegative
+
+
+boax.optimization.optimizers.solvers
+------------------------------------
+
+.. currentmodule:: boax.optimization.optimizers.solvers
+
+
+Solver Types
+~~~~~~~~~~~~
+
+.. autoclass:: Solver
+
+
+Solvers
+~~~~~~~
+
+
+Non-Linear Solvers
+^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  scipy

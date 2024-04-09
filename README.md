@@ -18,14 +18,10 @@ Boax is a composable library of core components for Bayesian Optimization that i
   * Common Distributions
   * Monte-Carlo Samplers
 * **Fitting a surrogate model to data** (`boax.prediction`):
-  * Kernels Functions
-  * Likelihood Functions
-  * Mean Functions
   * Model Functions
   * Objective Functions
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
   * Acquisition Functions
-  * Constraint Functions
   * Optimizer Functions
 
 ## Installation
@@ -44,7 +40,7 @@ pip install git+https://github.com/Lando-L/boax.git
 
 ## Basic Usage
 
-Here is a basic example of using the Boax API for defining a Gaussian Process model, constructing an Acquisition function, and combining the two for optimzation. For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
+Here is a basic example of using the Boax API for defining a Gaussian Process model, constructing an Acquisition function, and generating the next batch of data points to query. For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
 
 1. Defining a Gaussian Process model:
 
@@ -66,29 +62,38 @@ model = models.gaussian_process(
 2. Constructing an Acquisition function.
 
 ```python
+from jax import jit, vmap
 from boax.optimization import acquisitions
 
 acquisition = acquisitions.upper_confidence_bound(
   beta=2.0
 )
-```
-
-3. Combining the two for optimization
-
-```python
-from jax import jit, random, vmap
-from jax import numpy as jnp
-from boax.optimization import optimizers
 
 def acqf(x):
   return acquisition(vmap(model)(x))
 
-key1, key2 = random.split(random.key(0))
-bounds = jnp.array([[-1.0, 1.0]])
-x0 = random.uniform(key1, shape=(100, 1, 1))
-bfgs = optimizers.bfgs(jit(acqf), bounds, x0, 10)
-candidates = bfgs.init(key2)
-next_candidates, values = bfgs.update(candidates)
+```
+
+3. Generating the next batch of data points to query.
+
+```python
+from jax import numpy as jnp
+from jax import random
+from boax.optimization import optimizers
+
+optimizer = optimizers.batch(
+  initializer=optimizers.initializers.q_batch(),
+  solver=optimizers.solvers.scipy(method='bfgs'),
+)
+
+next_candidate = optimizer(
+  key=random.key(0),
+  fun=acqf,
+  bounds=jnp.array([[-1.0, 1.0]]),
+  q=1,
+  num_samples=100,
+  num_restarts=10,
+)
 ```
 
 ## Citing Boax

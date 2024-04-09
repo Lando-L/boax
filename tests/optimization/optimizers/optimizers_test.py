@@ -8,22 +8,47 @@ from boax.optimization import optimizers
 
 
 class OptimizersTest(parameterized.TestCase):
-  def test_bfgs(self):
-    key1, key2 = random.split(random.key(0))
-    bounds = jnp.array([[-1.0, 1.0]])
-    r, n, q, d = 25, 5, 3, 1
+  def test_batch(self):
+    key = random.key(0)
+    num_samples, num_restarts, q, d = 100, 10, 3, 1
 
-    x0 = random.uniform(
-      key1, minval=bounds[:, 0], maxval=bounds[:, 1], shape=(r, q, d)
-    )
+    initializer = lambda k, x, _, n: random.choice(k, x, (n,))
+    solver = lambda fun, _, c: (c, fun(c))
+
     acqf = itemgetter((..., 0, 0))
+    bounds = jnp.array([[-1.0, 1.0]])
 
-    bfgs = optimizers.bfgs(acqf, bounds, x0, n)
-    candidates = bfgs.init(key2)
-    next_candidates, values = bfgs.update(candidates)
+    next_x = optimizers.batch(initializer, solver)(
+      key,
+      acqf,
+      bounds,
+      q,
+      num_samples,
+      num_restarts,
+    )
 
-    self.assertEqual(next_candidates.shape, (n, q, d))
-    self.assertEqual(values.shape, (n,))
+    self.assertEqual(next_x.shape, (q, d))
+
+  def test_sequential(self):
+    key = random.key(0)
+    num_samples, num_restarts, q, d = 100, 10, 3, 1
+
+    initializer = lambda k, x, _, n: random.choice(k, x, (n,))
+    solver = lambda fun, _, c: (c, fun(c))
+
+    acqf = itemgetter((..., 0, 0))
+    bounds = jnp.array([[-1.0, 1.0]])
+
+    next_x = optimizers.sequential(initializer, solver)(
+      key,
+      acqf,
+      bounds,
+      q,
+      num_samples,
+      num_restarts,
+    )
+
+    self.assertEqual(next_x.shape, (q, d))
 
 
 if __name__ == '__main__':

@@ -12,60 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for acquisition function optimization."""
+"""Base interface for optimizers."""
 
-from typing import NamedTuple, Protocol, Tuple, TypeVar
+from typing import Callable, Protocol
 
 from boax.utils.typing import Array, PRNGKey
 
-T = TypeVar('T')
 
-
-class OptimizerInitFn(Protocol):
+class Optimizer(Protocol):
   """
-  A callable type for the `init` step of a `Optimizer`.
+  A callable type for the optimization functions.
   """
 
-  def __call__(self, key: PRNGKey) -> Array:
+  def __call__(
+    self,
+    key: PRNGKey,
+    fun: Callable[[Array], Array],
+    bounds: Array,
+    q: int,
+    num_samples: int,
+    num_restarts: int,
+  ) -> Array:
     """
-    The `init` function.
+    The optimization function.
 
     Args:
       key: A PRNG key.
+      fun: The function to be optimized.
+      bounds: The bounds of the search space.
+      q: The batch size.
+      num_samples: The number of samples.
+      num_restarts: The number of restarts.
 
     Returns:
-      The initial set of initial candidates.
+      The maxima resulting of the optimization.
     """
-
-
-class OptimizerUpdateFn(Protocol):
-  """
-  A callable type for the `update` step of a `Optimizer`.
-  """
-
-  def __call__(self, candidates: Array) -> Tuple[Array, Array]:
-    """
-    The `update` function.
-
-    Args:
-      candidates: The initial guess.
-
-    Returns:
-      A tuple of the maxima and their acquisition values.
-    """
-
-
-class Optimizer(NamedTuple):
-  """
-  A pair of pure functions implementing acquisition function optimization.
-
-  Attributes:
-    init: A pure function which, when called with an acquisition function
-      and a pseudo-random key, returns an initial set of candidates.
-    update: A pure function which takes an acquisition function and a set
-      of initial set of candidates as inputs. The update function then
-      computes the optimized set of candidates as well as their values.
-  """
-
-  init: OptimizerInitFn
-  update: OptimizerUpdateFn
