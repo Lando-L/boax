@@ -20,7 +20,7 @@ from typing import Callable, Sequence, TypeVar
 from jax import vmap
 
 from boax.prediction.models.base import Model
-from boax.utils.functools import apply, call, compose
+from boax.utils.functools import apply, call, compose, identity, unwrap
 from boax.utils.typing import Array
 
 A = TypeVar('A')
@@ -151,4 +151,35 @@ def sampled(
     vmap,
     partial(partial, sample_fn),
     model,
+  )
+
+
+def fantasized(
+  model: Model[Array],
+  fantasy_fn: Callable[[Array, Array], Model[T]],
+  fantasy_samples: Array,
+) -> Model[T]:
+  """
+  Constructs a fantasy model.
+
+  Example:
+    >>> transformed = fantasized(model, fantasy_fn, fantasy_samples)
+    >>> result = transformed(xs)
+
+  Args:
+    model: The base model.
+    fantasy_fn: The fantasy function.
+    fantasy_samples: The fantasy samples.
+
+  Returns:
+    The transformed `Model` function.
+  """
+
+  return compose(
+    call(fantasy_samples),
+    apply(
+      unwrap(fantasy_fn),
+      identity,
+      model,
+    ),
   )

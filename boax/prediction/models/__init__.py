@@ -25,3 +25,4 @@ from .transformed import joined as joined
 from .transformed import outcome_transformed as outcome_transformed
 from .transformed import sampled as sampled
 from .transformed import scaled as scaled
+from .transformed import fantasized as fantasized

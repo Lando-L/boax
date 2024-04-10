@@ -1,3 +1,4 @@
+import numpy as np
 from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
@@ -5,6 +6,7 @@ from jax import random
 from boax.core import distributions
 from boax.prediction import models
 from boax.prediction.models import kernels, likelihoods, means
+from boax.utils.functools import const
 
 
 class ProcessesTest(parameterized.TestCase):
@@ -44,7 +46,7 @@ class ProcessesTest(parameterized.TestCase):
     self.assertEqual(mean.shape, (10,))
     self.assertEqual(cov.shape, (10, 10))
 
-  def test_multi_fidelity_regression(self):
+  def test_multi_fidelity(self):
     key1, key2 = random.split(random.key(0))
 
     index_points = random.uniform(key1, shape=(10, 2), minval=-1, maxval=1)
@@ -91,74 +93,75 @@ class ProcessesTest(parameterized.TestCase):
   def test_scaled(self):
     key1, key2 = random.split(random.key(0))
 
-    index_points = random.uniform(key1, shape=(10, 1), minval=-1, maxval=1)
-    loc, scale = random.uniform(key2, shape=(2, 1), minval=0, maxval=1)
+    preds = distributions.normal.normal(*random.uniform(key1, shape=(2, 10)))
+    scaled = random.uniform(key2, shape=(2, 1))
 
     model = models.scaled(
-      models.gaussian_process(
-        means.zero(),
-        kernels.rbf(jnp.array(0.2)),
-        likelihoods.gaussian(1e-4),
-      ),
-      distributions.multivariate_normal.scale,
-      loc=loc,
-      scale=scale,
+      const(preds),
+      distributions.normal.scale,
+      loc=scaled[0],
+      scale=scaled[1],
     )
 
-    mean, cov = model(index_points)
+    result = model(jnp.empty((10,)))
 
-    self.assertEqual(mean.shape, (10,))
-    self.assertEqual(cov.shape, (10, 10))
+    expected = distributions.normal.scale(
+      preds,
+      scaled[0],
+      scaled[1],
+    )
+
+    np.testing.assert_allclose(result.loc, expected.loc, atol=1e-4)
+    np.testing.assert_allclose(result.scale, expected.scale, atol=1e-4)
 
   def test_sampled(self):
     key1, key2 = random.split(random.key(0))
 
-    index_points = random.uniform(key1, shape=(10, 1), minval=-1, maxval=1)
+    preds = distributions.normal.normal(*random.uniform(key1, shape=(2, 10)))
+    samples = random.normal(key2, shape=(5, 10))
 
     model = models.sampled(
-      models.gaussian_process(
-        means.zero(),
-        kernels.rbf(jnp.array(0.2)),
-        likelihoods.gaussian(1e-4),
-      ),
-      distributions.multivariate_normal.sample,
-      random.normal(key2, shape=(5, 10)),
+      const(preds),
+      lambda _, s: s,
+      samples,
     )
 
-    samples = model(index_points)
+    result = model(jnp.empty((10,)))
 
-    self.assertEqual(
-      samples.shape,
-      (
-        5,
-        10,
-      ),
-    )
+    np.testing.assert_allclose(result, samples, atol=1e-4)
 
   def test_joined(self):
     key = random.key(0)
 
-    index_points = random.uniform(key, shape=(10, 1), minval=-1, maxval=1)
+    samples = random.uniform(key, shape=(4, 10))
+    preds1 = distributions.normal.normal(samples[0], samples[1])
+    preds2 = distributions.normal.normal(samples[2], samples[3])
 
-    model = models.joined(
-      models.gaussian_process(
-        means.zero(),
-        kernels.rbf(jnp.array(0.2)),
-        likelihoods.gaussian(1e-4),
-      ),
-      models.gaussian_process(
-        means.zero(),
-        kernels.rbf(jnp.array(0.5)),
-        likelihoods.gaussian(1e-4),
-      ),
+    model = models.joined(const(preds1), const(preds2))
+
+    result1, result2 = model(jnp.empty((10,)))
+
+    np.testing.assert_allclose(result1.loc, preds1.loc, atol=1e-4)
+    np.testing.assert_allclose(result1.scale, preds1.scale, atol=1e-4)
+    np.testing.assert_allclose(result2.loc, preds2.loc, atol=1e-4)
+    np.testing.assert_allclose(result2.scale, preds2.scale, atol=1e-4)
+  
+  def test_fantazised(self):
+    key1, key2 = random.split(random.key(0))
+
+    samples = random.uniform(key1, shape=(10, 3, 1))
+    preds = distributions.normal.normal(*random.uniform(key2, shape=(2, 10, 3)))
+    
+    model = models.fantasized(
+      const(samples),
+      const(const(preds)),
+      jnp.empty((10, 3))
     )
 
-    mvn_a, mvn_b = model(index_points)
+    result = model(jnp.empty((10,)))
 
-    self.assertEqual(mvn_a.mean.shape, (10,))
-    self.assertEqual(mvn_a.cov.shape, (10, 10))
-    self.assertEqual(mvn_b.mean.shape, (10,))
-    self.assertEqual(mvn_b.cov.shape, (10, 10))
+    np.testing.assert_allclose(result.loc, preds.loc, atol=1e-4)
+    np.testing.assert_allclose(result.scale, preds.scale, atol=1e-4)
 
 
 if __name__ == '__main__':

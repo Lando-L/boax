@@ -16,7 +16,8 @@
 
 import math
 from functools import partial
-from operator import attrgetter
+from operator import attrgetter, itemgetter
+from typing import Callable, Tuple
 
 from jax import jit, lax, scipy
 from jax import numpy as jnp
@@ -25,7 +26,7 @@ from boax.core import distributions
 from boax.core.distributions.normal import Normal
 from boax.optimization.acquisitions import functions
 from boax.optimization.acquisitions.base import Acquisition
-from boax.utils.functools import compose
+from boax.utils.functools import apply, compose, unwrap
 from boax.utils.typing import Array, Numeric
 
 
@@ -41,7 +42,7 @@ def probability_of_improvement(
 
   Example:
     >>> acqf = probability_of_improvement(0.2)
-    >>> poi = acqf(model(xs))
+    >>> poi = acqf(vmap(model)(xs))
 
   Args:
     best: The best function value observed so far.
@@ -71,7 +72,7 @@ def log_probability_of_improvement(
 
   Example:
     >>> acqf = log_probability_of_improvement(0.2)
-    >>> log_poi = acqf(model(xs))
+    >>> log_poi = acqf(vmap(model)(xs))
 
   Args:
     best: The best function value observed so far.
@@ -103,7 +104,7 @@ def expected_improvement(
 
   Example:
     >>> acqf = expected_improvement(0.2)
-    >>> ei = acqf(model(xs))
+    >>> ei = acqf(vmap(model)(xs))
 
   Args:
     best: The best function value observed so far.
@@ -138,7 +139,7 @@ def log_expected_improvement(
 
   Example:
     >>> acqf = log_expected_improvement(0.2)
-    >>> log_ei = acqf(model(xs))
+    >>> log_ei = acqf(vmap(model)(xs))
 
   Args:
     best: The best function value observed so far.
@@ -168,7 +169,7 @@ def upper_confidence_bound(
 
   Example:
     >>> acqf = upper_confidence_bound(2.0)
-    >>> ucb = acqf(model(xs))
+    >>> ucb = acqf(vmap(model)(xs))
 
   Args:
     beta: The mean and covariance trade-off parameter.
@@ -191,7 +192,7 @@ def posterior_mean() -> Acquisition:
 
   Example:
     >>> acqf = posterior_mean()
-    >>> mean = acqf(model(xs))
+    >>> mean = acqf(vmap(model)(xs))
 
   Args:
     model: A gaussian process regression surrogate model.
@@ -214,7 +215,7 @@ def posterior_scale() -> Acquisition:
 
   Example:
     >>> acqf = posterior_scale()
-    >>> scale = acqf(model(xs))
+    >>> scale = acqf(vmap(model)(xs))
 
   Args:
     model: A gaussian process regression surrogate model.
@@ -248,7 +249,7 @@ def q_probability_of_improvement(
 
   Example:
     >>> acqf = q_probability_of_improvement(1.0, 0.2)
-    >>> qpoi = acqf(model(xs))
+    >>> qpoi = acqf(vmap(model)(xs))
 
   Args:
     tau: The temperature parameter.
@@ -281,7 +282,7 @@ def q_expected_improvement(
 
   Example:
     >>> acqf = q_expected_improvement(0.2)
-    >>> qei = acqf(model(xs))
+    >>> qei = acqf(vmap(model)(xs))
 
   Args:
     best: The best function value observed so far.
@@ -311,7 +312,7 @@ def q_upper_confidence_bound(
 
   Example:
     >>> acqf = q_upper_confidence_bound(2.0)
-    >>> qucb = acqf(model(xs))
+    >>> qucb = acqf(vmap(model)(xs))
 
   Args:
     beta: The mean and covariance trade-off parameter.
@@ -339,7 +340,7 @@ def q_knowledge_gradient(
 
   Example:
     >>> acqf = q_knowledge_gradient(0.2)
-    >>> qucb = acqf(model(xs))
+    >>> qkg = acqf(vmap(model)(xs))
 
   Args:
     best: The best function value observed so far.
@@ -354,5 +355,40 @@ def q_knowledge_gradient(
       partial(jnp.squeeze, axis=-1),
       partial(lax.sub, y=best),
       attrgetter('loc'),
+    )
+  )
+
+
+def q_multi_fidelity_knowledge_gradient(
+  best: Numeric,
+  cost_fn: Callable,
+) -> Acquisition[Tuple[Normal, Array]]:
+  """
+  MC-based batch multi-fidelity Knowledge Gradient acquisition function.
+
+  Example:
+    >>> acqf = q_knowledge_gradient(0.2, cost_fn)
+    >>> qmfkg = acqf(vmap(model)(xs))
+
+  Args:
+    best: The best function value observed so far.
+
+  Returns:
+    The corresponding `Acquisition`.
+  """
+
+  return jit(
+    compose(
+      partial(jnp.mean, axis=-1),
+      apply(
+        unwrap(cost_fn),
+        compose(
+          partial(jnp.squeeze, axis=-1),
+          partial(lax.sub, y=best),
+          attrgetter('loc'),
+          itemgetter(0),
+        ),
+        itemgetter(1)
+      )
     )
   )
