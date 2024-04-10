@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Alias for surrogate models."""
+"""Gaussian for surrogate models."""
 
 from functools import partial
 from typing import Callable, TypeVar
 
-from jax import jit
+from jax import jit, vmap
+from jax import numpy as jnp
 
 from boax.core.distributions.multivariate_normal import MultivariateNormal
 from boax.prediction.models import functions
@@ -31,7 +32,7 @@ from boax.utils.typing import Array, Numeric
 T = TypeVar('T')
 
 
-def gaussian_process(
+def exact(
   mean_fn: Mean,
   kernel_fn: Kernel,
   likelihood_fn: Likelihood[MultivariateNormal, T],
@@ -40,7 +41,7 @@ def gaussian_process(
   jitter: Numeric = 1e-6,
 ) -> Model[T]:
   """
-  The gaussian process model.
+  The exact gaussian process model.
 
   Example:
     >>> model = gaussian_process(mean_fn, kernel_fn)
@@ -84,6 +85,26 @@ def gaussian_process(
         ),
       )
     )
+  
+
+def fantasy(
+  mean_fn: Mean,
+  kernel_fn: Kernel,
+  jitter: Numeric = 1e-6,
+) -> Callable[[Array, Array, Array], MultivariateNormal]:
+  return vmap(
+    vmap(
+      jit(
+        partial(
+          functions.gaussian.posterior,
+          mean_fn=mean_fn,
+          kernel_fn=kernel_fn,
+          jitter=jitter,
+        )
+      ),
+      in_axes=(0, None, 0)
+    )
+  )
 
 
 def multi_fidelity(
@@ -91,6 +112,7 @@ def multi_fidelity(
   kernel_fn: Callable[[Array, Array], Kernel],
   likelihood_fn: Likelihood[MultivariateNormal, T],
   observation_index_points: Array | None = None,
+  observation_fidelities: Array | None = None,
   observations: Array | None = None,
   jitter: Numeric = 1e-6,
 ) -> Model[T]:
@@ -105,6 +127,7 @@ def multi_fidelity(
     mean_fn: The process' mean function.
     kernel_fn: The process' covariance function.
     observation_index_points: The index points of the given observations.
+    observation_fidelities: The fidelities of the given observatons.
     observations: The observed values.
     jitter: The scalar added to the diagonal of the covariance matrix to ensure positive definiteness.
 
@@ -112,7 +135,11 @@ def multi_fidelity(
     The multi fidelity gaussian process `Model`.
   """
 
-  if observation_index_points is None or observations is None:
+  if (
+    observation_index_points is None or
+    observation_fidelities is None or
+    observations is None
+  ):
     return jit(
       compose(
         likelihood_fn,
@@ -132,6 +159,7 @@ def multi_fidelity(
         partial(
           functions.multi_fidelity.posterior,
           observation_index_points=observation_index_points,
+          observation_fidelities=observation_fidelities,
           observations=observations,
           mean_fn=mean_fn,
           kernel_fn=kernel_fn,
@@ -139,3 +167,34 @@ def multi_fidelity(
         ),
       )
     )
+  
+
+def multi_fidelity_fantasy(
+  mean_fn: Mean,
+  kernel_fn: Callable[[Array, Array], Kernel],
+  jitter: Numeric = 1e-6,
+) -> Callable[[Array, Array, Array], MultivariateNormal]:
+  fantasy_fn = vmap(
+    vmap(
+      jit(
+        partial(
+          functions.multi_fidelity.posterior,
+          mean_fn=mean_fn,
+          kernel_fn=kernel_fn,
+          jitter=jitter,
+        )
+      ),
+      in_axes=(0, 0, None, None, 0)
+    )
+  )
+
+  def fn(fantasy_points, observation_index_points, observation_fidelities, observations):
+    return fantasy_fn(
+      fantasy_points,
+      jnp.ones_like(fantasy_points),
+      observation_index_points,
+      observation_fidelities,
+      observations,
+    )
+  
+  return fn

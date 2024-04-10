@@ -26,20 +26,15 @@ from boax.prediction.models.means.base import Mean
 from boax.utils.typing import Array, Numeric
 
 
-def split(values: Array) -> Tuple[Array, Array]:
-  return jnp.split(values, [values.shape[-1] - 1], axis=-1)
-
-
 def prior(
   index_points: Array,
+  fidelities: Array,
   mean_fn: Mean,
   kernel_fn: Callable[[Array, Array], Kernel],
   jitter: Numeric,
 ) -> MultivariateNormal:
-  values, fidelities = split(index_points)
-
-  Kxx = kernel_fn(fidelities, fidelities)(values, values)
-  mean = mean_fn(values)
+  Kxx = kernel_fn(fidelities, fidelities)(index_points, index_points)
+  mean = mean_fn(index_points)
   cov = Kxx + jitter * jnp.identity(Kxx.shape[-1])
 
   return distributions.multivariate_normal.multivariate_normal(mean, cov)
@@ -47,21 +42,28 @@ def prior(
 
 def posterior(
   index_points: Array,
+  fidelities: Array,
   observation_index_points: Array,
+  observation_fidelities: Array,
   observations: Array,
   mean_fn: Mean,
   kernel_fn: Callable[[Array, Array], Kernel],
   jitter: Numeric,
 ) -> MultivariateNormal:
-  ivalues, ifidelities = split(index_points)
-  ovalues, ofidelities = split(observation_index_points)
+  mz = mean_fn(index_points)
+  mx = mean_fn(observation_index_points)
 
-  mz = mean_fn(ivalues)
-  mx = mean_fn(ovalues)
+  Kxx = kernel_fn(observation_fidelities, observation_fidelities)(
+    observation_index_points, observation_index_points
+  )
+  
+  Kxz = kernel_fn(observation_fidelities, fidelities)(
+    observation_index_points, index_points
+  )
 
-  Kxx = kernel_fn(ofidelities, ofidelities)(ovalues, ovalues)
-  Kxz = kernel_fn(ofidelities, ifidelities)(ovalues, ivalues)
-  Kzz = kernel_fn(ifidelities, ifidelities)(ivalues, ivalues)
+  Kzz = kernel_fn(fidelities, fidelities)(
+    index_points, index_points
+  )
 
   K = Kxx + jitter * jnp.identity(Kxx.shape[-1])
   chol = scipy.linalg.cholesky(K, lower=True)

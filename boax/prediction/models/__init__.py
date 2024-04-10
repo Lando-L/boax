@@ -17,12 +17,10 @@
 from . import kernels as kernels
 from . import likelihoods as likelihoods
 from . import means as means
-from .alias import gaussian_process as gaussian_process
-from .alias import multi_fidelity as multi_fidelity
+from . import gaussian_process as gaussian_process
 from .base import Model as Model
 from .transformed import input_transformed as input_transformed
 from .transformed import joined as joined
 from .transformed import outcome_transformed as outcome_transformed
 from .transformed import sampled as sampled
 from .transformed import scaled as scaled
-from .transformed import fantasized as fantasized

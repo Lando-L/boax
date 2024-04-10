@@ -29,7 +29,7 @@ class Model(Protocol, Generic[T]):
   and returns a posterior prediction of type `T`.
   """
 
-  def __call__(self, index_points: Array) -> T:
+  def __call__(self, index_points: Array, **kwargs) -> T:
     """
     Computes the posterior prediction at the index points.
 
