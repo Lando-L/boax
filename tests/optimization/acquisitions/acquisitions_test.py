@@ -113,6 +113,20 @@ class AcquisitionsTest(parameterized.TestCase):
     qkg = acquisitions.q_knowledge_gradient(best)(preds)
 
     self.assertEqual(qkg.shape, (n,))
+  
+  def test_q_multi_fidelity_knowledge_gradient(self):
+    key1, key2 = random.split(random.key(0))
+    s, n = 32, 10
+
+    best = 0.0
+    cost_fn = lambda a, b: a / b[..., jnp.newaxis]
+    loc, scale = random.uniform(key1, (2, n, s, 1))
+    preds = distributions.normal.normal(loc, scale)
+    costs = random.uniform(key2, (n,))
+
+    qmfkg = acquisitions.q_multi_fidelity_knowledge_gradient(best, cost_fn)((preds, costs))
+
+    self.assertEqual(qmfkg.shape, (n,))
 
   def test_constrained(self):
     key = random.key(0)

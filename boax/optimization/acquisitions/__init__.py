@@ -28,6 +28,7 @@ from .alias import q_knowledge_gradient as q_knowledge_gradient
 from .alias import q_probability_of_improvement as q_probability_of_improvement
 from .alias import q_upper_confidence_bound as q_upper_confidence_bound
 from .alias import upper_confidence_bound as upper_confidence_bound
+from .alias import q_multi_fidelity_knowledge_gradient as q_multi_fidelity_knowledge_gradient
 from .base import Acquisition as Acquisition
 from .transformed import constrained as constrained
 from .transformed import log_constrained as log_constrained
