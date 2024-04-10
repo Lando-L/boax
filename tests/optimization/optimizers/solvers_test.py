@@ -1,6 +1,7 @@
 from operator import itemgetter
 
 from absl.testing import absltest, parameterized
+from chex import assert_shape, assert_trees_all_close
 from jax import numpy as jnp
 from jax import random
 
@@ -24,8 +25,8 @@ class SolversTest(parameterized.TestCase):
       candidates,
     )
 
-    self.assertEqual(next_candidates.shape, (n, q, d))
-    self.assertEqual(values.shape, (n,))
+    assert_shape(next_candidates, (n, q, d))
+    assert_shape(values, (n,))
 
 
 if __name__ == '__main__':

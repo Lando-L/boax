@@ -1,5 +1,5 @@
-import numpy as np
 from absl.testing import absltest, parameterized
+from chex import assert_trees_all_close
 from jax import numpy as jnp
 from jax import random
 
@@ -24,8 +24,8 @@ class ConstraintsTest(parameterized.TestCase):
     ge = constraints.greater_or_equal(upper)(preds)
     lge = constraints.log_greater_or_equal(upper)(preds)
 
-    np.testing.assert_allclose(jnp.log(le), lle, atol=1e-4)
-    np.testing.assert_allclose(jnp.log(ge), lge, atol=1e-4)
+    assert_trees_all_close(jnp.log(le), lle, atol=1e-4)
+    assert_trees_all_close(jnp.log(ge), lge, atol=1e-4)
 
 
 if __name__ == '__main__':

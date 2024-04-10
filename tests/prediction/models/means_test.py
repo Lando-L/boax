@@ -1,5 +1,5 @@
-import numpy as np
 from absl.testing import absltest, parameterized
+from chex import assert_trees_all_close
 from jax import numpy as jnp
 from jax import random
 
@@ -13,7 +13,7 @@ class MeansTest(parameterized.TestCase):
     result = means.zero()(value)
     expected = jnp.zeros(())
 
-    np.testing.assert_allclose(result, expected, atol=1e-4)
+    assert_trees_all_close(result, expected, atol=1e-4)
 
   def test_constant(self):
     x = jnp.array(2.0)
@@ -22,7 +22,7 @@ class MeansTest(parameterized.TestCase):
     result = means.constant(x)(value)
     expected = x
 
-    np.testing.assert_allclose(result, expected, atol=1e-4)
+    assert_trees_all_close(result, expected, atol=1e-4)
 
   def test_linear(self):
     scale = jnp.array(2.0)
@@ -33,7 +33,7 @@ class MeansTest(parameterized.TestCase):
     result = means.linear(scale, bias)(value)
     expected = scale * value + bias
 
-    np.testing.assert_allclose(result, expected, atol=1e-4)
+    assert_trees_all_close(result, expected, atol=1e-4)
 
 
 if __name__ == '__main__':

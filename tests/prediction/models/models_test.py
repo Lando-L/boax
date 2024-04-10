@@ -1,5 +1,5 @@
-import numpy as np
 from absl.testing import absltest, parameterized
+from chex import assert_shape, assert_trees_all_close
 from jax import numpy as jnp
 from jax import random
 
@@ -23,8 +23,8 @@ class ProcessesTest(parameterized.TestCase):
 
     mean, cov = model(index_points)
 
-    self.assertEqual(mean.shape, (10,))
-    self.assertEqual(cov.shape, (10, 10))
+    assert_shape(mean, (10,))
+    assert_shape(cov, (10, 10))
 
     observation_index_points = random.uniform(
       key2, shape=(5, 1), minval=-1, maxval=1
@@ -43,8 +43,8 @@ class ProcessesTest(parameterized.TestCase):
 
     mean, cov = model(index_points)
 
-    self.assertEqual(mean.shape, (10,))
-    self.assertEqual(cov.shape, (10, 10))
+    assert_shape(mean, (10,))
+    assert_shape(cov, (10, 10))
 
   def test_multi_fidelity(self):
     key1, key2 = random.split(random.key(0))
@@ -63,8 +63,8 @@ class ProcessesTest(parameterized.TestCase):
 
     mean, cov = model(index_points)
 
-    self.assertEqual(mean.shape, (10,))
-    self.assertEqual(cov.shape, (10, 10))
+    assert_shape(mean, (10,))
+    assert_shape(cov, (10, 10))
 
     observation_index_points = random.uniform(
       key2, shape=(5, 2), minval=-1, maxval=1
@@ -87,8 +87,8 @@ class ProcessesTest(parameterized.TestCase):
 
     mean, cov = model(index_points)
 
-    self.assertEqual(mean.shape, (10,))
-    self.assertEqual(cov.shape, (10, 10))
+    assert_shape(mean, (10,))
+    assert_shape(cov, (10, 10))
 
   def test_scaled(self):
     key1, key2 = random.split(random.key(0))
@@ -111,8 +111,8 @@ class ProcessesTest(parameterized.TestCase):
       scaled[1],
     )
 
-    np.testing.assert_allclose(result.loc, expected.loc, atol=1e-4)
-    np.testing.assert_allclose(result.scale, expected.scale, atol=1e-4)
+    assert_trees_all_close(result.loc, expected.loc, atol=1e-4)
+    assert_trees_all_close(result.scale, expected.scale, atol=1e-4)
 
   def test_sampled(self):
     key1, key2 = random.split(random.key(0))
@@ -128,7 +128,7 @@ class ProcessesTest(parameterized.TestCase):
 
     result = model(jnp.empty((10,)))
 
-    np.testing.assert_allclose(result, samples, atol=1e-4)
+    assert_trees_all_close(result, samples, atol=1e-4)
 
   def test_joined(self):
     key = random.key(0)
@@ -141,10 +141,10 @@ class ProcessesTest(parameterized.TestCase):
 
     result1, result2 = model(jnp.empty((10,)))
 
-    np.testing.assert_allclose(result1.loc, preds1.loc, atol=1e-4)
-    np.testing.assert_allclose(result1.scale, preds1.scale, atol=1e-4)
-    np.testing.assert_allclose(result2.loc, preds2.loc, atol=1e-4)
-    np.testing.assert_allclose(result2.scale, preds2.scale, atol=1e-4)
+    assert_trees_all_close(result1.loc, preds1.loc, atol=1e-4)
+    assert_trees_all_close(result1.scale, preds1.scale, atol=1e-4)
+    assert_trees_all_close(result2.loc, preds2.loc, atol=1e-4)
+    assert_trees_all_close(result2.scale, preds2.scale, atol=1e-4)
   
   def test_fantazised(self):
     key1, key2 = random.split(random.key(0))
@@ -160,8 +160,8 @@ class ProcessesTest(parameterized.TestCase):
 
     result = model(jnp.empty((10,)))
 
-    np.testing.assert_allclose(result.loc, preds.loc, atol=1e-4)
-    np.testing.assert_allclose(result.scale, preds.scale, atol=1e-4)
+    assert_trees_all_close(result.loc, preds.loc, atol=1e-4)
+    assert_trees_all_close(result.scale, preds.scale, atol=1e-4)
 
 
 if __name__ == '__main__':
