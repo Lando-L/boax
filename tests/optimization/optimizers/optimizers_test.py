@@ -1,6 +1,7 @@
 from operator import itemgetter
 
 from absl.testing import absltest, parameterized
+from chex import assert_shape
 from jax import numpy as jnp
 from jax import random
 
@@ -27,8 +28,8 @@ class OptimizersTest(parameterized.TestCase):
       num_restarts,
     )
 
-    self.assertEqual(next_x.shape, (q, d))
-    self.assertEqual(next_a.shape, ())
+    assert_shape(next_x, (q, d))
+    assert_shape(next_a, ())
 
   def test_sequential(self):
     key = random.key(0)
@@ -49,8 +50,8 @@ class OptimizersTest(parameterized.TestCase):
       num_restarts,
     )
 
-    self.assertEqual(next_x.shape, (q, d))
-    self.assertEqual(next_a.shape, (q,))
+    assert_shape(next_x, (q, d))
+    assert_shape(next_a, (q,))
 
 
 if __name__ == '__main__':

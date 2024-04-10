@@ -1,4 +1,5 @@
 from absl.testing import absltest, parameterized
+from chex import assert_shape
 from jax import random
 
 from boax.optimization import optimizers
@@ -18,7 +19,7 @@ class InitializersTest(parameterized.TestCase):
       num_restarts,
     )
 
-    self.assertEqual(result.shape, (10, 1))
+    assert_shape(result, (10, 1))
 
   def test_q_nonnegative(self):
     key1, key2 = random.split(random.key(0))
@@ -33,7 +34,7 @@ class InitializersTest(parameterized.TestCase):
       num_restarts,
     )
 
-    self.assertEqual(result.shape, (10, 1))
+    assert_shape(result, (10, 1))
 
 
 if __name__ == '__main__':

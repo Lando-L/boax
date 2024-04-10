@@ -1,5 +1,5 @@
-import numpy as np
 from absl.testing import absltest, parameterized
+from chex import assert_trees_all_close
 from jax import numpy as jnp
 from jax import random
 
@@ -20,8 +20,8 @@ class LikelihoodsTest(parameterized.TestCase):
       mean, cov + 1e-4 * jnp.identity(10)
     )
 
-    np.testing.assert_allclose(result.mean, expected.mean, atol=1e-4)
-    np.testing.assert_allclose(result.cov, expected.cov, atol=1e-4)
+    assert_trees_all_close(result.mean, expected.mean, atol=1e-4)
+    assert_trees_all_close(result.cov, expected.cov, atol=1e-4)
 
 
 if __name__ == '__main__':

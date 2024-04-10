@@ -1,5 +1,5 @@
-import numpy as np
 from absl.testing import absltest, parameterized
+from chex import assert_trees_all_close
 from jax import numpy as jnp
 from jax import random
 
@@ -28,7 +28,7 @@ class ObjectivesTest(parameterized.TestCase):
       targets,
     )
 
-    np.testing.assert_allclose(result, -expected, atol=1e-4)
+    assert_trees_all_close(result, -expected, atol=1e-4)
 
   def test_penalized(self):
     key1, key2, key3, key4 = random.split(random.key(0), 4)
@@ -55,7 +55,7 @@ class ObjectivesTest(parameterized.TestCase):
       targets,
     )
 
-    np.testing.assert_allclose(result, -expected + penalization, atol=1e-4)
+    assert_trees_all_close(result, -expected + penalization, atol=1e-4)
 
 
 if __name__ == '__main__':
