@@ -18,7 +18,7 @@ class OptimizersTest(parameterized.TestCase):
     acqf = itemgetter((..., 0, 0))
     bounds = jnp.array([[-1.0, 1.0]])
 
-    next_x = optimizers.batch(initializer, solver)(
+    next_x, next_a = optimizers.batch(initializer, solver)(
       key,
       acqf,
       bounds,
@@ -28,6 +28,7 @@ class OptimizersTest(parameterized.TestCase):
     )
 
     self.assertEqual(next_x.shape, (q, d))
+    self.assertEqual(next_a.shape, ())
 
   def test_sequential(self):
     key = random.key(0)
@@ -39,7 +40,7 @@ class OptimizersTest(parameterized.TestCase):
     acqf = itemgetter((..., 0, 0))
     bounds = jnp.array([[-1.0, 1.0]])
 
-    next_x = optimizers.sequential(initializer, solver)(
+    next_x, next_a = optimizers.sequential(initializer, solver)(
       key,
       acqf,
       bounds,
@@ -49,6 +50,7 @@ class OptimizersTest(parameterized.TestCase):
     )
 
     self.assertEqual(next_x.shape, (q, d))
+    self.assertEqual(next_a.shape, (q,))
 
 
 if __name__ == '__main__':

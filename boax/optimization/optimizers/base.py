@@ -14,7 +14,7 @@
 
 """Base interface for optimizers."""
 
-from typing import Callable, Protocol
+from typing import Callable, Protocol, Tuple
 
 from boax.utils.typing import Array, PRNGKey
 
@@ -32,7 +32,7 @@ class Optimizer(Protocol):
     q: int,
     num_samples: int,
     num_restarts: int,
-  ) -> Array:
+  ) -> Tuple[Array, Array]:
     """
     The optimization function.
 
@@ -45,5 +45,5 @@ class Optimizer(Protocol):
       num_restarts: The number of restarts.
 
     Returns:
-      The maxima resulting of the optimization.
+      A tuple of the maxima and their acquisition values.
     """

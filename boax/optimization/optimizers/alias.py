@@ -14,6 +14,8 @@
 
 """Alias for optimizers."""
 
+from functools import partial
+
 from jax import numpy as jnp
 from jax import random
 
@@ -21,6 +23,7 @@ from boax.core import distributions, samplers
 from boax.optimization.optimizers.base import Optimizer
 from boax.optimization.optimizers.initializers.base import Initializer
 from boax.optimization.optimizers.solvers.base import Solver
+from boax.utils.functools import compose
 
 
 def batch(initializer: Initializer, solver: Solver) -> Optimizer:
@@ -53,7 +56,9 @@ def batch(initializer: Initializer, solver: Solver) -> Optimizer:
     candidates = initializer(key2, x, y, num_restarts)
     next_candidates, values = solver(fun, bounds, candidates)
 
-    return next_candidates[jnp.argmax(values)]
+    idx = jnp.argmax(values)
+
+    return next_candidates[idx], values[idx]
 
   return optimizer
 
@@ -77,11 +82,14 @@ def sequential(initializer: Initializer, solver: Solver) -> Optimizer:
   inner = batch(initializer, solver)
 
   def optimizer(key, fun, bounds, q, num_samples, num_restarts):
-    return jnp.concatenate(
-      [
-        inner(random.fold_in(key, i), fun, bounds, 1, num_samples, num_restarts)
-        for i in range(q)
-      ]
+    next_candidates, values = zip(*(
+      inner(random.fold_in(key, i), fun, bounds, 1, num_samples, num_restarts)
+      for i in range(q)
+    ))
+
+    return (
+      jnp.concatenate(list(next_candidates)),
+      jnp.array(list(values))
     )
 
   return optimizer
