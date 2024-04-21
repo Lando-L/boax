@@ -67,14 +67,10 @@ def sequential(initializer: Initializer, solver: Solver, q: int) -> Optimizer:
   inner = batch(initializer, solver)
 
   def optimizer(key):
-    next_candidates, values = zip(*(
-      inner(random.fold_in(key, i))
-      for i in range(q)
-    ))
-
-    return (
-      jnp.concatenate(list(next_candidates)),
-      jnp.array(list(values))
+    next_candidates, values = zip(
+      *(inner(random.fold_in(key, i)) for i in range(q))
     )
+
+    return (jnp.concatenate(list(next_candidates)), jnp.array(list(values)))
 
   return optimizer

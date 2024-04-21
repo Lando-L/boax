@@ -52,10 +52,10 @@ def q_batch(
 
   def initializer(key):
     key1, key2 = random.split(key)
-    
+
     x = sampler(key1, (num_results, q))
     y = fun(x)
-    
+
     return random.choice(
       key2,
       x,

@@ -20,7 +20,7 @@ from typing import Any, Callable, Sequence, TypeVar
 from jax import vmap
 
 from boax.prediction.models.base import Model
-from boax.utils.functools import apply, call, compose, identity, unwrap
+from boax.utils.functools import apply, call, compose
 from boax.utils.typing import Array
 
 A = TypeVar('A')

@@ -16,7 +16,7 @@
 
 from functools import partial
 
-from jax import lax, random
+from jax import lax
 from jax import numpy as jnp
 
 from boax.core import distributions
@@ -43,12 +43,12 @@ def uniform(
   Returns:
     The corresponding `Sampler`.
   """
-  
+
   out_shape = lax.broadcast_shapes(uniform.a.shape, uniform.b.shape)
 
   return compose(
     partial(partial, distributions.uniform.sample)(uniform),
-    partial(functions.iid.uniform, ndims=out_shape[0])
+    partial(functions.iid.uniform, ndims=out_shape[0]),
   )
 
 
@@ -73,7 +73,7 @@ def normal(
 
   return compose(
     partial(partial, distributions.normal.sample)(normal),
-    partial(functions.iid.normal, ndims=out_shape[0])
+    partial(functions.iid.normal, ndims=out_shape[0]),
   )
 
 

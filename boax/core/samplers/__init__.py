@@ -14,8 +14,8 @@
 
 """The samplers sub-package."""
 
-from .alias import normal as normal
-from .alias import uniform as uniform
 from .alias import halton_normal as halton_normal
 from .alias import halton_uniform as halton_uniform
+from .alias import normal as normal
+from .alias import uniform as uniform
 from .base import Sampler as Sampler

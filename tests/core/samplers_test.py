@@ -27,7 +27,7 @@ class SamplersTest(parameterized.TestCase):
     result = samplers.uniform(uniform)(key3, (2, 5, 3))
 
     assert_shape(result, (2, 5, 3, 10))
-  
+
   def test_halton_normal(self):
     key1, key2, key3 = random.split(random.key(0), 3)
 

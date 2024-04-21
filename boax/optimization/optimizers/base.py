@@ -14,7 +14,7 @@
 
 """Base interface for optimizers."""
 
-from typing import Callable, Protocol, Tuple
+from typing import Protocol, Tuple
 
 from boax.utils.typing import Array, PRNGKey
 

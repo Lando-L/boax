@@ -28,7 +28,9 @@ PRIMES = primes_less_than(104729 + 1)
 assert len(PRIMES) == MAX_DIMENSION
 
 
-def halton_sequence(key: PRNGKey, sample_shape: Sequence[int], ndims: int) -> Array:
+def halton_sequence(
+  key: PRNGKey, sample_shape: Sequence[int], ndims: int
+) -> Array:
   shuffle_key, correction_key = random.split(key)
   num_samples = jnp.prod(jnp.asarray(sample_shape))
 
@@ -53,7 +55,7 @@ def halton_sequence(key: PRNGKey, sample_shape: Sequence[int], ndims: int) -> Ar
 
   return jnp.reshape(
     base_values + (zero_correction / (radixes**max_sizes_by_axes)).flatten(),
-    sample_shape + (ndims,)
+    sample_shape + (ndims,),
   )
 
 
