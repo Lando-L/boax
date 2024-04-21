@@ -17,7 +17,11 @@ class InitializersTest(parameterized.TestCase):
     s, n, q, d = 10, 5, 3, 1
 
     initializer = optimizers.initializers.q_batch(
-      fun, sampler, q, s, n,
+      fun,
+      sampler,
+      q,
+      s,
+      n,
     )
 
     result = initializer(key)
@@ -32,7 +36,11 @@ class InitializersTest(parameterized.TestCase):
     s, n, q, d = 10, 5, 3, 1
 
     initializer = optimizers.initializers.q_batch_nonnegative(
-      fun, sampler, q, s, n,
+      fun,
+      sampler,
+      q,
+      s,
+      n,
     )
 
     result = initializer(key)

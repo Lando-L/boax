@@ -14,10 +14,10 @@
 
 """The models sub-package."""
 
+from . import gaussian_process as gaussian_process
 from . import kernels as kernels
 from . import likelihoods as likelihoods
 from . import means as means
-from . import gaussian_process as gaussian_process
 from .base import Model as Model
 from .transformed import input_transformed as input_transformed
 from .transformed import joined as joined

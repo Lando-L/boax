@@ -388,7 +388,7 @@ def q_multi_fidelity_knowledge_gradient(
           attrgetter('loc'),
           itemgetter(0),
         ),
-        itemgetter(1)
-      )
+        itemgetter(1),
+      ),
     )
   )

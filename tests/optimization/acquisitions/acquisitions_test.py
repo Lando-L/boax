@@ -112,7 +112,7 @@ class AcquisitionsTest(parameterized.TestCase):
     qkg = acquisitions.q_knowledge_gradient(best)(preds)
 
     assert_shape(qkg, (n,))
-  
+
   def test_q_multi_fidelity_knowledge_gradient(self):
     key1, key2 = random.split(random.key(0))
     s, n = 32, 10
@@ -123,7 +123,9 @@ class AcquisitionsTest(parameterized.TestCase):
     preds = distributions.normal.normal(loc, scale)
     costs = random.uniform(key2, (s,))
 
-    qmfkg = acquisitions.q_multi_fidelity_knowledge_gradient(best, cost_fn)((preds, costs))
+    qmfkg = acquisitions.q_multi_fidelity_knowledge_gradient(best, cost_fn)(
+      (preds, costs)
+    )
 
     assert_shape(qmfkg, (n,))
 
@@ -146,7 +148,6 @@ class AcquisitionsTest(parameterized.TestCase):
       acquisitions.log_expected_improvement(best),
       constraints.log_less_or_equal(1.0),
     )(model)
-
 
     assert_shape(cei, (n,))
     assert_shape(clei, (n,))

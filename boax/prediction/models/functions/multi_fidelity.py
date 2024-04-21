@@ -14,7 +14,7 @@
 
 """Multi fidelity functions."""
 
-from typing import Callable, Tuple
+from typing import Callable
 
 from jax import numpy as jnp
 from jax import scipy
@@ -56,14 +56,12 @@ def posterior(
   Kxx = kernel_fn(observation_fidelities, observation_fidelities)(
     observation_index_points, observation_index_points
   )
-  
+
   Kxz = kernel_fn(observation_fidelities, fidelities)(
     observation_index_points, index_points
   )
 
-  Kzz = kernel_fn(fidelities, fidelities)(
-    index_points, index_points
-  )
+  Kzz = kernel_fn(fidelities, fidelities)(index_points, index_points)
 
   K = Kxx + jitter * jnp.identity(Kxx.shape[-1])
   chol = scipy.linalg.cholesky(K, lower=True)

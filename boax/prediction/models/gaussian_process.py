@@ -85,7 +85,7 @@ def exact(
         ),
       )
     )
-  
+
 
 def fantasy(
   mean_fn: Mean,
@@ -102,7 +102,7 @@ def fantasy(
           jitter=jitter,
         )
       ),
-      in_axes=(0, None, 0)
+      in_axes=(0, None, 0),
     )
   )
 
@@ -136,9 +136,9 @@ def multi_fidelity(
   """
 
   if (
-    observation_index_points is None or
-    observation_fidelities is None or
-    observations is None
+    observation_index_points is None
+    or observation_fidelities is None
+    or observations is None
   ):
     return jit(
       compose(
@@ -167,7 +167,7 @@ def multi_fidelity(
         ),
       )
     )
-  
+
 
 def multi_fidelity_fantasy(
   mean_fn: Mean,
@@ -184,11 +184,16 @@ def multi_fidelity_fantasy(
           jitter=jitter,
         )
       ),
-      in_axes=(0, 0, None, None, 0)
+      in_axes=(0, 0, None, None, 0),
     )
   )
 
-  def fn(fantasy_points, observation_index_points, observation_fidelities, observations):
+  def fn(
+    fantasy_points,
+    observation_index_points,
+    observation_fidelities,
+    observations,
+  ):
     return fantasy_fn(
       fantasy_points,
       jnp.ones_like(fantasy_points),
@@ -196,5 +201,5 @@ def multi_fidelity_fantasy(
       observation_fidelities,
       observations,
     )
-  
+
   return fn

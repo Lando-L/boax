@@ -18,7 +18,7 @@ from typing import Sequence
 
 from jax import random
 
-from boax.utils.typing import PRNGKey, Array
+from boax.utils.typing import Array, PRNGKey
 
 
 def uniform(key: PRNGKey, sample_shape: Sequence[int], ndims: int) -> Array:
