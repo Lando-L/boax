@@ -73,7 +73,7 @@ class AcquisitionsTest(parameterized.TestCase):
     s, n, q = 32, 10, 5
 
     best = 0.0
-    preds = random.uniform(key, (n, s, q))
+    preds = random.uniform(key, (s, n, q))
 
     qpoi = acquisitions.q_probability_of_improvement(best)(preds)
 
@@ -84,7 +84,7 @@ class AcquisitionsTest(parameterized.TestCase):
     s, n, q = 32, 10, 5
 
     best = 0.0
-    preds = random.uniform(key, (n, s, q))
+    preds = random.uniform(key, (s, n, q))
 
     qei = acquisitions.q_expected_improvement(best)(preds)
 
@@ -95,7 +95,7 @@ class AcquisitionsTest(parameterized.TestCase):
     s, n, q = 32, 10, 5
 
     beta = 2.0
-    preds = random.uniform(key, (n, s, q))
+    preds = random.uniform(key, (s, n, q))
 
     qucb = acquisitions.q_upper_confidence_bound(beta)(preds)
 
@@ -106,7 +106,7 @@ class AcquisitionsTest(parameterized.TestCase):
     s, n = 32, 10
 
     best = 0.0
-    loc, scale = random.uniform(key, (2, n, s, 1))
+    loc, scale = random.uniform(key, (2, s, n, 1))
     preds = distributions.normal.normal(loc, scale)
 
     qkg = acquisitions.q_knowledge_gradient(best)(preds)
@@ -119,9 +119,9 @@ class AcquisitionsTest(parameterized.TestCase):
 
     best = 0.0
     cost_fn = lambda a, b: a / b[..., jnp.newaxis]
-    loc, scale = random.uniform(key1, (2, n, s, 1))
+    loc, scale = random.uniform(key1, (2, s, n, 1))
     preds = distributions.normal.normal(loc, scale)
-    costs = random.uniform(key2, (n,))
+    costs = random.uniform(key2, (s,))
 
     qmfkg = acquisitions.q_multi_fidelity_knowledge_gradient(best, cost_fn)((preds, costs))
 

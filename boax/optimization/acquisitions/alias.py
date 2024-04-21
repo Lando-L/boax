@@ -261,7 +261,7 @@ def q_probability_of_improvement(
 
   return jit(
     compose(
-      partial(jnp.mean, axis=-1),
+      partial(jnp.mean, axis=0),
       partial(jnp.amax, axis=-1),
       partial(functions.monte_carlo.qpoi, best=best, tau=tau),
     )
@@ -293,7 +293,7 @@ def q_expected_improvement(
 
   return jit(
     compose(
-      partial(jnp.mean, axis=-1),
+      partial(jnp.mean, axis=0),
       partial(jnp.amax, axis=-1),
       partial(functions.monte_carlo.qei, best=best),
     )
@@ -325,7 +325,7 @@ def q_upper_confidence_bound(
 
   return jit(
     compose(
-      partial(jnp.mean, axis=-1),
+      partial(jnp.mean, axis=0),
       partial(jnp.amax, axis=-1),
       partial(functions.monte_carlo.qucb, beta=beta_prime),
     )
@@ -351,7 +351,7 @@ def q_knowledge_gradient(
 
   return jit(
     compose(
-      partial(jnp.mean, axis=-1),
+      partial(jnp.mean, axis=0),
       partial(jnp.squeeze, axis=-1),
       partial(lax.sub, y=best),
       attrgetter('loc'),
@@ -379,7 +379,7 @@ def q_multi_fidelity_knowledge_gradient(
 
   return jit(
     compose(
-      partial(jnp.mean, axis=-1),
+      partial(jnp.mean, axis=0),
       apply(
         unwrap(cost_fn),
         compose(
