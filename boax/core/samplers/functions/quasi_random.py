@@ -14,6 +14,8 @@
 
 """Quasi Random sampling functions."""
 
+from typing import Sequence
+
 from jax import numpy as jnp
 from jax import random
 
@@ -26,8 +28,9 @@ PRIMES = primes_less_than(104729 + 1)
 assert len(PRIMES) == MAX_DIMENSION
 
 
-def halton_sequence(key: PRNGKey, num_samples: int, ndims: int) -> Array:
+def halton_sequence(key: PRNGKey, sample_shape: Sequence[int], ndims: int) -> Array:
   shuffle_key, correction_key = random.split(key)
+  num_samples = jnp.prod(jnp.asarray(sample_shape))
 
   radixes = PRIMES[0:ndims][..., jnp.newaxis]
   indices = jnp.reshape(jnp.arange(num_samples) + 1, (-1, 1, 1))
@@ -48,8 +51,9 @@ def halton_sequence(key: PRNGKey, num_samples: int, ndims: int) -> Array:
   base_values = jnp.sum(shuffled / (radixes * weights), axis=-1)
   zero_correction = random.uniform(correction_key, (ndims, 1))
 
-  return (
-    base_values + (zero_correction / (radixes**max_sizes_by_axes)).flatten()
+  return jnp.reshape(
+    base_values + (zero_correction / (radixes**max_sizes_by_axes)).flatten(),
+    sample_shape + (ndims,)
   )
 
 

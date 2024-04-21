@@ -14,7 +14,7 @@
 
 """Base interface for samplers."""
 
-from typing import Protocol
+from typing import Protocol, Sequence
 
 from boax.utils.typing import Array, PRNGKey
 
@@ -27,13 +27,13 @@ class Sampler(Protocol):
   and returns `num_results` samples.
   """
 
-  def __call__(self, key: PRNGKey, num_results: int) -> Array:
+  def __call__(self, key: PRNGKey, shape: Sequence[int]) -> Array:
     """
     Draws `num_results` of samples.
 
     Args:
       key: The pseudo-random number generator key.
-      candidates: The number of results to return.
+      shape: The sample shape.
 
     Returns:
       A set of `num_results` samples.

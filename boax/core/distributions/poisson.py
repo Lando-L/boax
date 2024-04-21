@@ -34,7 +34,7 @@ class Poisson(NamedTuple):
 
 def poisson(mu: Array) -> Poisson:
   """
-  Smart constructor for the beta distribution.
+  Smart constructor for the poisson distribution.
 
   Args:
     mu: The rate parameter.

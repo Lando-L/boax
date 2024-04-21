@@ -16,7 +16,7 @@
 
 from functools import partial
 
-from jax import lax
+from jax import lax, random
 from jax import numpy as jnp
 
 from boax.core import distributions
@@ -27,6 +27,56 @@ from boax.core.samplers.base import Sampler
 from boax.utils.functools import compose
 
 
+def uniform(
+  uniform: Uniform = Uniform(jnp.zeros((1,)), jnp.ones((1,))),
+) -> Sampler:
+  """
+  The i.i.d. uniform sampler.
+
+  Example:
+    >>> sampler = uniform()
+    >>> base_samples =  sampler(key, (128,))
+
+  Args:
+    uniform: The base uniform distribution.
+
+  Returns:
+    The corresponding `Sampler`.
+  """
+  
+  out_shape = lax.broadcast_shapes(uniform.a.shape, uniform.b.shape)
+
+  return compose(
+    partial(partial, distributions.uniform.sample)(uniform),
+    partial(functions.iid.uniform, ndims=out_shape[0])
+  )
+
+
+def normal(
+  normal: Normal = Normal(jnp.zeros((1,)), jnp.ones((1,))),
+) -> Sampler:
+  """
+  The i.i.d. normal sampler.
+
+  Example:
+    >>> sampler = normal()
+    >>> base_samples = sampler(key, (128,))
+
+  Args:
+    normal: The base normal distribution.
+
+  Returns:
+    The corresponding `Sampler`.
+  """
+
+  out_shape = lax.broadcast_shapes(normal.loc.shape, normal.scale.shape)
+
+  return compose(
+    partial(partial, distributions.normal.sample)(normal),
+    partial(functions.iid.normal, ndims=out_shape[0])
+  )
+
+
 def halton_uniform(
   uniform: Uniform = Uniform(jnp.zeros((1,)), jnp.ones((1,))),
 ) -> Sampler:
@@ -34,8 +84,8 @@ def halton_uniform(
   The quasi-MC uniform sampler based on halton sequences.
 
   Example:
-    >>> sampler = halton_uniform(uniform)
-    >>> base_samples = sampler(key, 128)
+    >>> sampler = halton_uniform()
+    >>> base_samples = sampler(key, (128,))
 
   Args:
     uniform: The base uniform distribution.
@@ -66,7 +116,7 @@ def halton_normal(
   The quasi-MC normal sampler based on halton sequences.
 
   Example:
-    >>> sampler = halton_normal(normal)
+    >>> sampler = halton_normal()
     >>> base_samples = sampler(key, 128)
 
   Args:
