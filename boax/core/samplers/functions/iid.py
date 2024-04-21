@@ -12,10 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The samplers sub-package."""
+"""IID sampling functions."""
 
-from .alias import normal as normal
-from .alias import uniform as uniform
-from .alias import halton_normal as halton_normal
-from .alias import halton_uniform as halton_uniform
-from .base import Sampler as Sampler
+from typing import Sequence
+
+from jax import random
+
+from boax.utils.typing import PRNGKey, Array
+
+
+def uniform(key: PRNGKey, sample_shape: Sequence[int], ndims: int) -> Array:
+  return random.uniform(key, sample_shape + (ndims,))
+
+
+def normal(key: PRNGKey, sample_shape: Sequence[int], ndims: int) -> Array:
+  return random.normal(key, sample_shape + (ndims,))

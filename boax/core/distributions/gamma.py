@@ -37,7 +37,7 @@ class Gamma(NamedTuple):
 
 def gamma(a: Array, b: Array = jnp.ones(())) -> Gamma:
   """
-  Smart constructor for the beta distribution.
+  Smart constructor for the gamma distribution.
 
   Args:
     a: The shape parameter.
