@@ -47,11 +47,10 @@ Here is a basic example of using the Boax API for defining a Gaussian Process mo
 ```python
 from boax.prediction import models
 
-model = models.gaussian_process(
+model = models.gaussian_process.exact(
   models.means.zero(),
   models.kernels.scaled(
-    models.kernels.rbf(1.0),
-    0.5
+    models.kernels.rbf(1.0), 0.5
   ),
   models.likelihoods.gaussian(1e-4),
   x_train,
@@ -62,16 +61,13 @@ model = models.gaussian_process(
 2. Constructing an Acquisition function.
 
 ```python
-from jax import jit, vmap
+from jax import vmap
 from boax.optimization import acquisitions
 
-acquisition = acquisitions.upper_confidence_bound(
-  beta=2.0
+acqf = models.outcome_transformed(
+  vmap(model),
+  acquisitions.upper_confidence_bound(2.0)
 )
-
-def acqf(x):
-  return acquisition(vmap(model)(x))
-
 ```
 
 3. Generating the next batch of data points to query.
@@ -79,21 +75,28 @@ def acqf(x):
 ```python
 from jax import numpy as jnp
 from jax import random
+from boax.core import distributions, samplers
 from boax.optimization import optimizers
 
-optimizer = optimizers.batch(
-  initializer=optimizers.initializers.q_batch(),
-  solver=optimizers.solvers.scipy(method='bfgs'),
+key = random.key(0)
+
+batch_size, num_results, num_restarts = 1, 100, 10
+bounds = jnp.array([[-1.0, 1.0]])
+
+sampler = samplers.halton_uniform(
+  distributions.uniform.uniform(bounds[:, 0], bounds[:, 1])
 )
 
-next_candidate = optimizer(
-  key=random.key(0),
-  fun=acqf,
-  bounds=jnp.array([[-1.0, 1.0]]),
-  q=1,
-  num_samples=100,
-  num_restarts=10,
+optimizer = optimizers.batch(
+  optimizers.initializers.q_batch(
+    acqf, sampler, batch_size, num_results, num_restarts,
+  ),
+  optimizers.solvers.scipy(
+    acqf, bounds,  
+  ),
 )
+
+next_x, value = optimizer(key)
 ```
 
 ## Citing Boax
