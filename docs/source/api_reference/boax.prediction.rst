@@ -22,16 +22,6 @@ Models
 ~~~~~~
 
 
-Gaussian Process Models
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autosummary::
-  :toctree: generated
-
-  gaussian_process
-  multi_fidelity
-
-
 Transformed Models
 ^^^^^^^^^^^^^^^^^^
 
@@ -43,6 +33,18 @@ Transformed Models
   joined
   sampled
   scaled
+
+
+Gaussian Process Models
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: boax.prediction.models.gaussian_process
+
+.. autosummary::
+  :toctree: generated
+
+  exact
+  multi_fidelity
 
 
 boax.prediction.models.means
