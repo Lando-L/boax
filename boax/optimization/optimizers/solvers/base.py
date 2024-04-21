@@ -14,7 +14,7 @@
 
 """Base interface for solvers."""
 
-from typing import Callable, Protocol, Tuple
+from typing import Protocol, Tuple
 
 from boax.utils.typing import Array
 
@@ -24,15 +24,11 @@ class Solver(Protocol):
   A callable type for the solving step of an `Optimizer`.
   """
 
-  def __call__(
-    self, fun: Callable, bounds: Array, candidates: Array
-  ) -> Tuple[Array, Array]:
+  def __call__(self, candidates: Array) -> Tuple[Array, Array]:
     """
     The solving function.
 
     Args:
-      fun: The function to be optimized.
-      bounds: The bounds of the search space.
       candidates: The initial guess.
 
     Returns:

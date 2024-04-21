@@ -15,37 +15,42 @@
 """Alias for solver functions."""
 
 from functools import partial
+from typing import Callable
 
 from jax import numpy as jnp
 from jax.scipy import optimize
 
 from boax.optimization.optimizers.solvers.base import Solver
 from boax.utils.functools import compose
+from boax.utils.typing import Array
 
 
 def scipy(
+  fun: Callable[[Array], Array],
+  bounds: Array,
   method: str = 'bfgs',
 ) -> Solver:
   """
   Scipy solver.
 
   Example:
-    >>> solver = scipy()
-    >>> next_candidates, values = solver(acqf, bounds, candidates)
+    >>> solver = scipy(fun, bounds)
+    >>> next_candidates, values = solver(candidates)
 
   Args:
+    bounds: The bounds of the search space.
     method: The solver method.
 
   Returns:
     The scipy `Solver`.
   """
 
-  def solver(fn, bounds, candidates):
+  def solver(candidates):
     results = optimize.minimize(
       fun=compose(
         jnp.negative,
         jnp.sum,
-        fn,
+        fun,
         partial(jnp.reshape, newshape=candidates.shape),
       ),
       x0=candidates.flatten(),
@@ -58,6 +63,6 @@ def scipy(
       a_max=bounds[:, 1],
     )
 
-    return clipped, fn(clipped)
+    return clipped, fun(clipped)
 
   return solver

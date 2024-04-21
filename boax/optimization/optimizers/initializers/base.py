@@ -24,17 +24,12 @@ class Initializer(Protocol):
   A callable type for the initialization step of an `Optimizer`.
   """
 
-  def __call__(
-    self, key: PRNGKey, x: Array, y: Array, num_restarts: int
-  ) -> Array:
+  def __call__(self, key: PRNGKey) -> Array:
     """
     The initialization function.
 
     Args:
       key: A PRNG key.
-      x: The initial index points.
-      y: The initial scores.
-      num_restarts: The number of restarts.
 
     Returns:
       The initial set of candidates.

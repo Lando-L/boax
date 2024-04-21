@@ -14,33 +14,50 @@
 
 """Alias for initialization functions."""
 
+from typing import Callable
+
 from jax import lax, nn, random
 from jax import numpy as jnp
 
+from boax.core.samplers.base import Sampler
 from boax.optimization.optimizers.initializers.base import Initializer
-from boax.utils.typing import Numeric
+from boax.utils.typing import Array, Numeric
 
 
 def q_batch(
+  fun: Callable[[Array], Array],
+  sampler: Sampler,
+  q: int,
+  num_results: int,
+  num_restarts: int,
   eta: Numeric = 1.0,
 ) -> Initializer:
   """
   Q batch initializer.
 
   Example:
-    >>> initializer = q_batch(eta=2.0)
-    >>> candidates = initializer(key, x, y, num_restarts)
+    >>> initializer = q_batch(fun, sampler, num_restarts, num_restarts)
+    >>> candidates = initializer(key)
 
   Args:
+    fun: The scoring function.
+    sampler: The candidates sampler.
+    num_results: The number of results.
+    num_restarts: The number of restarts.
     eta: The temperature parameter.
 
   Returns:
     The q-batch `Initializer`.
   """
 
-  def initializer(key, x, y, num_restarts):
+  def initializer(key):
+    key1, key2 = random.split(key)
+    
+    x = sampler(key1, (num_results, q))
+    y = fun(x)
+    
     return random.choice(
-      key,
+      key2,
       x,
       (num_restarts,),
       p=jnp.exp(eta * nn.standardize(y, axis=0)),
@@ -50,6 +67,11 @@ def q_batch(
 
 
 def q_batch_nonnegative(
+  fun: Callable[[Array], Array],
+  sampler: Sampler,
+  q: int,
+  num_results: int,
+  num_restarts: int,
   eta: Numeric = 1.0,
   alpha: Numeric = 1e-4,
 ) -> Initializer:
@@ -61,6 +83,10 @@ def q_batch_nonnegative(
     >>> candidates = initializer(key, x, y, num_restarts)
 
   Args:
+    fun: The scoring function.
+    sampler: The candidates sampler.
+    num_results: The number of results.
+    num_restarts: The number of restarts.
     eta: The temperature parameter.
     alpha: The alpha parameter.
 
@@ -68,7 +94,11 @@ def q_batch_nonnegative(
     The q-batch non-negative `Initializer`.
   """
 
-  def initializer(key, x, y, num_restarts):
+  def initializer(key):
+    key1, key2 = random.split(key)
+
+    x = sampler(key1, (num_results, q))
+    y = fun(x)
     max_val = jnp.max(y)
 
     def cond(x):
@@ -83,7 +113,7 @@ def q_batch_nonnegative(
     _, alpha_pos = lax.while_loop(cond, body, (alpha, y >= alpha * max_val))
 
     return random.choice(
-      key,
+      key2,
       x[alpha_pos],
       (num_restarts,),
       p=jnp.exp(eta * (y[alpha_pos] / max_val - 1)),
