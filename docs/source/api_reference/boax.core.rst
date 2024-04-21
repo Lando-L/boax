@@ -145,6 +145,16 @@ Samplers
 ~~~~~~~~
 
 
+I.I.D Samplers
+^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  normal
+  uniform
+
+
 Quasi-Random Samplers
 ^^^^^^^^^^^^^^^^^^^^^
 
