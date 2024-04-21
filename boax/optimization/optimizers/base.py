@@ -24,25 +24,12 @@ class Optimizer(Protocol):
   A callable type for the optimization functions.
   """
 
-  def __call__(
-    self,
-    key: PRNGKey,
-    fun: Callable[[Array], Array],
-    bounds: Array,
-    q: int,
-    num_samples: int,
-    num_restarts: int,
-  ) -> Tuple[Array, Array]:
+  def __call__(self, key: PRNGKey) -> Tuple[Array, Array]:
     """
     The optimization function.
 
     Args:
       key: A PRNG key.
-      fun: The function to be optimized.
-      bounds: The bounds of the search space.
-      q: The batch size.
-      num_samples: The number of samples.
-      num_restarts: The number of restarts.
 
     Returns:
       A tuple of the maxima and their acquisition values.
