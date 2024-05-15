@@ -15,4 +15,4 @@
 
 """Current boax version at head on GitHub"""
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
