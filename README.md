@@ -23,6 +23,7 @@ Boax is a composable library of core components for Bayesian Optimization that i
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
   * Acquisition Functions
   * Optimizer Functions
+  * Policy Functions
 
 ## Installation
 

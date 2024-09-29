@@ -170,3 +170,61 @@ Non-Linear Solvers
   :toctree: generated
 
   scipy
+
+
+boax.optimization.policies
+--------------------------
+
+.. currentmodule:: boax.optimization.acquisitions
+
+
+Policy Types
+~~~~~~~~~~~~
+
+.. autoclass:: Policy
+
+
+Policies
+~~~~~~~~
+
+
+Action Value Policies
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  epsilon_greedy
+  boltzmann
+  upper_confidence_bound
+
+
+Beta Policies
+^^^^^^^^^^^^^
+
+.. autosummary::
+  :toctree: generated
+
+  thompson_sampling
+
+
+boax.optimization.policies.evaluators
+-------------------------------------
+
+.. currentmodule:: boax.optimization.policies.evaluators
+
+
+Evaluator Types
+~~~~~~~~~~~~~~~
+
+.. autoclass:: Evaluator
+
+
+Evaluators
+~~~~~~~~~~
+
+.. autosummary::
+  :toctree: generated
+
+  action_values
+  beta

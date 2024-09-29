@@ -17,6 +17,7 @@ that is **designed for flexibility**. It comes with low-level interfaces for:
 * **Constructing and optimizing acquisition functions** (`boax.optimization`):
    * Acquisition Functions
    * Optimizer Functions
+   * Policy Functions
 
 ----
 
