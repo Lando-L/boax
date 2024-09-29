@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimization module."""
+"""The evaluators sub-package."""
 
-from . import acquisitions as acquisitions
-from . import optimizers as optimizers
-from . import policies as policies
+from .alias import ActionValues as ActionValues
+from .alias import Beta as Beta
+from .alias import action_value as action_value
+from .alias import beta as beta
+from .base import Evaluator as Evaluator

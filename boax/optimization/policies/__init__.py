@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optimization module."""
+"""The policies sub-package."""
 
-from . import acquisitions as acquisitions
-from . import optimizers as optimizers
-from . import policies as policies
+from . import evaluators as evaluators
+from .alias import boltzmann as boltzmann
+from .alias import epsilon_greedy as epsilon_greedy
+from .alias import thompson_sampling as thompson_sampling
+from .alias import upper_confidence_bound as upper_confidence_bound
+from .base import Policy as Policy
