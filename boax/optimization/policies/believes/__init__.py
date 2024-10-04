@@ -16,6 +16,6 @@
 
 from .alias import ActionValues as ActionValues
 from .alias import Beta as Beta
-from .alias import action_value as action_value
-from .alias import beta as beta
-from .base import Evaluator as Evaluator
+from .alias import continuous as continuous
+from .alias import binary as binary
+from .base import Belief as Belief

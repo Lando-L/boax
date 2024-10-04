@@ -12,7 +12,7 @@ class BelievesTest(parameterized.TestCase):
     {'num_variants': 5, 'variant': 4, 'reward': 0},
   )
   def test_action_value(self, num_variants: int, variant: int, reward: float):
-    evaluator = believes.action_value(num_variants)
+    evaluator = believes.continuous(num_variants)
     init = evaluator.init()
     updated = evaluator.update(init, variant, reward)
 
@@ -37,7 +37,7 @@ class BelievesTest(parameterized.TestCase):
     {'num_variants': 5, 'variant': 4, 'reward': True},
   )
   def test_beta(self, num_variants: int, variant: int, reward: bool):
-    evaluator = believes.beta(num_variants)
+    evaluator = believes.binary(num_variants)
     init = evaluator.init()
     updated = evaluator.update(init, variant, reward)
 

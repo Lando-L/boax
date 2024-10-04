@@ -2,7 +2,6 @@ from absl.testing import absltest, parameterized
 from jax import numpy as jnp
 from jax import random
 
-from boax.core import distributions
 from boax.optimization import policies
 from boax.optimization.policies import believes
 from boax.utils.typing import PRNGKey
@@ -17,10 +16,7 @@ class PoliciesTest(parameterized.TestCase):
   def test_epsilon_greedy(
     self, key: PRNGKey, epsilon: float, num_variants: int, timestep: int
   ):
-    params = believes.ActionValues(
-      jnp.ones(num_variants, dtype=jnp.int32),
-      jnp.ones(num_variants, dtype=jnp.float32),
-    )
+    params = believes.continuous(num_variants).init()
 
     variant = policies.epsilon_greedy(epsilon)(params, timestep, key)
 
@@ -34,10 +30,7 @@ class PoliciesTest(parameterized.TestCase):
   def test_boltzman(
     self, key: PRNGKey, tau: float, num_variants: int, timestep: int
   ):
-    params = believes.ActionValues(
-      jnp.ones(num_variants, dtype=jnp.int32),
-      jnp.ones(num_variants, dtype=jnp.float32),
-    )
+    params = believes.continuous(num_variants).init()
 
     variant = policies.boltzmann(tau)(params, timestep, key)
 
@@ -51,10 +44,7 @@ class PoliciesTest(parameterized.TestCase):
   def test_upper_confidence_bound(
     self, key: PRNGKey, confidence: float, num_variants: int, timestep: int
   ):
-    params = believes.ActionValues(
-      jnp.ones(num_variants, dtype=jnp.int32),
-      jnp.ones(num_variants, dtype=jnp.float32),
-    )
+    params = believes.continuous(num_variants).init()
 
     variant = policies.upper_confidence_bound(confidence)(params, timestep, key)
 
@@ -68,10 +58,7 @@ class PoliciesTest(parameterized.TestCase):
   def test_thompson_sampling(
     self, key: PRNGKey, num_variants: int, timestep: int
   ):
-    params = distributions.beta.Beta(
-      jnp.ones(num_variants, dtype=jnp.int32),
-      jnp.ones(num_variants, dtype=jnp.int32),
-    )
+    params = believes.binary(num_variants).init()
 
     variant = policies.thompson_sampling()(params, timestep, key)
 

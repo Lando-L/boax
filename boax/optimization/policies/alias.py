@@ -47,7 +47,7 @@ def epsilon_greedy(epsilon: Numeric) -> Policy[ActionValues]:
   def exploit(params: ActionValues, key: PRNGKey) -> Numeric:
     return jnp.argmax(params.q)
 
-  def policy(params: ActionValues, timestep: Numeric, key: PRNGKey) -> Numeric:
+  def policy(params: ActionValues, timestep: int, key: PRNGKey) -> Numeric:
     uniform_rng, choice_rng = random.split(key)
 
     return lax.cond(
@@ -78,7 +78,7 @@ def boltzmann(tau: Numeric) -> Policy[ActionValues]:
     The corresponding `Policy`.
   """
 
-  def policy(params: ActionValues, timestep: Numeric, key: PRNGKey) -> Numeric:
+  def policy(params: ActionValues, timestep: int, key: PRNGKey) -> Numeric:
     return random.choice(
       key, jnp.arange(len(params.q)), p=nn.softmax(params.q / tau)
     )
@@ -103,7 +103,7 @@ def upper_confidence_bound(confidence: Numeric) -> Policy[ActionValues]:
     The corresponding `Policy`.
   """
 
-  def policy(params: ActionValues, timestep: Numeric, key: PRNGKey) -> Numeric:
+  def policy(params: ActionValues, timestep: int, key: PRNGKey) -> Numeric:
     return jnp.argmax(
       params.q + confidence * jnp.sqrt(jnp.log(timestep) / params.n)
     )
@@ -126,7 +126,7 @@ def thompson_sampling() -> Policy[Beta]:
     The corresponding `Policy`.
   """
 
-  def policy(params: Beta, timestep: Numeric, key: PRNGKey) -> Numeric:
+  def policy(params: Beta, timestep: int, key: PRNGKey) -> Numeric:
     return jnp.argmax(random.beta(key, params.a, params.b))
 
   return jit(policy)
