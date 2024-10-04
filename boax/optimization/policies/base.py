@@ -16,7 +16,7 @@
 
 from typing import Generic, Protocol, TypeVar
 
-from boax.utils.typing import Numeric, PRNGKey
+from boax.utils.typing import PRNGKey
 
 T = TypeVar('T')
 
@@ -29,7 +29,7 @@ class Policy(Protocol, Generic[T]):
   a timestep, and a pseudo-random key as input and returns a selected variant.
   """
 
-  def __call__(self, params: T, timestep: Numeric, key: PRNGKey) -> Numeric:
+  def __call__(self, params: T, timestep: int, key: PRNGKey) -> int:
     """
     Select the variant.
 

@@ -4,7 +4,7 @@ from jax import random
 
 from boax.core import distributions
 from boax.optimization import policies
-from boax.optimization.policies import evaluators
+from boax.optimization.policies import believes
 from boax.utils.typing import PRNGKey
 
 
@@ -17,7 +17,7 @@ class PoliciesTest(parameterized.TestCase):
   def test_epsilon_greedy(
     self, key: PRNGKey, epsilon: float, num_variants: int, timestep: int
   ):
-    params = evaluators.ActionValues(
+    params = believes.ActionValues(
       jnp.ones(num_variants, dtype=jnp.int32),
       jnp.ones(num_variants, dtype=jnp.float32),
     )
@@ -34,7 +34,7 @@ class PoliciesTest(parameterized.TestCase):
   def test_boltzman(
     self, key: PRNGKey, tau: float, num_variants: int, timestep: int
   ):
-    params = evaluators.ActionValues(
+    params = believes.ActionValues(
       jnp.ones(num_variants, dtype=jnp.int32),
       jnp.ones(num_variants, dtype=jnp.float32),
     )
@@ -51,7 +51,7 @@ class PoliciesTest(parameterized.TestCase):
   def test_upper_confidence_bound(
     self, key: PRNGKey, confidence: float, num_variants: int, timestep: int
   ):
-    params = evaluators.ActionValues(
+    params = believes.ActionValues(
       jnp.ones(num_variants, dtype=jnp.int32),
       jnp.ones(num_variants, dtype=jnp.float32),
     )

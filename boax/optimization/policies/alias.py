@@ -19,7 +19,7 @@ from jax import numpy as jnp
 
 from boax.core.distributions.beta import Beta
 from boax.optimization.policies.base import Policy
-from boax.optimization.policies.evaluators import ActionValues
+from boax.optimization.policies.believes import ActionValues
 from boax.utils.typing import Numeric, PRNGKey
 
 

@@ -20,8 +20,8 @@ from jax import jit, lax
 from jax import numpy as jnp
 
 from boax.core.distributions.beta import Beta
-from boax.optimization.policies.evaluators.base import Evaluator
-from boax.utils.typing import Array, Numeric
+from boax.optimization.policies.believes.base import Belief
+from boax.utils.typing import Array
 
 
 class ActionValues(NamedTuple):
@@ -29,22 +29,22 @@ class ActionValues(NamedTuple):
   q: Array
 
 
-def action_value(num_variants: Numeric) -> Evaluator[ActionValues]:
+def continuous(num_variants: int) -> Belief[ActionValues, float]:
   """
-  The Action value evaluator.
+  The continous belief.
 
   Stores the number of tries and average reward for each variant.
 
   Example:
-    >>> evaluator = action_value(10)
-    >>> params = evaluator.init()
-    >>> updated_params = evaluator.update(params, variant, reward)
+    >>> belief = continous(10)
+    >>> params = belief.init()
+    >>> updated_params = belief.update(params, variant, reward)
 
   Args:
     num_variants: The number of variants.
 
   Returns;
-    The corresponding `Evaluator`.
+    The corresponding `Belief`.
   """
 
   def init_fn() -> ActionValues:
@@ -53,9 +53,7 @@ def action_value(num_variants: Numeric) -> Evaluator[ActionValues]:
       jnp.ones(num_variants, dtype=jnp.float32),
     )
 
-  def update_fn(
-    params: ActionValues, variant: Numeric, reward: Numeric
-  ) -> ActionValues:
+  def update_fn(params: ActionValues, variant: int, reward: float) -> ActionValues:
     return ActionValues(
       params.n.at[variant].add(1),
       params.q.at[variant].add(
@@ -63,25 +61,25 @@ def action_value(num_variants: Numeric) -> Evaluator[ActionValues]:
       ),
     )
 
-  return Evaluator(jit(init_fn), jit(update_fn))
+  return Belief(jit(init_fn), jit(update_fn))
 
 
-def beta(num_variants: Numeric) -> Evaluator[Beta]:
+def binary(num_variants: int) -> Belief[Beta, bool]:
   """
-  The Beta evaluator.
+  The binary Beta belief.
 
   Stores a beta distribution for each variant.
 
   Example:
-    >>> evaluator = beta(10)
-    >>> params = evaluator.init()
-    >>> updated_params = evaluator.update(params, variant, reward)
+    >>> belief = beta(10)
+    >>> params = belief.init()
+    >>> updated_params = belief.update(params, variant, reward)
 
   Args:
     num_variants: The number of variants.
 
   Returns;
-    The corresponding `Evaluator`.
+    The corresponding `Belief`.
   """
 
   def init_fn() -> Beta:
@@ -90,7 +88,7 @@ def beta(num_variants: Numeric) -> Evaluator[Beta]:
       jnp.ones(num_variants, dtype=jnp.int32),
     )
 
-  def update_fn(params: Beta, variant: Numeric, reward: Numeric) -> Beta:
+  def update_fn(params: Beta, variant: int, reward: bool) -> Beta:
     def increment_alpha():
       return Beta(params.a.at[variant].add(1), params.b)
 
@@ -103,4 +101,4 @@ def beta(num_variants: Numeric) -> Evaluator[Beta]:
       increment_beta,
     )
 
-  return Evaluator(jit(init_fn), jit(update_fn))
+  return Belief(jit(init_fn), jit(update_fn))

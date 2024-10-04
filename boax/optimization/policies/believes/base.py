@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base interface for evaluator functions."""
+"""Base interface for belief functions."""
 
 from typing import Generic, NamedTuple, Protocol, TypeVar
 
-from boax.utils.typing import Numeric
-
 T = TypeVar('T')
+R = TypeVar('R')
 
 
 class InitFn(Protocol, Generic[T]):
   """
-  A callable type for policy evaluator's init functions.
+  A callable type for policy belief's init functions.
 
   An init function returns the initial set of parameters.
   """
@@ -37,15 +36,15 @@ class InitFn(Protocol, Generic[T]):
     """
 
 
-class UpdateFn(Protocol, Generic[T]):
+class UpdateFn(Protocol, Generic[T, R]):
   """
-  A callable type for policy evaluator's update functions.
+  A callable type for policy belief's update functions.
 
   An update function takes a set of parameters of type `T`,
   the selected variant, and a reward as input and returns an updated set of parameters.
   """
 
-  def __call__(self, params: T, variant: Numeric, reward: Numeric) -> T:
+  def __call__(self, params: T, variant: int, reward: R) -> T:
     """
     Update the parameters.
 
@@ -59,12 +58,12 @@ class UpdateFn(Protocol, Generic[T]):
     """
 
 
-class Evaluator(NamedTuple, Generic[T]):
+class Belief(NamedTuple, Generic[T, R]):
   """
-  A policy evaluator.
+  A policy belief.
 
-  The evaluator is defined by a set of an `init` and an `update` function.
+  The belief is defined by a set of an `init` and an `update` function.
   """
 
   init: InitFn[T]
-  update: UpdateFn[T]
+  update: UpdateFn[T, R]

@@ -14,7 +14,7 @@
 
 """The policies sub-package."""
 
-from . import evaluators as evaluators
+from . import believes as believes
 from .alias import boltzmann as boltzmann
 from .alias import epsilon_greedy as epsilon_greedy
 from .alias import thompson_sampling as thompson_sampling

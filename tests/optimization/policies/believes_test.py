@@ -2,17 +2,17 @@ from absl.testing import absltest, parameterized
 from chex import assert_shape, assert_trees_all_close
 from jax import numpy as jnp
 
-from boax.optimization.policies import evaluators
+from boax.optimization.policies import believes
 
 
-class EvaluatorsTest(parameterized.TestCase):
+class BelievesTest(parameterized.TestCase):
   @parameterized.parameters(
     {'num_variants': 5, 'variant': 2, 'reward': 10},
     {'num_variants': 5, 'variant': 3, 'reward': 5},
     {'num_variants': 5, 'variant': 4, 'reward': 0},
   )
   def test_action_value(self, num_variants: int, variant: int, reward: float):
-    evaluator = evaluators.action_value(num_variants)
+    evaluator = believes.action_value(num_variants)
     init = evaluator.init()
     updated = evaluator.update(init, variant, reward)
 
@@ -37,7 +37,7 @@ class EvaluatorsTest(parameterized.TestCase):
     {'num_variants': 5, 'variant': 4, 'reward': True},
   )
   def test_beta(self, num_variants: int, variant: int, reward: bool):
-    evaluator = evaluators.beta(num_variants)
+    evaluator = believes.beta(num_variants)
     init = evaluator.init()
     updated = evaluator.update(init, variant, reward)
 
