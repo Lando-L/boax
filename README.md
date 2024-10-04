@@ -109,7 +109,7 @@ To cite Boax please use the citation:
   author = {Lando L{\"o}per},
   title = {{B}oax: A Bayesian Optimization library for {JAX}},
   url = {https://github.com/Lando-L/boax},
-  version = {0.1.3},
+  version = {0.1.4},
   year = {2023},
 }
 ```
