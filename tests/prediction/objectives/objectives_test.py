@@ -5,17 +5,21 @@ from jax import random
 
 from boax.core.distributions import multivariate_normal
 from boax.prediction import objectives
+from boax.utils.typing import PRNGKey
 
 
 class ObjectivesTest(parameterized.TestCase):
-  def test_negative_log_likelihood(self):
-    key1, key2, key3 = random.split(random.key(0), 3)
+  @parameterized.parameters(
+    {"key": random.key(0), "num_index_points": 10}
+  )
+  def test_negative_log_likelihood(self, key: PRNGKey, num_index_points: int):
+    key1, key2, key3 = random.split(key, 3)
 
-    mean = random.uniform(key1, (10,))
-    cov = random.uniform(key2, (10,)) * jnp.identity(10)
+    mean = random.uniform(key1, (num_index_points,))
+    cov = random.uniform(key2, (num_index_points,)) * jnp.identity(num_index_points)
     prediction = multivariate_normal.multivariate_normal(mean, cov)
 
-    base_samples = random.normal(key3, (10,))
+    base_samples = random.normal(key3, (num_index_points,))
     targets = multivariate_normal.sample(prediction, base_samples)
 
     result = objectives.negative_log_likelihood(multivariate_normal.logpdf)(
@@ -30,14 +34,17 @@ class ObjectivesTest(parameterized.TestCase):
 
     assert_trees_all_close(result, -expected, atol=1e-4)
 
-  def test_penalized(self):
-    key1, key2, key3, key4 = random.split(random.key(0), 4)
+  @parameterized.parameters(
+    {"key": random.key(0), "num_index_points": 10}
+  )
+  def test_penalized(self, key: PRNGKey, num_index_points: int):
+    key1, key2, key3, key4 = random.split(key, 4)
 
-    mean = random.uniform(key1, (10,))
-    cov = random.uniform(key2, (10,)) * jnp.identity(10)
+    mean = random.uniform(key1, (num_index_points,))
+    cov = random.uniform(key2, (num_index_points,)) * jnp.identity(num_index_points)
     prediction = multivariate_normal.multivariate_normal(mean, cov)
 
-    base_samples = random.normal(key3, (10,))
+    base_samples = random.normal(key3, (num_index_points,))
     targets = multivariate_normal.sample(prediction, base_samples)
 
     penalization = random.uniform(key4)

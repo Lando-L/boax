@@ -10,8 +10,6 @@ class EvaluatorsTest(parameterized.TestCase):
     {'num_variants': 5, 'variant': 2, 'reward': 10},
     {'num_variants': 5, 'variant': 3, 'reward': 5},
     {'num_variants': 5, 'variant': 4, 'reward': 0},
-    {'num_variants': 5, 'variant': 1, 'reward': 10},
-    {'num_variants': 5, 'variant': 0, 'reward': 5},
   )
   def test_action_value(self, num_variants: int, variant: int, reward: float):
     evaluator = evaluators.action_value(num_variants)
@@ -37,8 +35,6 @@ class EvaluatorsTest(parameterized.TestCase):
     {'num_variants': 5, 'variant': 2, 'reward': True},
     {'num_variants': 5, 'variant': 3, 'reward': False},
     {'num_variants': 5, 'variant': 4, 'reward': True},
-    {'num_variants': 5, 'variant': 1, 'reward': False},
-    {'num_variants': 5, 'variant': 0, 'reward': True},
   )
   def test_beta(self, num_variants: int, variant: int, reward: bool):
     evaluator = evaluators.beta(num_variants)

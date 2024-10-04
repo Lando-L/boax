@@ -6,15 +6,15 @@ from jax import numpy as jnp
 from jax import random
 
 from boax.optimization import optimizers
+from boax.utils.typing import Array, PRNGKey
 
 
 class SolversTest(parameterized.TestCase):
-  def test_scipy(self):
-    key = random.key(0)
-
+  @parameterized.parameters(
+    {"key": random.key(0), "n": 10, "q": 3, "d": 1, "bounds": jnp.array([[-1.0, 1.0]])},
+  )
+  def test_scipy(self, key: PRNGKey, n: int, q: int, d: int, bounds: Array):
     fun = itemgetter((..., 0, 0))
-    bounds = jnp.array([[-1.0, 1.0]])
-    n, q, d = 5, 3, 1
 
     candidates = random.uniform(
       key, minval=bounds[:, 0], maxval=bounds[:, 1], shape=(n, q, d)

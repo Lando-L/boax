@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from absl.testing import absltest, parameterized
 from chex import assert_shape, assert_trees_all_close
 from jax import numpy as jnp
@@ -6,14 +8,16 @@ from jax import random
 from boax.core import distributions
 from boax.optimization import acquisitions
 from boax.optimization.acquisitions import constraints
+from boax.utils.typing import PRNGKey
 
 
 class AcquisitionsTest(parameterized.TestCase):
-  def test_probability_of_improvement(self):
-    key = random.key(0)
-    n, q = 10, 1
-
-    best = 0.0
+  @parameterized.parameters(
+    {"key": random.key(0), "best": 0.0, "n": 10, "q": 1},
+    {"key": random.key(1), "best": 0.0, "n": 15, "q": 1},
+    {"key": random.key(2), "best": 0.0, "n": 20, "q": 1},
+  )
+  def test_probability_of_improvement(self, key: PRNGKey, best: float, n: int, q: int):
     loc, scale = random.uniform(key, (2, n, q))
     preds = distributions.normal.normal(loc, scale)
 
@@ -24,11 +28,12 @@ class AcquisitionsTest(parameterized.TestCase):
     assert_shape(lpoi, (n,))
     assert_trees_all_close(jnp.log(poi), lpoi, atol=1e-4)
 
-  def test_expected_improvement(self):
-    key = random.key(0)
-    n, q = 10, 1
-
-    best = 0.0
+  @parameterized.parameters(
+    {"key": random.key(0), "best": 0.0, "n": 10, "q": 1},
+    {"key": random.key(1), "best": 0.0, "n": 15, "q": 1},
+    {"key": random.key(2), "best": 0.0, "n": 20, "q": 1},
+  )
+  def test_expected_improvement(self, key: PRNGKey, best: float, n: int, q: int):
     loc, scale = random.uniform(key, (2, n, q))
     preds = distributions.normal.normal(loc, scale)
 
@@ -39,11 +44,12 @@ class AcquisitionsTest(parameterized.TestCase):
     assert_shape(lei, (n,))
     assert_trees_all_close(jnp.log(ei), lei, atol=1e-4)
 
-  def test_upper_confidence_bound(self):
-    key = random.key(0)
-    n, q = 10, 1
-
-    beta = 2.0
+  @parameterized.parameters(
+    {"key": random.key(0), "beta": 2.0, "n": 10, "q": 1},
+    {"key": random.key(1), "beta": 2.0, "n": 15, "q": 1},
+    {"key": random.key(2), "beta": 2.0, "n": 20, "q": 1},
+  )
+  def test_upper_confidence_bound(self, key: PRNGKey, beta: float, n: int, q: int):
     loc, scale = random.uniform(key, (2, n, q))
     preds = distributions.normal.normal(loc, scale)
 
@@ -53,10 +59,12 @@ class AcquisitionsTest(parameterized.TestCase):
     assert_shape(ucb, (n,))
     assert_trees_all_close(ucb, expected, atol=1e-4)
 
-  def test_posterior(self):
-    key = random.key(0)
-    n, q = 10, 1
-
+  @parameterized.parameters(
+    {"key": random.key(0), "n": 10, "q": 1},
+    {"key": random.key(1), "n": 15, "q": 1},
+    {"key": random.key(2), "n": 20, "q": 1},
+  )
+  def test_posterior(self, key: PRNGKey, n: int, q: int):
     loc, scale = random.uniform(key, (2, n, q))
     preds = distributions.normal.normal(loc, scale)
 
@@ -68,44 +76,48 @@ class AcquisitionsTest(parameterized.TestCase):
     assert_trees_all_close(posterior_mean, jnp.squeeze(loc), atol=1e-4)
     assert_trees_all_close(posterior_scale, jnp.squeeze(scale), atol=1e-4)
 
-  def test_q_probability_of_improvement(self):
-    key = random.key(0)
-    s, n, q = 32, 10, 5
-
-    best = 0.0
+  @parameterized.parameters(
+    {"key": random.key(0), "best": 0.0, "s": 8, "n": 10, "q": 1},
+    {"key": random.key(1), "best": 0.0, "s": 16, "n": 15, "q": 3},
+    {"key": random.key(2), "best": 0.0, "s": 32, "n": 20, "q": 5},
+  )
+  def test_q_probability_of_improvement(self, key: PRNGKey, best: float, s: int, n: int, q: int):
     preds = random.uniform(key, (s, n, q))
 
     qpoi = acquisitions.q_probability_of_improvement(best)(preds)
 
     assert_shape(qpoi, (n,))
 
-  def test_q_expected_improvement(self):
-    key = random.key(0)
-    s, n, q = 32, 10, 5
-
-    best = 0.0
+  @parameterized.parameters(
+    {"key": random.key(0), "best": 0.0, "s": 8, "n": 10, "q": 1},
+    {"key": random.key(1), "best": 0.0, "s": 16, "n": 15, "q": 3},
+    {"key": random.key(2), "best": 0.0, "s": 32, "n": 20, "q": 5},
+  )
+  def test_q_expected_improvement(self, key: PRNGKey, best: float, s: int, n: int, q: int):
     preds = random.uniform(key, (s, n, q))
 
     qei = acquisitions.q_expected_improvement(best)(preds)
 
     assert_shape(qei, (n,))
 
-  def test_q_upper_confidence_bound(self):
-    key = random.key(0)
-    s, n, q = 32, 10, 5
-
-    beta = 2.0
+  @parameterized.parameters(
+    {"key": random.key(0), "beta": 2.0, "s": 8, "n": 10, "q": 1},
+    {"key": random.key(1), "beta": 2.0, "s": 16, "n": 15, "q": 3},
+    {"key": random.key(2), "beta": 2.0, "s": 32, "n": 20, "q": 5},
+  )
+  def test_q_upper_confidence_bound(self, key: PRNGKey, beta: float, s: int, n: int, q: int):
     preds = random.uniform(key, (s, n, q))
 
     qucb = acquisitions.q_upper_confidence_bound(beta)(preds)
 
     assert_shape(qucb, (n,))
 
-  def test_q_knowledge_gradient(self):
-    key = random.key(0)
-    s, n = 32, 10
-
-    best = 0.0
+  @parameterized.parameters(
+    {"key": random.key(0), "best": 0.0, "s": 8, "n": 10,},
+    {"key": random.key(1), "best": 0.0, "s": 16, "n": 15,},
+    {"key": random.key(2), "best": 0.0, "s": 32, "n": 20,},
+  )
+  def test_q_knowledge_gradient(self, key: PRNGKey, best: float, s: int, n: int):
     loc, scale = random.uniform(key, (2, s, n, 1))
     preds = distributions.normal.normal(loc, scale)
 
@@ -113,12 +125,15 @@ class AcquisitionsTest(parameterized.TestCase):
 
     assert_shape(qkg, (n,))
 
-  def test_q_multi_fidelity_knowledge_gradient(self):
-    key1, key2 = random.split(random.key(0))
-    s, n = 32, 10
-
-    best = 0.0
+  @parameterized.parameters(
+    {"key": random.key(0), "best": 0.0, "s": 8, "n": 10,},
+    {"key": random.key(1), "best": 0.0, "s": 16, "n": 15,},
+    {"key": random.key(2), "best": 0.0, "s": 32, "n": 20,},
+  )
+  def test_q_multi_fidelity_knowledge_gradient(self, key: PRNGKey, best: float, s: int, n: int):
+    key1, key2 = random.split(key)
     cost_fn = lambda a, b: a / b[..., jnp.newaxis]
+
     loc, scale = random.uniform(key1, (2, s, n, 1))
     preds = distributions.normal.normal(loc, scale)
     costs = random.uniform(key2, (s,))
@@ -129,11 +144,12 @@ class AcquisitionsTest(parameterized.TestCase):
 
     assert_shape(qmfkg, (n,))
 
-  def test_constrained(self):
-    key = random.key(0)
-    n, q = 10, 1
-
-    best = 0.0
+  @parameterized.parameters(
+    {"key": random.key(0), "best": 0.0, "n": 10, "q": 1, "u": 1.0},
+    {"key": random.key(1), "best": 0.0, "n": 15, "q": 1, "u": 1.0},
+    {"key": random.key(2), "best": 0.0, "n": 20, "q": 1, "u": 1.0},
+  )
+  def test_constrained(self, key: PRNGKey, best: float, n: int, q: int, u: float):
     preds_params, cost_params = random.uniform(key, (2, 2, n, q))
     preds = distributions.normal.normal(*preds_params)
     costs = distributions.normal.normal(*cost_params)
@@ -141,12 +157,12 @@ class AcquisitionsTest(parameterized.TestCase):
 
     cei = acquisitions.constrained(
       acquisitions.expected_improvement(best),
-      constraints.less_or_equal(1.0),
+      constraints.less_or_equal(u),
     )(model)
 
     clei = acquisitions.log_constrained(
       acquisitions.log_expected_improvement(best),
-      constraints.log_less_or_equal(1.0),
+      constraints.log_less_or_equal(u),
     )(model)
 
     assert_shape(cei, (n,))

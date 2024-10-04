@@ -5,14 +5,15 @@ from chex import assert_shape
 from jax import random
 
 from boax.optimization import optimizers
+from boax.utils.typing import PRNGKey
 
 
 class OptimizersTest(parameterized.TestCase):
-  def test_batch(self):
-    key = random.key(0)
-
+  @parameterized.parameters(
+    {"key": random.key(0), "n": 10, "q": 3, "d": 1},
+  )
+  def test_batch(self, key: PRNGKey, n: int, q: int, d: int):
     fun = itemgetter((..., 0, 0))
-    n, q, d = 10, 3, 1
 
     initializer = lambda k: random.uniform(k, (n, q, d))
     solver = lambda c: (c, fun(c))
@@ -23,11 +24,11 @@ class OptimizersTest(parameterized.TestCase):
     assert_shape(next_x, (q, d))
     assert_shape(next_v, ())
 
-  def test_sequential(self):
-    key = random.key(0)
-
+  @parameterized.parameters(
+    {"key": random.key(0), "n": 10, "q": 3, "d": 1},
+  )
+  def test_sequential(self, key: PRNGKey, n: int, q: int, d: int):
     fun = itemgetter((..., 0, 0))
-    n, q, d = 10, 3, 1
 
     initializer = lambda k: random.uniform(k, (n, 1, d))
     solver = lambda c: (c, fun(c))

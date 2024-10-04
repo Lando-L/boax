@@ -37,8 +37,7 @@ def less_or_equal(
     >>> le = constraint(model(xs))
 
   Args:
-    model: A gaussian process regression feasibility model.
-    best: The lower bound value.
+    bound: The lower bound value.
 
   Returns:
     The corresponding `Constraint`.
@@ -63,8 +62,7 @@ def log_less_or_equal(
     >>> lle = constraint(model(xs))
 
   Args:
-    model: A gaussian process regression feasibility model.
-    best: The lower bound value.
+    bound: The lower bound value.
 
   Returns:
     The corresponding `Constraint`.
@@ -89,8 +87,7 @@ def greater_or_equal(
     >>> ge = constraint(model(xs))
 
   Args:
-    model: A gaussian process regression feasibility model.
-    best: The upper bound value.
+    bound: The upper bound value.
 
   Returns:
     The corresponding `Constraint`.
@@ -115,8 +112,7 @@ def log_greater_or_equal(
     >>> ge = constraint(model(xs))
 
   Args:
-    model: A gaussian process regression feasibility model.
-    best: The upper bound value.
+    bound: The upper bound value.
 
   Returns:
     The corresponding `Constraint`.

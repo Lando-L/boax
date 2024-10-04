@@ -6,15 +6,16 @@ from jax import random
 
 from boax.core import samplers
 from boax.optimization import optimizers
+from boax.utils.typing import PRNGKey
 
 
 class InitializersTest(parameterized.TestCase):
-  def test_q_batch(self):
-    key = random.key(0)
-
+  @parameterized.parameters(
+    {"key": random.key(0), "s": 10, "n": 5, "q": 3, "d": 1},
+  )
+  def test_q_batch(self, key: PRNGKey, s: int, n: int, q: int, d: int):
     fun = itemgetter((..., 0, 0))
     sampler = samplers.halton_uniform()
-    s, n, q, d = 10, 5, 3, 1
 
     initializer = optimizers.initializers.q_batch(
       fun,
@@ -28,12 +29,12 @@ class InitializersTest(parameterized.TestCase):
 
     assert_shape(result, (n, q, d))
 
-  def test_q_nonnegative(self):
-    key = random.key(0)
-
+  @parameterized.parameters(
+    {"key": random.key(0), "s": 10, "n": 5, "q": 3, "d": 1},
+  )
+  def test_q_nonnegative(self, key: PRNGKey, s: int, n: int, q: int, d: int):
     fun = itemgetter((..., 0, 0))
     sampler = samplers.halton_uniform()
-    s, n, q, d = 10, 5, 3, 1
 
     initializer = optimizers.initializers.q_batch_nonnegative(
       fun,
