@@ -6,18 +6,37 @@ Boax: A Bayesian Optimization library for JAX.
    Boax is currently in early alpha and under active development!
 
 Boax is a composable library of core components for Bayesian Optimization
-that is **designed for flexibility**. It comes with low-level interfaces for:
+that is **designed for flexibility**.
+
+It comes with high-level interfaces for:
+
+* **Experiments** (`boax.experiments`):
+
+  * Bayesian Optimization Setups
+  * Bandit Optimization Setups
+  * Search Spaces
+
+* **Benchmarks** (`boax.benchmark`):
+
+  * Benchmark Functions
+
+And with low-level interfaces for:
 
 * **Core capabilities** (`boax.core`):
-   * Common Distributions
-   * Monte-Carlo Samplers
-* **Fitting a surrogate model to data** (`boax.prediction`):
-   * Model Functions
-   * Objective Functions
-* **Constructing and optimizing acquisition functions** (`boax.optimization`):
-   * Acquisition Functions
-   * Optimizer Functions
-   * Policy Functions
+
+  * Common Distributions
+  * Monte-Carlo Samplers
+
+* **Fitting a surrogate model to data** (`boax.core.prediction`):
+
+  * Model Functions
+  * Objective Functions
+
+* **Constructing and optimizing acquisition functions** (`boax.core.optimization`):
+  
+  * Acquisition Functions 
+  * Optimizer Functions
+  * Policy Functions
 
 ----
 

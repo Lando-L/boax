@@ -5,5 +5,4 @@ API Reference
    :maxdepth: 1
 
    boax.core
-   boax.optimization
-   boax.prediction
+   boax.experiments

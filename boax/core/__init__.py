@@ -15,4 +15,6 @@
 """The core module."""
 
 from . import distributions as distributions
+from . import optimization as optimization
+from . import prediction as prediction
 from . import samplers as samplers

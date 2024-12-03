@@ -12,16 +12,26 @@
 
 ## Overview
 
-Boax is a composable library of core components for Bayesian Optimization that is **designed for flexibility**. It comes with low-level interfaces for:
+Boax is a composable library of core components for Bayesian Optimization
+that is **designed for flexibility**.
 
+It comes with high-level interfaces for:
+* **Experiments** (`boax.experiments`):
+  * Bayesian Optimization Setups
+  * Bandit Optimization Setups
+  * Search Spaces
+* **Benchmarks** (`boax.benchmark`):
+  * Benchmark Functions
+
+And with low-level interfaces for:
 * **Core capabilities** (`boax.core`):
   * Common Distributions
   * Monte-Carlo Samplers
-* **Fitting a surrogate model to data** (`boax.prediction`):
+* **Fitting a surrogate model to data** (`boax.core.prediction`):
   * Model Functions
   * Objective Functions
-* **Constructing and optimizing acquisition functions** (`boax.optimization`):
-  * Acquisition Functions
+* **Constructing and optimizing acquisition functions** (`boax.core.optimization`):
+  * Acquisition Functions 
   * Optimizer Functions
   * Policy Functions
 
@@ -41,63 +51,76 @@ pip install git+https://github.com/Lando-L/boax.git
 
 ## Basic Usage
 
-Here is a basic example of using the Boax API for defining a Gaussian Process model, constructing an Acquisition function, and generating the next batch of data points to query. For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
+Here is a basic example of using the Boax for hyperparamter tuning.
+For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
 
-1. Defining a Gaussian Process model:
+1. Setting up classification task:
 
 ```python
-from boax.prediction import models
+  from sklearn.model_selection import train_test_split
+  from sklearn.preprocessing import StandardScaler
+  from sklearn.svm import SVC
 
-model = models.gaussian_process.exact(
-  models.means.zero(),
-  models.kernels.scaled(
-    models.kernels.rbf(1.0), 0.5
-  ),
-  models.likelihoods.gaussian(1e-4),
-  x_train,
-  y_train,
-)
+  iris = load_iris()
+  X = iris.data
+  y = iris.target
+
+  X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+  scaler = StandardScaler()
+  X_train = scaler.fit_transform(X_train)
+  X_test = scaler.transform(X_test)
+
+  def evaluate(C, gamma):
+    svc = SVC(C=C, gamma=gamma, kernel='rbf')
+    svc.fit(X_train, y_train)
+    return svc.score(X_test, y_test)
 ```
 
-2. Constructing an Acquisition function.
+2. Setting up a bayesian optimization experiment.
 
 ```python
-from jax import vmap
-from boax.optimization import acquisitions
+  from boax.experiments import optimization
+  from jax import config
+  config.update("jax_enable_x64", True)
 
-acqf = models.outcome_transformed(
-  vmap(model),
-  acquisitions.upper_confidence_bound(2.0)
-)
+  experiment = optimization(
+    parameters=[
+      {
+        'name': 'C',
+        'type': 'log_range',
+        'bounds': [1, 1_000],
+      },
+      {
+        'name': 'gamma',
+        'type': 'log_range',
+        'bounds': [1e-4, 1e-3],
+      },
+    ],
+    batch_size=4,
+  )
 ```
 
-3. Generating the next batch of data points to query.
+3. Running the trial for N = 25 steps.
 
 ```python
-from jax import numpy as jnp
-from jax import random
-from boax.core import distributions, samplers
-from boax.optimization import optimizers
+  step, results = None, []
 
-key = random.key(0)
+  for _ in range(25):
+    # Retrieve next parameterizations to evaluate
+    step, parameterizations = experiment.next(step, results)
 
-batch_size, num_results, num_restarts = 1, 100, 10
-bounds = jnp.array([[-1.0, 1.0]])
+    # Evaluate parameterizations
+    evaluations = [
+      evaluate(**parameterization)
+      for parameterization in parameterizations
+    ]
+    
+    results = list(
+        zip(parameterizations, evaluations)
+    )
 
-sampler = samplers.halton_uniform(
-  distributions.uniform.uniform(bounds[:, 0], bounds[:, 1])
-)
-
-optimizer = optimizers.batch(
-  optimizers.initializers.q_batch(
-    acqf, sampler, batch_size, num_results, num_restarts,
-  ),
-  optimizers.solvers.scipy(
-    acqf, bounds,  
-  ),
-)
-
-next_x, value = optimizer(key)
+  # Predicted best
+  experiment.best(step)
 ```
 
 ## Citing Boax

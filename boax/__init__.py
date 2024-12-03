@@ -15,6 +15,5 @@
 """The boax API."""
 
 from . import core as core
-from . import optimization as optimization
-from . import prediction as prediction
+from . import experiments as experiments
 from . import utils as utils

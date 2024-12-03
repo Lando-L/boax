@@ -10,11 +10,28 @@ from boax.utils.typing import PRNGKey
 
 class SamplersTest(parameterized.TestCase):
   @parameterized.parameters(
-    {"key": random.key(0), "distribution_shape": (10,), "sample_shape": (1, 1, 1)},
-    {"key": random.key(1), "distribution_shape": (15,), "sample_shape": (2, 5, 3)},
-    {"key": random.key(2), "distribution_shape": (20,), "sample_shape": (4, 25, 9)},
+    {
+      'key': random.key(0),
+      'distribution_shape': (10,),
+      'sample_shape': (1, 1, 1),
+    },
+    {
+      'key': random.key(1),
+      'distribution_shape': (15,),
+      'sample_shape': (2, 5, 3),
+    },
+    {
+      'key': random.key(2),
+      'distribution_shape': (20,),
+      'sample_shape': (4, 25, 9),
+    },
   )
-  def test_normal(self, key: PRNGKey, distribution_shape: Sequence[int], sample_shape: Sequence[int]):
+  def test_normal(
+    self,
+    key: PRNGKey,
+    distribution_shape: Sequence[int],
+    sample_shape: Sequence[int],
+  ):
     key1, key2, key3 = random.split(key, 3)
 
     loc = random.uniform(key1, distribution_shape)
@@ -26,11 +43,28 @@ class SamplersTest(parameterized.TestCase):
     assert_shape(result, sample_shape + distribution_shape)
 
   @parameterized.parameters(
-    {"key": random.key(0), "distribution_shape": (10,), "sample_shape": (1, 1, 1)},
-    {"key": random.key(1), "distribution_shape": (15,), "sample_shape": (2, 5, 3)},
-    {"key": random.key(2), "distribution_shape": (20,), "sample_shape": (4, 25, 9)},
+    {
+      'key': random.key(0),
+      'distribution_shape': (10,),
+      'sample_shape': (1, 1, 1),
+    },
+    {
+      'key': random.key(1),
+      'distribution_shape': (15,),
+      'sample_shape': (2, 5, 3),
+    },
+    {
+      'key': random.key(2),
+      'distribution_shape': (20,),
+      'sample_shape': (4, 25, 9),
+    },
   )
-  def test_uniform(self, key: PRNGKey, distribution_shape: Sequence[int], sample_shape: Sequence[int]):
+  def test_uniform(
+    self,
+    key: PRNGKey,
+    distribution_shape: Sequence[int],
+    sample_shape: Sequence[int],
+  ):
     key1, key2, key3 = random.split(key, 3)
 
     a = random.uniform(key1, distribution_shape)
@@ -42,11 +76,28 @@ class SamplersTest(parameterized.TestCase):
     assert_shape(result, sample_shape + distribution_shape)
 
   @parameterized.parameters(
-    {"key": random.key(0), "distribution_shape": (10,), "sample_shape": (1, 1, 1)},
-    {"key": random.key(1), "distribution_shape": (15,), "sample_shape": (2, 5, 3)},
-    {"key": random.key(2), "distribution_shape": (20,), "sample_shape": (4, 25, 9)},
+    {
+      'key': random.key(0),
+      'distribution_shape': (10,),
+      'sample_shape': (1, 1, 1),
+    },
+    {
+      'key': random.key(1),
+      'distribution_shape': (15,),
+      'sample_shape': (2, 5, 3),
+    },
+    {
+      'key': random.key(2),
+      'distribution_shape': (20,),
+      'sample_shape': (4, 25, 9),
+    },
   )
-  def test_halton_normal(self, key: PRNGKey, distribution_shape: Sequence[int], sample_shape: Sequence[int]):
+  def test_halton_normal(
+    self,
+    key: PRNGKey,
+    distribution_shape: Sequence[int],
+    sample_shape: Sequence[int],
+  ):
     key1, key2, key3 = random.split(key, 3)
 
     loc = random.uniform(key1, distribution_shape)
@@ -58,11 +109,28 @@ class SamplersTest(parameterized.TestCase):
     assert_shape(result, sample_shape + distribution_shape)
 
   @parameterized.parameters(
-    {"key": random.key(0), "distribution_shape": (10,), "sample_shape": (1, 1, 1)},
-    {"key": random.key(1), "distribution_shape": (15,), "sample_shape": (2, 5, 3)},
-    {"key": random.key(2), "distribution_shape": (20,), "sample_shape": (4, 25, 9)},
+    {
+      'key': random.key(0),
+      'distribution_shape': (10,),
+      'sample_shape': (1, 1, 1),
+    },
+    {
+      'key': random.key(1),
+      'distribution_shape': (15,),
+      'sample_shape': (2, 5, 3),
+    },
+    {
+      'key': random.key(2),
+      'distribution_shape': (20,),
+      'sample_shape': (4, 25, 9),
+    },
   )
-  def test_halton_uniform(self, key: PRNGKey, distribution_shape: Sequence[int], sample_shape: Sequence[int]):
+  def test_halton_uniform(
+    self,
+    key: PRNGKey,
+    distribution_shape: Sequence[int],
+    sample_shape: Sequence[int],
+  ):
     key1, key2, key3 = random.split(key, 3)
 
     a = random.uniform(key1, distribution_shape)

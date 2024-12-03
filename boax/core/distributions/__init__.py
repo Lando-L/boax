@@ -19,6 +19,5 @@ from . import gamma as gamma
 from . import multivariate_normal as multivariate_normal
 from . import normal as normal
 from . import poisson as poisson
+from . import transformations as transformations
 from . import uniform as uniform
-from .transformed import mvn_to_norm as mvn_to_norm
-from .transformed import norm_to_mvn as norm_to_mvn
