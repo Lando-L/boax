@@ -36,7 +36,7 @@ class NextFn(Generic[T], Protocol):
   """
   A callable for running a single optimization step.
   """
-  
+
   def __call__(
     self,
     step: Step[T] | None = None,
@@ -58,6 +58,7 @@ class BestFn(Generic[T], Protocol):
   """
   A callable predicting the currenlty best parameterization.
   """
+
   def __call__(self, step: Step[T]) -> tuple[dict[str, Any], float]:
     """
     Returns the best predicted parameterization and its predicted value.

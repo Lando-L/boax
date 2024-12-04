@@ -123,7 +123,7 @@ def optimization(
     optimization_num_samples: Number of samples to consider during acquisiton functionn optimization.
     improvement_factor: Hyperparamter for probability of improvement and expected improvement optimization.
     confidence: Hyperparamter for upper confidence bound optimization.
-  
+
   Returns:
     A trail object with next and best functions.
   """
