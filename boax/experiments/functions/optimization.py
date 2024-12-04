@@ -107,7 +107,7 @@ def probability_of_improvement(
       )
 
       optimizer = optimizers.batch(
-        optimizers.initializers.q_batch_nonnegative(
+        optimizers.initializers.q_batch(
           acqf, candidates, optimization_num_restarts
         ),
         optimizers.solvers.scipy(acqf, bounds),
@@ -232,7 +232,7 @@ def expected_improvement(
       )
 
       optimizer = optimizers.batch(
-        optimizers.initializers.q_batch_nonnegative(
+        optimizers.initializers.q_batch(
           acqf, candidates, optimization_num_restarts
         ),
         optimizers.solvers.scipy(acqf, bounds),
