@@ -19,3 +19,4 @@ import chex
 Array = chex.Array
 Numeric = chex.Numeric
 PRNGKey = chex.PRNGKey
+Shape = chex.Shape

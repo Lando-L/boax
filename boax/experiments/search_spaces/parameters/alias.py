@@ -32,19 +32,6 @@ class Choice(NamedTuple, Generic[T]):
   values: list[T]
 
 
-class Fixed(NamedTuple, Generic[T]):
-  """
-  A tuple describing a fixed parameter.
-
-  Attributes:
-    name: A name describing the parameter.
-    values: The value this parameter takes.
-  """
-
-  name: str
-  value: T
-
-
 class LogRange(NamedTuple):
   """
   A tuple describing a logaritmhic range parameter.
@@ -71,4 +58,4 @@ class Range(NamedTuple):
   bounds: tuple[float, float]
 
 
-Parameter = Choice[T] | Fixed[T] | LogRange | Range
+Parameter = Choice[T] | LogRange | Range

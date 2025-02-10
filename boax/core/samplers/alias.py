@@ -14,129 +14,216 @@
 
 """Alias for sampling functions."""
 
-from functools import partial
+import math
 
-from jax import lax
 from jax import numpy as jnp
+from jax import random
 
 from boax.core import distributions
+from boax.core.distributions.multivariate_normal import MultivariateNormal
 from boax.core.distributions.normal import Normal
 from boax.core.distributions.uniform import Uniform
 from boax.core.samplers import functions
 from boax.core.samplers.base import Sampler
-from boax.utils.functools import compose
+from boax.utils.typing import Array, PRNGKey, Shape
 
 
-def uniform(
-  uniform: Uniform = Uniform(jnp.zeros((1,)), jnp.ones((1,))),
-) -> Sampler:
+def uniform(key: PRNGKey, sample_shape: Shape) -> Sampler[Uniform]:
   """
   The i.i.d. uniform sampler.
 
   Example:
-    >>> sampler = uniform()
-    >>> base_samples =  sampler(key, (128,))
+    >>> sampler = uniform(key, (128,))
+    >>> samples = sampler(Uniform(0, 1))
 
   Args:
-    uniform: The base uniform distribution.
+    key: The pseudo-random number genererator key.
+    sample_shape: The sample shape.
 
   Returns:
     The corresponding `Sampler`.
   """
 
-  out_shape = lax.broadcast_shapes(uniform.a.shape, uniform.b.shape)
+  def sample(uniform: Uniform) -> Array:
+    batch_shape = uniform.a.shape[:-1]
+    event_shape = jnp.broadcast_shapes(uniform.a.shape[-1], uniform.b.shape[-1])
+    base_samples = random.uniform(key, sample_shape + batch_shape + event_shape)
 
-  return compose(
-    partial(partial, distributions.uniform.sample)(uniform),
-    partial(functions.iid.uniform, ndims=out_shape[0]),
-  )
+    return distributions.uniform.sample(uniform, base_samples)
+
+  return sample
 
 
-def normal(
-  normal: Normal = Normal(jnp.zeros((1,)), jnp.ones((1,))),
-) -> Sampler:
+def normal(key: PRNGKey, sample_shape: Shape) -> Sampler[Normal]:
   """
   The i.i.d. normal sampler.
 
   Example:
-    >>> sampler = normal()
-    >>> base_samples = sampler(key, (128,))
+    >>> sampler = normal(key, (128,))
+    >>> samples = sampler(Normal(0, 1))
 
   Args:
-    normal: The base normal distribution.
+    key: The pseudo-random number genererator key.
+    sample_shape: The sample shape.
 
   Returns:
     The corresponding `Sampler`.
   """
 
-  out_shape = lax.broadcast_shapes(normal.loc.shape, normal.scale.shape)
+  def sample(normal: Normal) -> Array:
+    batch_shape = normal.loc.shape[:-1]
+    event_shape = jnp.broadcast_shapes(
+      normal.loc.shape[-1], normal.scale.shape[-1]
+    )
+    base_samples = random.normal(key, sample_shape + batch_shape + event_shape)
 
-  return compose(
-    partial(partial, distributions.normal.sample)(normal),
-    partial(functions.iid.normal, ndims=out_shape[0]),
-  )
+    return distributions.normal.sample(normal, base_samples)
+
+  return sample
 
 
-def halton_uniform(
-  uniform: Uniform = Uniform(jnp.zeros((1,)), jnp.ones((1,))),
-) -> Sampler:
+def multivariate_normal(
+  key: PRNGKey, sample_shape: Shape
+) -> Sampler[MultivariateNormal]:
+  """
+  The i.i.d. multivariate normal sampler.
+
+  Example:
+    >>> sampler = multivariate_normal(key, (128,))
+    >>> samples = sampler(MultivariateNormal(jnp.zeros((1,)), jnp.identity(1)))
+
+  Args:
+    key: The pseudo-random number genererator key.
+    sample_shape: The sample shape.
+
+  Returns:
+    The corresponding `Sampler`.
+  """
+
+  def sample(mvn: MultivariateNormal) -> Array:
+    batch_shape = mvn.mean.shape[:-1]
+    event_shape = jnp.broadcast_shapes(mvn.mean.shape[-1], mvn.cov.shape[-2])
+    base_samples = random.normal(key, sample_shape + batch_shape + event_shape)
+
+    return distributions.multivariate_normal.sample(mvn, base_samples)
+
+  return sample
+
+
+def halton_uniform(key: PRNGKey, sample_shape: Shape) -> Sampler[Uniform]:
   """
   The quasi-MC uniform sampler based on halton sequences.
 
   Example:
-    >>> sampler = halton_uniform()
-    >>> base_samples = sampler(key, (128,))
+    >>> sampler = halton_uniform(key, (128,))
+    >>> samples = sampler(Uniform(0, 1))
 
   Args:
-    uniform: The base uniform distribution.
+    key: The pseudo-random number genererator key.
+    sample_shape: The sample shape.
 
   Returns:
     The corresponding `Sampler`.
   """
 
-  out_shape = lax.broadcast_shapes(uniform.a.shape, uniform.b.shape)
+  def sample(uniform: Uniform) -> Array:
+    batch_shape = uniform.a.shape[:-1]
+    event_shape = jnp.broadcast_shapes(uniform.a.shape[-1], uniform.b.shape[-1])
+    out_shape = batch_shape + event_shape
+    ndims = math.prod(out_shape)
 
-  if out_shape[0] < 1 or out_shape[0] > functions.quasi_random.MAX_DIMENSION:
-    raise ValueError(
-      'Dimension must be between 1 and {}. Supplied {}'.format(
-        functions.quasi_random.MAX_DIMENSION, out_shape[0]
+    if ndims < 1 or ndims > functions.quasi_random.MAX_DIMENSION:
+      raise ValueError(
+        'Dimension must be between 1 and {}. Supplied {}'.format(
+          functions.quasi_random.MAX_DIMENSION, ndims
+        )
       )
+
+    base_samples = functions.quasi_random.halton_sequence(
+      key, sample_shape, ndims
     )
+    reshaped = jnp.reshape(base_samples, sample_shape + out_shape)
 
-  return compose(
-    partial(partial, distributions.uniform.sample)(uniform),
-    partial(functions.quasi_random.halton_sequence, ndims=out_shape[0]),
-  )
+    return distributions.uniform.sample(uniform, reshaped)
+
+  return sample
 
 
-def halton_normal(
-  normal: Normal = Normal(jnp.zeros((1,)), jnp.ones((1,))),
-) -> Sampler:
+def halton_normal(key: PRNGKey, sample_shape: Shape) -> Sampler[Normal]:
   """
   The quasi-MC normal sampler based on halton sequences.
 
   Example:
-    >>> sampler = halton_normal()
-    >>> base_samples = sampler(key, 128)
+    >>> sampler = halton_normal(key, (128,))
+    >>> samples = sampler(Normal(0, 1))
 
   Args:
-    normal: The base normal distribution.
+    key: The pseudo-random number genererator key.
+    sample_shape: The sample shape.
 
   Returns:
     The corresponding `Sampler`.
   """
 
-  out_shape = lax.broadcast_shapes(normal.loc.shape, normal.scale.shape)
+  def sample(normal: Normal) -> Array:
+    out_shape = jnp.broadcast_shapes(normal.loc.shape, normal.scale.shape)
+    ndims = math.prod(out_shape)
 
-  if out_shape[0] < 1 or out_shape[0] > functions.quasi_random.MAX_DIMENSION:
-    raise ValueError(
-      'Dimension must be between 1 and {}. Supplied {}'.format(
-        functions.quasi_random.MAX_DIMENSION, out_shape[0]
+    if ndims < 1 or ndims > functions.quasi_random.MAX_DIMENSION:
+      raise ValueError(
+        'Dimension must be between 1 and {}. Supplied {}'.format(
+          functions.quasi_random.MAX_DIMENSION, ndims
+        )
       )
-    )
 
-  return compose(
-    partial(partial, distributions.normal.sample)(normal),
-    functions.utils.ratio_of_uniforms,
-    partial(functions.quasi_random.halton_sequence, ndims=out_shape[0]),
-  )
+    base_samples = functions.quasi_random.halton_sequence(
+      key, sample_shape, ndims
+    )
+    normal_samples = functions.utils.ratio_of_uniforms(base_samples)
+    reshaped = jnp.reshape(normal_samples, sample_shape + out_shape)
+
+    return distributions.normal.sample(normal, reshaped)
+
+  return sample
+
+
+def halton_multivariate_normal(
+  key: PRNGKey, sample_shape: Shape
+) -> Sampler[MultivariateNormal]:
+  """
+  The quasi-MC multivariate normal sampler based on halton sequences.
+
+  Example:
+    >>> sampler = halton_multivariate_normal(key, (128,))
+    >>> samples = sampler(MultivariateNormal(jnp.zeros((1,)), jnp.identity(1)))
+
+  Args:
+    key: The pseudo-random number genererator key.
+    sample_shape: The sample shape.
+
+  Returns:
+    The corresponding `Sampler`.
+  """
+
+  def sample(mvn: MultivariateNormal) -> Array:
+    batch_shape = mvn.mean.shape[:-1]
+    event_shape = jnp.broadcast_shapes(mvn.mean.shape[-1], mvn.cov.shape[-2])
+    out_shape = batch_shape + event_shape
+    ndims = math.prod(out_shape)
+
+    if ndims < 1 or ndims > functions.quasi_random.MAX_DIMENSION:
+      raise ValueError(
+        'Dimension must be between 1 and {}. Supplied {}'.format(
+          functions.quasi_random.MAX_DIMENSION, ndims
+        )
+      )
+
+    base_samples = functions.quasi_random.halton_sequence(
+      key, sample_shape, ndims
+    )
+    normal_samples = functions.utils.ratio_of_uniforms(base_samples)
+    reshaped = jnp.reshape(normal_samples, sample_shape + out_shape)
+
+    return distributions.multivariate_normal.sample(mvn, reshaped)
+
+  return sample

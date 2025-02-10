@@ -20,7 +20,6 @@ from jax import numpy as jnp
 
 from boax.experiments.search_spaces.parameters.alias import (
   Choice,
-  Fixed,
   LogRange,
   Parameter,
   Range,
@@ -33,7 +32,6 @@ def from_dict(parameter: dict) -> Parameter | None:
 
   Example:
     >>> from_dict({'name': 'colours', 'type': 'choice', 'values': ['red', 'green', 'blue']})
-    >>> from_dict({'name': 'kernel', 'type': 'fixed', 'value': 'rbf'})
     >>> from_dict({'name': 'learning_rate', 'type': 'log_range', 'bounds': [1e-4, 1e-3]})
     >>> from_dict({'name': 'click_rate', 'type': 'range', 'bounds': [0, 1]})
 
@@ -50,9 +48,6 @@ def from_dict(parameter: dict) -> Parameter | None:
 
     case 'choice' if 'name' in parameter and 'values' in parameter:
       return Choice(parameter['name'], parameter['values'])
-
-    case 'fixed' if 'name' in parameter and 'value' in parameter:
-      return Fixed(parameter['name'], parameter['value'])
 
     case 'log_range' if 'name' in parameter and 'bounds' in parameter:
       return LogRange(parameter['name'], parameter['bounds'])
@@ -76,15 +71,10 @@ def from_parameterization(
   """
 
   match parameter:
-    case Choice(name, values) if name in parameterization and parameterization[
-      name
-    ] in values:
+    case Choice(name, values) if (
+      name in parameterization and parameterization[name] in values
+    ):
       return parameterization[name]
-
-    case Fixed(name, value) if name in parameterization and parameterization[
-      name
-    ] == value:
-      return value
 
     case LogRange(name, bounds) if name in parameterization:
       return jnp.log(jnp.clip(parameterization[name], bounds[0], bounds[1]))
@@ -112,9 +102,6 @@ def to_parameterization(
 
   match parameter:
     case Choice(name, values) if raw in values:
-      return name, raw
-
-    case Fixed(name, value) if raw == value:
       return name, raw
 
     case LogRange(name, bounds):

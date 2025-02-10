@@ -1,16 +1,13 @@
 [project]
 name = "boax"
-requires-python = ">=3.11"
 description = "Boax is a Bayesian Optimization library for JAX."
-keywords = []
-authors = []
-dependencies = [
-    "numpy>=1.26.2",
-    "jax>=0.4.20",
-    "jaxlib>=0.4.20",
-    "chex>=0.1.84",
-    "optax>=0.1.7",
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Lando Löper", email = "hello.lando@icloud.com" },
 ]
+keywords = []
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -20,34 +17,42 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-dynamic = ["version", "readme"]
-
-[project.optional-dependencies]
-docs = [
-    "ipython>=8.18.1",
-    "matplotlib>=3.8.2",
-    "myst-nb>=1.0.0",
-    "scikit-learn>=1.5.2",
-    "sphinx>=6.2.1",
-    "sphinx-autodoc-typehints>=1.23.0",
-    "sphinx-book-theme>=1.1.2",
+dependencies = [
+    "numpy (>=2.2.2,<3.0.0)",
+    "jax (<=0.4.38)",
+    "chex (>=0.1.88,<0.2.0)",
+    "optax (>=0.2.4,<0.3.0)",
 ]
-
-tests = [
-    "absl-py>=2.0.0",
-    "pytest>=7.4.3",
-    "pytest-cov>=4.1.0",
-]
+dynamic = ["version"]
 
 [project.urls]
 homepage = "https://github.com/Lando-L/boax"
 
-[tool.setuptools.dynamic]
-readme = {file = ["README.md"], content-type = "text/markdown"}
-version = {attr = "boax.version.__version__"}
+[tool.poetry]
+version = "0.0.0"
 
-[tool.setuptools.packages.find]
-include = ["boax*"]
+[tool.poetry.requires-plugins]
+poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.9.6"
+
+[tool.poetry.group.tests.dependencies]
+absl-py = "^2.1.0"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+
+
+[tool.poetry.group.docs.dependencies]
+jupyter = "^1.1.1"
+matplotlib = "^3.10.0"
+myst-nb = "^1.2.0"
+scikit-learn = "^1.6.1"
+sphinx = "^8.1.3"
+sphinx-autodoc-typehints = "^3.0.1"
+
+[tool.poetry-dynamic-versioning]
+enable = true
 
 [tool.ruff]
 line-length = 80
@@ -62,3 +67,7 @@ unfixable = []
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "single"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"

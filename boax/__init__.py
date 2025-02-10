@@ -14,6 +14,8 @@
 
 """The boax API."""
 
+from . import acquisitions as acquisitions
 from . import core as core
 from . import experiments as experiments
+from . import policies as policies
 from . import utils as utils

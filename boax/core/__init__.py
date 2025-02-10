@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The core module."""
+"""The samplers sub-package."""
 
 from . import distributions as distributions
-from . import optimization as optimization
-from . import prediction as prediction
+from . import models as models
+from . import objectives as objectives
+from . import optimizers as optimizers
 from . import samplers as samplers

@@ -14,27 +14,27 @@
 
 """Base interface for samplers."""
 
-from typing import Protocol, Sequence
+from typing import Generic, Protocol, TypeVar
 
-from boax.utils.typing import Array, PRNGKey
+from boax.utils.typing import Array
+
+T = TypeVar('T')
 
 
-class Sampler(Protocol):
+class Sampler(Protocol, Generic[T]):
   """
   A callable type for sampling functions.
 
-  A sampler takes a PRNG key and a number of results as input
-  and returns `num_results` samples.
+  A sampler takes a distribution as its input and samples from it.
   """
 
-  def __call__(self, key: PRNGKey, shape: Sequence[int]) -> Array:
+  def __call__(self, distribution: T) -> Array:
     """
-    Draws `num_results` of samples.
+    Draws samples from the given distribution.
 
     Args:
-      key: The pseudo-random number generator key.
-      shape: The sample shape.
+      distribution: The distribution to be sampled from.
 
     Returns:
-      A set of `num_results` samples.
+      A set of samples.
     """
