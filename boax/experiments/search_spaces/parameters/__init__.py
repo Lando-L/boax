@@ -15,7 +15,6 @@
 """The experiments sub-package."""
 
 from .alias import Choice as Choice
-from .alias import Fixed as Fixed
 from .alias import LogRange as LogRange
 from .alias import Parameter as Parameter
 from .alias import Range as Range

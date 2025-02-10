@@ -16,7 +16,6 @@ class SearchSpacesTest(parameterized.TestCase):
       'choice_parameters': [
         {'type': 'choice', 'name': 'variants', 'values': [1, 2, 3]},
       ],
-      'fixed_parameters': [{'type': 'fixed', 'name': 'seed', 'value': 42}],
       'range_parameters': [
         {'type': 'log_range', 'name': 'learning_rate', 'bounds': [1e-4, 1e-3]},
         {'type': 'range', 'name': 'x', 'bounds': [-1, 1]},
@@ -26,18 +25,16 @@ class SearchSpacesTest(parameterized.TestCase):
       'choice_parameters': [
         {'type': 'choice', 'name': 'variants', 'values': [1, 2, 3]},
       ],
-      'fixed_parameters': [{'type': 'fixed', 'name': 'seed', 'value': 42}],
       'range_parameters': [],
     },
   )
   def test_from_dicts_successfully_parses_valid_parameters(
     self,
     choice_parameters: list[dict],
-    fixed_parameters: list[dict],
     range_parameters: list[dict],
   ):
     search_space = search_spaces.from_dicts(
-      choice_parameters + fixed_parameters + range_parameters
+      choice_parameters + range_parameters
     )
 
     for parameter, expected in zip(
@@ -45,12 +42,6 @@ class SearchSpacesTest(parameterized.TestCase):
     ):
       self.assertEqual(parameter.name, expected['name'])
       self.assertEqual(parameter.values, expected['values'])
-
-    for parameter, expected in zip(
-      search_space.fixed_parameters, fixed_parameters
-    ):
-      self.assertEqual(parameter.name, expected['name'])
-      self.assertEqual(parameter.value, expected['value'])
 
     for parameter, expected in zip(
       search_space.range_parameters, range_parameters
@@ -63,7 +54,6 @@ class SearchSpacesTest(parameterized.TestCase):
       'choice_parameters': [
         {'type': 'choice', 'name': 'variants', 'values': [1, 2, 3]},
       ],
-      'fixed_parameters': [{'type': 'fixed', 'name': 'seed', 'value': 42}],
       'range_parameters': [
         {'type': 'other', 'name': 'error'},
       ],
@@ -72,13 +62,10 @@ class SearchSpacesTest(parameterized.TestCase):
   def test_from_dicts_rejects_invalid_parameters(
     self,
     choice_parameters: list[dict],
-    fixed_parameters: list[dict],
     range_parameters: list[dict],
   ):
     self.assertIsNone(
-      search_spaces.from_dicts(
-        choice_parameters + fixed_parameters + range_parameters
-      )
+      search_spaces.from_dicts(choice_parameters + range_parameters)
     )
 
   @parameterized.parameters(
@@ -92,7 +79,7 @@ class SearchSpacesTest(parameterized.TestCase):
   def test_get_bounds_successfully_retrieves_range_bounds(
     self, bounds: list[float]
   ):
-    search_space = SearchSpace([], [], [Range('x', bounds)])
+    search_space = SearchSpace([], [Range('x', bounds)])
 
     lower_bound, uppder_bound = list(search_spaces.get_bounds(search_space))[0]
 
@@ -110,7 +97,7 @@ class SearchSpacesTest(parameterized.TestCase):
   def test_get_bounds_successfully_retrieves_log_range_bounds(
     self, bounds: list[float]
   ):
-    search_space = SearchSpace([], [], [LogRange('x', bounds)])
+    search_space = SearchSpace([], [LogRange('x', bounds)])
 
     lower_bound, uppder_bound = list(search_spaces.get_bounds(search_space))[0]
 
@@ -134,7 +121,7 @@ class SearchSpacesTest(parameterized.TestCase):
     self, variants: list[list[str]]
   ):
     search_space = SearchSpace(
-      [], [Choice(str(idx), values) for idx, values in enumerate(variants)], []
+      [Choice(str(idx), values) for idx, values in enumerate(variants)], []
     )
 
     results = list(search_spaces.get_variants(search_space))

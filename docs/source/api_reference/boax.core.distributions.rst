@@ -111,15 +111,3 @@ Uniform Distribution
   uniform
   pdf
   logpdf
-
-
-Transformed Distributions
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. currentmodule:: boax.core.distributions.transformations
-
-.. autosummary::
-  :toctree: generated
-
-  norm_to_mvn
-  mvn_to_norm

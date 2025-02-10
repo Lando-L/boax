@@ -17,14 +17,13 @@
 import math
 from collections.abc import Iterator
 from functools import partial
-from itertools import product, starmap
+from itertools import product
 from operator import is_not
 from typing import Any
 
 from boax.experiments.search_spaces.base import SearchSpace
 from boax.experiments.search_spaces.parameters import (
   Choice,
-  Fixed,
   LogRange,
   Parameter,
   Range,
@@ -47,7 +46,6 @@ def from_dicts(search_space: list[dict]) -> SearchSpace | None:
   """
 
   choice_parameters = []
-  fixed_parameters = []
   range_parameters = []
 
   for parameter in search_space:
@@ -58,16 +56,13 @@ def from_dicts(search_space: list[dict]) -> SearchSpace | None:
       case Choice(name, values):
         choice_parameters.append(Choice(name, values))
 
-      case Fixed(name, value):
-        fixed_parameters.append(Fixed(name, value))
-
       case LogRange(name, bounds):
         range_parameters.append(LogRange(name, bounds))
 
       case Range(name, bounds):
         range_parameters.append(Range(name, bounds))
 
-  return SearchSpace(fixed_parameters, choice_parameters, range_parameters)
+  return SearchSpace(choice_parameters, range_parameters)
 
 
 def get_bounds(search_space: SearchSpace) -> Iterator[tuple[float, float]]:
@@ -149,9 +144,6 @@ def to_parameterizations(
   return dict(
     filter(
       partial(is_not, None),
-      starmap(
-        to_parameterization,
-        zip(parameters, raw),
-      ),
+      map(to_parameterization, parameters, raw),
     )
   )

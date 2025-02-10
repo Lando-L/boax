@@ -14,6 +14,5 @@
 
 """The sampler functions sub-package."""
 
-from . import iid as iid
 from . import quasi_random as quasi_random
 from . import utils as utils

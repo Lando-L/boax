@@ -24,6 +24,8 @@ from jax import numpy as jnp
 from boax.utils.typing import Array, Numeric
 
 log2 = math.log(2)
+sqrt2 = math.sqrt(2)
+sqrt3 = math.sqrt(3)
 
 TAU = 1.0
 ALPHA = 2.0
@@ -85,7 +87,7 @@ def fatmax(
 ) -> Array:
   def max_fun(x: Array, *, axis, keepdims):
     return tau * jnp.log(
-      jnp.sum(_pareto(-x, tau, alpha=alpha), axis=axis, keepdims=keepdims)
+      jnp.sum(_pareto(-x / tau, alpha=alpha), axis=axis, keepdims=keepdims)
     )
 
   return _inf_max_helper(max_fun, x, axis=axis, keepdims=keepdims)

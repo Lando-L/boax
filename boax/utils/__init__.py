@@ -14,6 +14,5 @@
 
 """The optimization module."""
 
-from . import functools as functools
 from . import math as math
 from . import typing as typing

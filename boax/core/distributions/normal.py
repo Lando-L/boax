@@ -20,7 +20,7 @@ from typing import NamedTuple
 from jax import numpy as jnp
 from jax import scipy
 
-from boax.utils.typing import Array
+from boax.utils.typing import Array, Numeric
 
 sqrt2 = math.sqrt(2)
 
@@ -59,16 +59,30 @@ def sample(normal: Normal, base_samples: Array) -> Array:
 
   Args:
     normal: The normal distribution.
-    base_samples: The normal distributed base samples.
+    base_samples: Normal distributed `*sample_shape x *batch_shape x *event_shape`-dim base samples.
 
   Returns:
     The samples from the normal distribution.
   """
 
-  return normal.loc + base_samples * normal.scale
+  transposed_base_samples = jnp.transpose(
+    base_samples,
+    tuple(range(1, base_samples.ndim)) + (0,),
+  )
+
+  samples = (
+    transposed_base_samples * normal.scale[..., jnp.newaxis]
+    + normal.loc[..., jnp.newaxis]
+  )
+
+  transposed_samples = jnp.transpose(
+    samples, tuple(range(-1, base_samples.ndim - 1))
+  )
+
+  return transposed_samples
 
 
-def scale(normal: Normal, loc: Array, scale: Array) -> Normal:
+def scale(normal: Normal, loc: Numeric, scale: Numeric) -> Normal:
   """
   Scales a normal distribution.
 

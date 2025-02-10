@@ -18,7 +18,6 @@ from typing import NamedTuple
 
 from boax.experiments.search_spaces.parameters.alias import (
   Choice,
-  Fixed,
   LogRange,
   Range,
 )
@@ -29,11 +28,9 @@ class SearchSpace(NamedTuple):
   A tuple describing an experiment search space.
 
   Attributes:
-    fixed_parameters: A list of all fixed parameters in the search space.
     choice_parameters: A list of all choice parameters in the search space.
     range_parameters: A list of all range and log_range parameters in the search space.
   """
 
-  fixed_parameters: list[Fixed]
   choice_parameters: list[Choice]
   range_parameters: list[LogRange | Range]

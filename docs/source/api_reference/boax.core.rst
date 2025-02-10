@@ -7,6 +7,7 @@ Implements core functionalities.
   :maxdepth: 1
 
   boax.core.distributions
-  boax.core.optimization
-  boax.core.prediction
+  boax.core.models
+  boax.core.objectives
+  boax.core.optimizers
   boax.core.samplers

@@ -14,8 +14,10 @@
 
 """The samplers sub-package."""
 
+from .alias import halton_multivariate_normal as halton_multivariate_normal
 from .alias import halton_normal as halton_normal
 from .alias import halton_uniform as halton_uniform
+from .alias import multivariate_normal as multivariate_normal
 from .alias import normal as normal
 from .alias import uniform as uniform
 from .base import Sampler as Sampler
