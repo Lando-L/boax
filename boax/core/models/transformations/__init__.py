@@ -17,7 +17,7 @@
 from . import input as input
 from . import outcome as outcome
 from . import utils as utils
-from .alias import transformed as transformed
 from .alias import joined as joined
+from .alias import transformed as transformed
 from .base import InputTransformation as InputTransformation
 from .base import OutcomeTransformation as OutcomeTransformation
