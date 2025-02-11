@@ -20,20 +20,20 @@ It comes with high-level interfaces for:
   * Bayesian Optimization Setups
   * Bandit Optimization Setups
   * Search Spaces
-* **Benchmarks** (`boax.benchmark`):
-  * Benchmark Functions
 
 And with low-level interfaces for:
+* **Constructing acquisition functions** (`boax.acquisition`):
+  * Acquisition Functions
+  * Surrogate Models
+* **Constructing policy functions** (`boax.policies`):
+  * Policy Functions
+  * Believes
 * **Core capabilities** (`boax.core`):
   * Common Distributions
-  * Monte-Carlo Samplers
-* **Fitting a surrogate model to data** (`boax.core.prediction`):
-  * Model Functions
+  * Gaussian Process Models
   * Objective Functions
-* **Constructing and optimizing acquisition functions** (`boax.core.optimization`):
-  * Acquisition Functions 
-  * Optimizer Functions
-  * Policy Functions
+  * Quasi-Newton Optimizers
+  * Monte-Carlo Samplers
 
 ## Installation
 
@@ -79,9 +79,9 @@ For more details check out the [docs](https://boax.readthedocs.io/en/latest/).
 2. Setting up a bayesian optimization experiment.
 
 ```python
-  from boax.experiments import optimization
   from jax import config
   config.update("jax_enable_x64", True)
+  from boax.experiments import optimization
 
   experiment = optimization(
     parameters=[
@@ -132,10 +132,9 @@ To cite Boax please use the citation:
   author = {Lando L{\"o}per},
   title = {{B}oax: A Bayesian Optimization library for {JAX}},
   url = {https://github.com/Lando-L/boax},
-  version = {0.1.4},
+  version = {0.2.0},
   year = {2023},
 }
 ```
 
-In the above bibtex entry, the version number
-is intended to be that from [boax/version.py](https://github.com/Lando-L/boax/blob/main/boax/version.py), and the year corresponds to the project's open-source release.
+In the above bibtex entry, the version number is intended to be the latest, and the year corresponds to the project's open-source release.

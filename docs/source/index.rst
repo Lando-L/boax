@@ -16,27 +16,25 @@ It comes with high-level interfaces for:
   * Bandit Optimization Setups
   * Search Spaces
 
-* **Benchmarks** (`boax.benchmark`):
-
-  * Benchmark Functions
-
 And with low-level interfaces for:
+
+* **Constructing acquisition functions** (`boax.acquisition`):
+
+  * Acquisition Functions
+  * Surrogate Models
+
+* **Constructing policy functions** (`boax.policies`):
+  
+  * Policy Functions
+  * Believes
 
 * **Core capabilities** (`boax.core`):
 
   * Common Distributions
-  * Monte-Carlo Samplers
-
-* **Fitting a surrogate model to data** (`boax.core.prediction`):
-
-  * Model Functions
+  * Gaussian Process Models
   * Objective Functions
-
-* **Constructing and optimizing acquisition functions** (`boax.core.optimization`):
-  
-  * Acquisition Functions 
-  * Optimizer Functions
-  * Policy Functions
+  * Quasi-Newton Optimizers
+  * Monte-Carlo Samplers
 
 ----
 
