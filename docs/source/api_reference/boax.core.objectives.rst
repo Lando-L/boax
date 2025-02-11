@@ -1,5 +1,5 @@
 ``boax.core.objectives`` module
-===========================
+===============================
 
 .. currentmodule:: boax.core.objectives
 
