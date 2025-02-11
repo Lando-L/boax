@@ -10,7 +10,7 @@ build:
       - poetry install --with docs
     build:
       html:
-        - poetry run sphinx-build -M html "docs/source" "$READTHEDOCS_OUTPUT/html"    
+        - poetry run python -m sphinx -T -b html -d _build/doctrees -D language=en . $READTHEDOCS_OUTPUT/html
 
 sphinx:
   configuration: docs/source/conf.py
